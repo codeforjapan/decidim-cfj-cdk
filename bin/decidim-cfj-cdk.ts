@@ -1,21 +1,44 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { DecidimCfjCdkStack } from '../lib/decidim-cfj-cdk-stack';
+import { Config, getConfig } from "../lib/config";
+import { S3Stack } from "../lib/s3-stack";
+import { NetworkStack } from "../lib/network";
+import { RdsStack } from "../lib/rds-stack";
 
 const app = new cdk.App();
-new DecidimCfjCdkStack(app, 'DecidimCfjCdkStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+const stages = ['dev', 'stg', 'prd']
+const stage = app.node.tryGetContext('stage')
+if (!stages.includes(stage)) {
+  throw new Error('set stage value using -c option')
+}
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
+const config: Config = getConfig(stage)
+const serviceName = `decidim`;
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-});
+const bucket = new S3Stack(app, `${stage}${serviceName}S3Stack`, {
+  stage,
+  serviceName,
+  bucketName: config.bucketName
+})
+
+const network = new NetworkStack(app, `${stage}${serviceName}NetworkStack`, {
+  stage,
+  serviceName,
+  vpc: config.vpc
+})
+
+const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
+  stage,
+  serviceName,
+  rdsName: config.rdsName,
+  postgresVersion: config.postgresVersion,
+  snapshot: config.snapshot,
+  snapshotIdentifier: config.snapshotIdentifier,
+  instanceType: config.instanceType,
+  vpc: network.vpc,
+  securityGroup: network.sgForRds,
+})
+
+rds.addDependency(network)
