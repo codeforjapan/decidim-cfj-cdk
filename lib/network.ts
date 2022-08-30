@@ -135,10 +135,8 @@ export class NetworkStack extends Stack {
       });
     });
 
-    return ec2.Vpc.fromVpcAttributes(this, "Vpc", {
-        vpcId: vpc.vpcId,
-        vpcCidrBlock: vpc.cidrBlock,
-        availabilityZones: this.availabilityZones,
+    return ec2.Vpc.fromLookup(this, "Vpc", {
+        vpcId: vpc.vpcId
       });
   }
 
