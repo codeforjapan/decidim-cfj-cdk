@@ -17,20 +17,28 @@ if (!stages.includes(stage)) {
 const config: Config = getConfig(stage)
 const serviceName = `decidim`;
 
+const env = {
+  account: config.aws.accountId,
+  region: config.aws.region
+}
+
 const bucket = new S3Stack(app, `${stage}${serviceName}S3Stack`, {
   stage,
+  env,
   serviceName,
   bucketName: config.bucketName
 })
 
 const network = new NetworkStack(app, `${stage}${serviceName}NetworkStack`, {
   stage,
+  env,
   serviceName,
   vpc: config.vpc
 })
 
 const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
   stage,
+  env,
   serviceName,
   rdsName: config.rdsName,
   postgresVersion: config.postgresVersion,

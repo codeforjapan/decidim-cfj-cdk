@@ -20,6 +20,7 @@ export interface Config {
 
   vpc?: VpcConfig;
   aws: {
+    accountId: string;
     region: string;
   };
 
