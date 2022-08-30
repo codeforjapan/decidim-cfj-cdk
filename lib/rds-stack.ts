@@ -23,7 +23,8 @@ export class RdsStack extends Stack {
     const rdsProps: DatabaseInstanceSourceProps = {
       engine: DatabaseInstanceEngine.postgres({ version: props.postgresVersion }),
       instanceType: props.instanceType,
-      databaseName: props.rdsName,
+      instanceIdentifier: props.rdsName,
+      databaseName: 'decidim',
       vpc: props.vpc,
       vpcSubnets: {
         subnets: props.vpc.isolatedSubnets
