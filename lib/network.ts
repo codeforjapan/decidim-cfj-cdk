@@ -57,10 +57,10 @@ export class NetworkStack extends Stack {
     // SG for Rds
     const sgForRds = new ec2.SecurityGroup(
       this,
-      `${props.stage}SecurityGroupForAurora`,
+      `${props.stage}SecurityGroupForRDS`,
       {
         vpc,
-        securityGroupName: `${props.stage}ForAurora`
+        securityGroupName: `${props.stage}ForRDS`
       }
     )
     sgForRds.addIngressRule(sgForDecidimService, ec2.Port.tcp(5432))
