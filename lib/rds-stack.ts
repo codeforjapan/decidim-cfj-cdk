@@ -1,16 +1,12 @@
-import { aws_ec2, aws_rds as rds, Stack } from "aws-cdk-lib";
+import { aws_ec2, aws_rds as rds, RemovalPolicy, Stack } from "aws-cdk-lib";
 
 import { Construct } from "constructs";
 import { BaseStackProps } from "./props";
-import { InstanceType } from "aws-cdk-lib/aws-ec2";
-import { DatabaseInstanceBase, DatabaseInstanceEngine, DatabaseInstanceProps, DatabaseInstanceSourceProps } from "aws-cdk-lib/aws-rds";
+import { DatabaseInstanceEngine, DatabaseInstanceSourceProps, StorageType } from "aws-cdk-lib/aws-rds";
+import { RdsConfig } from "./config";
 
 export interface RdsStackProps extends BaseStackProps {
-  rdsName: string
-  postgresVersion: rds.PostgresEngineVersion
-  snapshot: boolean
-  snapshotIdentifier: string
-  instanceType: InstanceType
+  rds: RdsConfig
   vpc: aws_ec2.IVpc
   securityGroup: aws_ec2.SecurityGroup
 }
@@ -19,24 +15,29 @@ export class RdsStack extends Stack {
   constructor(scope: Construct, id: string, props: RdsStackProps) {
     super(scope, id, props);
 
+    const config = props.rds;
 
     const rdsProps: DatabaseInstanceSourceProps = {
-      engine: DatabaseInstanceEngine.postgres({ version: props.postgresVersion }),
-      instanceType: props.instanceType,
-      databaseName: props.rdsName,
+      engine: DatabaseInstanceEngine.postgres({ version: config.postgresVersion }),
+      instanceType: config.instanceType,
+      instanceIdentifier: `${props.stage}-${props.serviceName}-postgresql`,
       vpc: props.vpc,
-      vpcSubnets: {
-        subnets: props.vpc.isolatedSubnets
-      },
-      securityGroups: [props.securityGroup]
+      securityGroups: [props.securityGroup],
+      multiAz: config.multiAz,
+      removalPolicy: RemovalPolicy.DESTROY,
+      deletionProtection: config.deletionProtection,
+      storageType: StorageType.GP2,
+      allocatedStorage: config.allocatedStorage,
+      autoMinorVersionUpgrade: true,
+      deleteAutomatedBackups: false,
     }
 
     // snapshotから復元するかどうか
-    if (props.snapshot) {
+    if (config.snapshot) {
       new rds.DatabaseInstanceFromSnapshot(this, 'restoreRds', {
         ...rdsProps,
         ...{
-          snapshotIdentifier: props.snapshotIdentifier,
+          snapshotIdentifier: config.snapshotIdentifier,
         }
       })
     } else {

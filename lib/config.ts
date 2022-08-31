@@ -15,6 +15,17 @@ export interface VpcConfig {
   privateSubnets: SubnetConfig[];
 }
 
+export interface RdsConfig {
+  rdsName: string
+  postgresVersion: PostgresEngineVersion
+  snapshot: boolean
+  snapshotIdentifier: string
+  instanceType: InstanceType
+  deletionProtection: boolean
+  allocatedStorage: number
+  multiAz: boolean
+}
+
 export interface Config {
   stage: string
 
@@ -29,11 +40,7 @@ export interface Config {
   versioned: boolean
 
   // rds
-  rdsName: string
-  postgresVersion: PostgresEngineVersion
-  snapshot: boolean
-  snapshotIdentifier: string
-  instanceType: InstanceType
+  rds: RdsConfig
 }
 
 export function getConfig (stage: string): Config {

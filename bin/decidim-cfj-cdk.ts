@@ -40,13 +40,9 @@ const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
   stage,
   env,
   serviceName,
-  rdsName: config.rdsName,
-  postgresVersion: config.postgresVersion,
-  snapshot: config.snapshot,
-  snapshotIdentifier: config.snapshotIdentifier,
-  instanceType: config.instanceType,
   vpc: network.vpc,
   securityGroup: network.sgForRds,
+  rds: config.rds
 })
 
 rds.addDependency(network)
