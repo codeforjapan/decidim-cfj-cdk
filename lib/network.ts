@@ -1,6 +1,12 @@
 import { VpcConfig } from "./config";
 import { BaseStackProps } from "./props";
-import { Stack, aws_ec2 as ec2, CfnOutput, aws_elasticache as elasticache } from "aws-cdk-lib";
+import {
+  Stack,
+  aws_ec2 as ec2,
+  CfnOutput,
+  aws_elasticache as elasticache,
+  aws_elasticloadbalancingv2 as elbv2, aws_s3,
+} from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
 
@@ -10,6 +16,8 @@ export interface NetworkStackProps extends BaseStackProps {
 
 export class NetworkStack extends Stack {
   public readonly vpc: ec2.IVpc;
+  public readonly loadBalancer: elbv2.ApplicationLoadBalancer
+
   public readonly sgForDecidimService: ec2.SecurityGroup
   public readonly sgForAlb: ec2.SecurityGroup
   public readonly sgForRds: ec2.SecurityGroup
@@ -30,9 +38,9 @@ export class NetworkStack extends Stack {
     this.vpc = vpc;
 
     // SG for ALB
-    const sgForAlb = new ec2.SecurityGroup(this, `${props.stage}SecurityGroupForAlb`, {
+    const sgForAlb = new ec2.SecurityGroup(this, `${ props.stage }SecurityGroupForAlb`, {
       vpc,
-      securityGroupName: `${props.stage}ForAlb`
+      securityGroupName: `${ props.stage }ForAlb`
     })
 
     const fromPeer: ec2.IPeer = ec2.Peer.anyIpv4() // Open to All
@@ -46,10 +54,10 @@ export class NetworkStack extends Stack {
     // SG for DecidimService
     const sgForDecidimService = new ec2.SecurityGroup(
       this,
-      `${props.stage}SecurityGroupForDecidimService`,
+      `${ props.stage }SecurityGroupForDecidimService`,
       {
         vpc,
-        securityGroupName: `${props.stage}ForDecidimService`
+        securityGroupName: `${ props.stage }ForDecidimService`
       }
     )
     sgForDecidimService.addIngressRule(sgForAlb, ec2.Port.tcp(80))
@@ -58,10 +66,10 @@ export class NetworkStack extends Stack {
     // SG for Rds
     const sgForRds = new ec2.SecurityGroup(
       this,
-      `${props.stage}SecurityGroupForRDS`,
+      `${ props.stage }SecurityGroupForRDS`,
       {
         vpc,
-        securityGroupName: `${props.stage}ForRDS`
+        securityGroupName: `${ props.stage }ForRDS`
       }
     )
     sgForRds.addIngressRule(sgForDecidimService, ec2.Port.tcp(5432))
@@ -73,24 +81,39 @@ export class NetworkStack extends Stack {
       publicSubnets.push(value.subnetId)
     });
 
-    this.ecSubnetGroup =  new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
+    this.ecSubnetGroup = new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
       description: 'Elasticache Subnet Group',
       subnetIds: publicSubnets,
-      cacheSubnetGroupName: `${props.stage}-${props.serviceName}-SubnetGroup`
+      cacheSubnetGroupName: `${ props.stage }-${ props.serviceName }-SubnetGroup`
     });
 
     // SG for ElasticCache
     const sgForCache = new ec2.SecurityGroup(
       this,
-      `${props.stage}SecurityGroupForElasticCache`,
+      `${ props.stage }SecurityGroupForElasticCache`,
       {
         vpc,
-        securityGroupName: `${props.stage}ForElasticCache`
+        securityGroupName: `${ props.stage }ForElasticCache`
       }
     )
     sgForCache.addIngressRule(sgForDecidimService, ec2.Port.tcp(6379))
     this.sgForCache = sgForCache
 
+    // ALB Definition
+    const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'Alb', {
+      vpc,
+      internetFacing: true,
+      http2Enabled: true,
+      loadBalancerName: `${props.stage}-Decidim-Alb`,
+      securityGroup: sgForAlb
+    })
+    this.loadBalancer = loadBalancer
+
+    // ALB Log
+    const logBucket = new aws_s3.Bucket(this, `${props.stage}AlbLogBucket`, {
+      bucketName: `${props.stage}-${props.serviceName}-alb-logs`
+    })
+    loadBalancer.logAccessLogs(logBucket)
   }
 
   /**
@@ -103,54 +126,54 @@ export class NetworkStack extends Stack {
 
     new CfnOutput(this, `VpcId`, {
       value: vpc.vpcId,
-      exportName: `${props.stage}${props.serviceName}VpcId`,
+      exportName: `${ props.stage }${ props.serviceName }VpcId`,
     });
 
     new CfnOutput(this, `VpcCidrBlock`, {
       value: vpc.cidrBlock,
-      exportName: `${props.stage}${props.serviceName}VpcCidrBlock`,
+      exportName: `${ props.stage }${ props.serviceName }VpcCidrBlock`,
     });
 
     vpc.availabilityZones.forEach((az, i) => {
-      new CfnOutput(this, `AvailabilityZone${i}`, {
+      new CfnOutput(this, `AvailabilityZone${ i }`, {
         value: az,
-        exportName: `${props.stage}${props.serviceName}AvailabilityZone${i}`,
+        exportName: `${ props.stage }${ props.serviceName }AvailabilityZone${ i }`,
       });
     });
 
     vpc.publicSubnets.forEach((s, i) => {
-      new CfnOutput(this, `PublicSubnetId${i}`, {
+      new CfnOutput(this, `PublicSubnetId${ i }`, {
         value: s.subnetId,
-        exportName: `${props.stage}${props.serviceName}PublicSubnetId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PublicSubnetId${ i }`,
       });
-      new CfnOutput(this, `PublicSubnetAz${i}`, {
+      new CfnOutput(this, `PublicSubnetAz${ i }`, {
         value: s.availabilityZone,
-        exportName: `${props.stage}${props.serviceName}PublicSubnetAz${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PublicSubnetAz${ i }`,
       });
-      new CfnOutput(this, `PublicSubnetRouteTableId${i}`, {
+      new CfnOutput(this, `PublicSubnetRouteTableId${ i }`, {
         value: s.routeTableId,
-        exportName: `${props.stage}${props.serviceName}PublicSubnetRouteTableId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PublicSubnetRouteTableId${ i }`,
       });
     });
 
     vpc.privateSubnets.forEach((s, i) => {
-      new CfnOutput(this, `PrivateSubnetId${i}`, {
+      new CfnOutput(this, `PrivateSubnetId${ i }`, {
         value: s.subnetId,
-        exportName: `${props.stage}${props.serviceName}PrivateSubnetId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PrivateSubnetId${ i }`,
       });
-      new CfnOutput(this, `PrivateSubnetAz${i}`, {
+      new CfnOutput(this, `PrivateSubnetAz${ i }`, {
         value: s.availabilityZone,
-        exportName: `${props.stage}${props.serviceName}PrivateSubnetAz${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PrivateSubnetAz${ i }`,
       });
-      new CfnOutput(this, `PrivateSubnetRouteTableId${i}`, {
+      new CfnOutput(this, `PrivateSubnetRouteTableId${ i }`, {
         value: s.routeTableId,
-        exportName: `${props.stage}${props.serviceName}PrivateSubnetRouteTableId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PrivateSubnetRouteTableId${ i }`,
       });
     });
 
     return ec2.Vpc.fromLookup(this, "Vpc", {
-        vpcId: vpc.vpcId
-      });
+      vpcId: vpc.vpcId
+    });
   }
 
   /**
@@ -161,7 +184,7 @@ export class NetworkStack extends Stack {
   private createVpc(props: NetworkStackProps): IVpc {
     const vpc = new ec2.Vpc(this, `Vpc`, {
       cidr: "10.0.0.0/16",
-      vpcName: `${props.stage}${props.serviceName}`,
+      vpcName: `${ props.stage }${ props.serviceName }`,
       natGateways: 1,
       subnetConfiguration: [
         {
@@ -179,48 +202,48 @@ export class NetworkStack extends Stack {
 
     new CfnOutput(this, `VpcId`, {
       value: vpc.vpcId,
-      exportName: `${props.stage}${props.serviceName}VpcId`,
+      exportName: `${ props.stage }${ props.serviceName }VpcId`,
     });
 
     new CfnOutput(this, `VpcCidrBlock`, {
       value: vpc.vpcCidrBlock,
-      exportName: `${props.stage}${props.serviceName}VpcCidrBlock`,
+      exportName: `${ props.stage }${ props.serviceName }VpcCidrBlock`,
     });
 
     vpc.availabilityZones.forEach((az, i) => {
-      new CfnOutput(this, `AvailabilityZone${i}`, {
+      new CfnOutput(this, `AvailabilityZone${ i }`, {
         value: az,
-        exportName: `${props.stage}${props.serviceName}AvailabilityZone${i}`,
+        exportName: `${ props.stage }${ props.serviceName }AvailabilityZone${ i }`,
       });
     });
 
     vpc.publicSubnets.forEach((s, i) => {
-      new CfnOutput(this, `PublicSubnetId${i}`, {
+      new CfnOutput(this, `PublicSubnetId${ i }`, {
         value: s.subnetId,
-        exportName: `${props.stage}${props.serviceName}PublicSubnetId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PublicSubnetId${ i }`,
       });
-      new CfnOutput(this, `PublicSubnetAz${i}`, {
+      new CfnOutput(this, `PublicSubnetAz${ i }`, {
         value: s.availabilityZone,
-        exportName: `${props.stage}${props.serviceName}PublicSubnetAz${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PublicSubnetAz${ i }`,
       });
-      new CfnOutput(this, `PublicSubnetRouteTableId${i}`, {
+      new CfnOutput(this, `PublicSubnetRouteTableId${ i }`, {
         value: s.routeTable.routeTableId,
-        exportName: `${props.stage}${props.serviceName}PublicSubnetRouteTableId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PublicSubnetRouteTableId${ i }`,
       });
     });
 
     vpc.privateSubnets.forEach((s, i) => {
-      new CfnOutput(this, `PrivateSubnetId${i}`, {
+      new CfnOutput(this, `PrivateSubnetId${ i }`, {
         value: s.subnetId,
-        exportName: `${props.stage}${props.serviceName}PrivateSubnetId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PrivateSubnetId${ i }`,
       });
-      new CfnOutput(this, `PrivateSubnetAz${i}`, {
+      new CfnOutput(this, `PrivateSubnetAz${ i }`, {
         value: s.availabilityZone,
-        exportName: `${props.stage}${props.serviceName}PrivateSubnetAz${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PrivateSubnetAz${ i }`,
       });
-      new CfnOutput(this, `PrivateSubnetRouteTableId${i}`, {
+      new CfnOutput(this, `PrivateSubnetRouteTableId${ i }`, {
         value: s.routeTable.routeTableId,
-        exportName: `${props.stage}${props.serviceName}PrivateSubnetRouteTableId${i}`,
+        exportName: `${ props.stage }${ props.serviceName }PrivateSubnetRouteTableId${ i }`,
       });
     });
 
