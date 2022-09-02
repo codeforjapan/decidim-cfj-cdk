@@ -5,6 +5,7 @@ import { Config, getConfig } from "../lib/config";
 import { S3Stack } from "../lib/s3-stack";
 import { NetworkStack } from "../lib/network";
 import { RdsStack } from "../lib/rds-stack";
+import { ElasticacheStack } from "../lib/elasticache-stack";
 
 const app = new cdk.App();
 
@@ -22,21 +23,21 @@ const env = {
   region: config.aws.region
 }
 
-const bucket = new S3Stack(app, `${stage}${serviceName}S3Stack`, {
+new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
   stage,
   env,
   serviceName,
   bucketName: config.bucketName
 })
 
-const network = new NetworkStack(app, `${stage}${serviceName}NetworkStack`, {
+const network = new NetworkStack(app, `${ stage }${ serviceName }NetworkStack`, {
   stage,
   env,
   serviceName,
   vpc: config.vpc
 })
 
-const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
+const rds = new RdsStack(app, `${ stage }${ serviceName }RdsStack`, {
   stage,
   env,
   serviceName,
@@ -46,3 +47,17 @@ const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
 })
 
 rds.addDependency(network)
+
+const elastiCache = new ElasticacheStack(app, `${ stage }${ serviceName }ElastiCacheStack`, {
+  stage,
+  env,
+  serviceName,
+  engineVersion: config.engineVersion,
+  cacheNodeType: config.cacheNodeType,
+  numCacheNodes: config.numCacheNodes,
+  automaticFailoverEnabled: config.automaticFailoverEnabled,
+  securityGroup: network.sgForCache.securityGroupId,
+  ecSubnetGroup: network.ecSubnetGroup
+})
+
+elastiCache.addDependency(network)

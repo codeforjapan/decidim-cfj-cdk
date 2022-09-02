@@ -1,6 +1,6 @@
 import { VpcConfig } from "./config";
 import { BaseStackProps } from "./props";
-import { Stack, aws_ec2 as ec2, CfnOutput } from "aws-cdk-lib";
+import { Stack, aws_ec2 as ec2, CfnOutput, aws_elasticache as elasticache } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
 
@@ -14,6 +14,7 @@ export class NetworkStack extends Stack {
   public readonly sgForAlb: ec2.SecurityGroup
   public readonly sgForRds: ec2.SecurityGroup
   public readonly sgForCache: ec2.SecurityGroup
+  public readonly ecSubnetGroup: elasticache.CfnSubnetGroup
 
 
   constructor(scope: Construct, id: string, props: NetworkStackProps) {
@@ -65,6 +66,18 @@ export class NetworkStack extends Stack {
     )
     sgForRds.addIngressRule(sgForDecidimService, ec2.Port.tcp(5432))
     this.sgForRds = sgForRds
+
+    let publicSubnets: string[] = []
+
+    vpc.publicSubnets.forEach((value) => {
+      publicSubnets.push(value.subnetId)
+    });
+
+    this.ecSubnetGroup =  new elasticache.CfnSubnetGroup(this, 'ElastiCacheSubnetGroup', {
+      description: 'Elasticache Subnet Group',
+      subnetIds: publicSubnets,
+      cacheSubnetGroupName: `${props.stage}-${props.serviceName}-SubnetGroup`
+    });
 
     // SG for ElasticCache
     const sgForCache = new ec2.SecurityGroup(

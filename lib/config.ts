@@ -16,7 +16,6 @@ export interface VpcConfig {
 }
 
 export interface RdsConfig {
-  rdsName: string
   postgresVersion: PostgresEngineVersion
   snapshot: boolean
   snapshotIdentifier: string
@@ -41,6 +40,12 @@ export interface Config {
 
   // rds
   rds: RdsConfig
+
+  // elastiCache
+  cacheNodeType: string
+  engineVersion: string
+  numCacheNodes: number
+  automaticFailoverEnabled: boolean
 }
 
 export function getConfig (stage: string): Config {

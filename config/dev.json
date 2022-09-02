@@ -3,7 +3,6 @@
   "versioned": false,
 
   "rds": {
-    "rdsName": "dev-rds-ohfaeghou4re",
     "postgresVersion": "12.8",
     "snapshot": true,
     "snapshotIdentifier": "decidim-master-2022-08-15",
@@ -15,5 +14,10 @@
   "aws": {
     "accountId": "887442827229",
     "region": "ap-northeast-1"
-  }
+  },
+
+  "cacheNodeType" : "cache.t2.micro",
+  "engineVersion" : "6.x",
+  "numCacheNodes" : 1,
+  "automaticFailoverEnabled": false
 }
