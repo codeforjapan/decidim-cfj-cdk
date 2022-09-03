@@ -112,7 +112,8 @@ export class NetworkStack extends Stack {
     // ALB Log
     const logBucket = new aws_s3.Bucket(this, `${props.stage}AlbLogBucket`, {
       bucketName: `${props.stage}-${props.serviceName}-alb-logs`,
-      removalPolicy: RemovalPolicy.DESTROY
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
     })
     loadBalancer.logAccessLogs(logBucket)
   }
