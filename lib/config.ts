@@ -46,6 +46,10 @@ export interface Config {
   engineVersion: string
   numCacheNodes: number
   automaticFailoverEnabled: boolean
+
+  // service
+  domain: string,
+  repository: string
 }
 
 export function getConfig (stage: string): Config {

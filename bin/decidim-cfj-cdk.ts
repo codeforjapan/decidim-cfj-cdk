@@ -6,6 +6,7 @@ import { S3Stack } from "../lib/s3-stack";
 import { NetworkStack } from "../lib/network";
 import { RdsStack } from "../lib/rds-stack";
 import { ElasticacheStack } from "../lib/elasticache-stack";
+import { DecidimStack } from "../lib/decidim-stack";
 
 const app = new cdk.App();
 
@@ -61,3 +62,19 @@ const elastiCache = new ElasticacheStack(app, `${ stage }${ serviceName }ElastiC
 })
 
 elastiCache.addDependency(network)
+
+const service = new DecidimStack(app, `${ stage }${ serviceName }DecidimStack`, {
+  stage,
+  env,
+  serviceName,
+  vpc: network.vpc,
+  loadBalancer: network.loadBalancer,
+  securityGroup: network.sgForDecidimService,
+  bucketName: config.bucketName,
+  domain: config.domain,
+  repository: config.repository,
+  rds: rds.rds.dbInstanceEndpointAddress,
+  cache: elastiCache.redis.attrReaderEndPointAddress
+})
+
+service.addDependency(network)

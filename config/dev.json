@@ -19,5 +19,8 @@
   "cacheNodeType" : "cache.t2.micro",
   "engineVersion" : "6.x",
   "numCacheNodes" : 1,
-  "automaticFailoverEnabled": false
+  "automaticFailoverEnabled": false,
+
+  "domain": "diycities.jp",
+  "repository": "887442827229.dkr.ecr.ap-northeast-1.amazonaws.com/decidim-cfj:testv0252-ab1c9b99"
 }

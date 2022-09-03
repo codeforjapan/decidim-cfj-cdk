@@ -3,11 +3,11 @@
 // import * as DecidimCfjCdk from '../lib/decidim-cfj-cdk-stack';
 
 // example test. To run these tests, uncomment this file along with the
-// example resource in lib/decidim-cfj-cdk-stack.ts
+// example resource in lib/decidim-stack.ts
 test('SQS Queue Created', () => {
 //   const app = new cdk.App();
 //     // WHEN
-//   const stack = new DecidimCfjCdk.DecidimCfjCdkStack(app, 'MyTestStack');
+//   const stack = new DecidimCfjCdk.DecidimStack(app, 'MyTestStack');
 //     // THEN
 //   const template = Template.fromStack(stack);
 
