@@ -2,7 +2,7 @@ import { aws_elasticache as elasticache, Stack } from "aws-cdk-lib";
 
 import { Construct } from "constructs";
 import { BaseStackProps } from "./props";
-import { CfnReplicationGroupProps } from "aws-cdk-lib/aws-elasticache";
+import { CfnReplicationGroup, CfnReplicationGroupProps } from "aws-cdk-lib/aws-elasticache";
 
 export interface ElastiCacheStackProps extends BaseStackProps {
   cacheNodeType: string
@@ -14,6 +14,8 @@ export interface ElastiCacheStackProps extends BaseStackProps {
 }
 
 export class ElasticacheStack extends Stack {
+  public readonly redis: CfnReplicationGroup;
+
   constructor(scope: Construct, id: string, props: ElastiCacheStackProps) {
     super(scope, id, props);
 
@@ -30,14 +32,14 @@ export class ElasticacheStack extends Stack {
     }
 
     if (props.stage === 'prd') {
-      new elasticache.CfnReplicationGroup(this, 'prdElasticache', {
+      this.redis = new elasticache.CfnReplicationGroup(this, 'prdElasticache', {
         ...elastiCacheProps,
         ...{
           multiAzEnabled: true,
         }
       })
     } else {
-      new elasticache.CfnReplicationGroup(this, 'elasticache', elastiCacheProps)
+      this.redis = new elasticache.CfnReplicationGroup(this, 'elasticache', elastiCacheProps)
     }
   }
 }
