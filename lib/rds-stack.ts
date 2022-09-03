@@ -2,7 +2,12 @@ import { aws_ec2, aws_rds as rds, RemovalPolicy, Stack } from "aws-cdk-lib";
 
 import { Construct } from "constructs";
 import { BaseStackProps } from "./props";
-import { DatabaseInstanceEngine, DatabaseInstanceSourceProps, StorageType } from "aws-cdk-lib/aws-rds";
+import {
+  DatabaseInstance,
+  DatabaseInstanceEngine,
+  DatabaseInstanceSourceProps,
+  StorageType
+} from "aws-cdk-lib/aws-rds";
 import { RdsConfig } from "./config";
 
 export interface RdsStackProps extends BaseStackProps {
@@ -12,6 +17,8 @@ export interface RdsStackProps extends BaseStackProps {
 }
 
 export class RdsStack extends Stack {
+  public readonly rds: DatabaseInstance;
+
   constructor(scope: Construct, id: string, props: RdsStackProps) {
     super(scope, id, props);
 
@@ -34,14 +41,14 @@ export class RdsStack extends Stack {
 
     // snapshotから復元するかどうか
     if (config.snapshot) {
-      new rds.DatabaseInstanceFromSnapshot(this, 'restoreRds', {
+      this.rds = new rds.DatabaseInstanceFromSnapshot(this, 'restoreRds', {
         ...rdsProps,
         ...{
           snapshotIdentifier: config.snapshotIdentifier,
         }
       })
     } else {
-      new rds.DatabaseInstance(this, 'createRds', rdsProps)
+      this.rds = new rds.DatabaseInstance(this, 'createRds', rdsProps)
     }
   }
 }
