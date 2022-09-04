@@ -25,6 +25,7 @@ export interface DecidimStackProps extends BaseStackProps {
   bucketName: string
   domain: string
   repository: string
+  tag: string
   rds: string
   cache: string
 }
@@ -71,12 +72,10 @@ export class DecidimStack extends cdk.Stack {
       DECIDIM_COMMENTS_LIMIT: "30",
     };
 
-    const decidimRepository = new aws_ecr.Repository(this, 'DecidimRepository', {
-      repositoryName: props.repository
-    })
+    const decidimRepository = aws_ecr.Repository.fromRepositoryName(this, 'DecidimRepository', props.repository)
 
     const container = taskDefinition.addContainer('appContainer', {
-      image: ecs.ContainerImage.fromEcrRepository(decidimRepository),
+      image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: DecidimContainerEnvironment,
       logging: ecs.LogDriver.awsLogs({
         logGroup: new logs.LogGroup(this, 'DecidimLogGroup', {

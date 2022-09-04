@@ -51,7 +51,8 @@ export interface Config {
   // service
   domain: string,
   repository: string
-  certificate: ListenerCertificate[]
+  tag: string
+  certificates: string[]
 }
 
 export function getConfig (stage: string): Config {
