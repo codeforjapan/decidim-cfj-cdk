@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import {
+  aws_certificatemanager,
   aws_ec2, aws_ecr,
   aws_ecs as ecs,
   aws_elasticloadbalancingv2 as elbv2,
@@ -15,7 +16,7 @@ import { ApplicationTargetGroup, ListenerCertificate } from "aws-cdk-lib/aws-ela
 
 export interface DecidimStackProps extends BaseStackProps {
   vpc: aws_ec2.IVpc
-  certificate: ListenerCertificate[]
+  certificates: string[]
   securityGroup: aws_ec2.SecurityGroup
   securityGroupForAlb: aws_ec2.SecurityGroup
   containerSpec?: {
@@ -167,11 +168,17 @@ export class DecidimStack extends cdk.Stack {
       defaultTargetGroups: [targetGroup]
     })
 
+    const certificates: ListenerCertificate[] = [];
+
+    props.certificates.forEach((certificate, i ) => {
+      certificates.push(aws_certificatemanager.Certificate.fromCertificateArn(this, `Certificate${i}`, certificate))
+    })
+
     loadBalancer.addListener('httpsListener', {
-      protocol: elbv2.ApplicationProtocol.HTTP,
+      protocol: elbv2.ApplicationProtocol.HTTPS,
       port: 443,
       defaultTargetGroups: [targetGroup],
-      certificates: props.certificate
+      certificates: certificates
     })
 
     // ALB Log
