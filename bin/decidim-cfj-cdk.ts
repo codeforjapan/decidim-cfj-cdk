@@ -35,7 +35,7 @@ const network = new NetworkStack(app, `${ stage }${ serviceName }NetworkStack`, 
   stage,
   env,
   serviceName,
-  vpc: config.vpc
+  vpc: config.vpc,
 })
 
 const rds = new RdsStack(app, `${ stage }${ serviceName }RdsStack`, {
@@ -68,13 +68,13 @@ const service = new DecidimStack(app, `${ stage }${ serviceName }DecidimStack`, 
   env,
   serviceName,
   vpc: network.vpc,
-  loadBalancer: network.loadBalancer,
+  certificate: config.certificate,
   securityGroup: network.sgForDecidimService,
+  securityGroupForAlb: network.sgForAlb,
   bucketName: config.bucketName,
   domain: config.domain,
   repository: config.repository,
   rds: rds.rds.dbInstanceEndpointAddress,
-  cache: elastiCache.redis.attrReaderEndPointAddress
+  cache: elastiCache.redis.attrReaderEndPointAddress,
 })
-
 service.addDependency(network)

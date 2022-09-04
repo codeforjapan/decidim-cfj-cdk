@@ -1,5 +1,6 @@
 import { InstanceType } from "aws-cdk-lib/aws-ec2";
 import { PostgresEngineVersion } from "aws-cdk-lib/aws-rds";
+import { ListenerCertificate } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
 export interface SubnetConfig {
   subnetId: string;
@@ -50,6 +51,7 @@ export interface Config {
   // service
   domain: string,
   repository: string
+  certificate: ListenerCertificate[]
 }
 
 export function getConfig (stage: string): Config {

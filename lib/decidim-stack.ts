@@ -1,9 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import {
-  aws_ec2,
+  aws_ec2, aws_ecr,
   aws_ecs as ecs,
   aws_elasticloadbalancingv2 as elbv2,
-  aws_logs as logs,
+  aws_logs as logs, aws_s3,
   aws_ssm as ssm,
   Duration,
   RemovalPolicy
@@ -11,16 +11,17 @@ import {
 import { Construct } from 'constructs';
 import { BaseStackProps } from "./props";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-
+import { ApplicationTargetGroup, ListenerCertificate } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
 export interface DecidimStackProps extends BaseStackProps {
-  vpc: aws_ec2.IVpc,
-  loadBalancer: elbv2.ApplicationLoadBalancer
+  vpc: aws_ec2.IVpc
+  certificate: ListenerCertificate[]
   securityGroup: aws_ec2.SecurityGroup
+  securityGroupForAlb: aws_ec2.SecurityGroup
   containerSpec?: {
     cpu: number;
     memoryLimitMiB: number;
-  };
+  }
   bucketName: string
   domain: string
   repository: string
@@ -70,8 +71,12 @@ export class DecidimStack extends cdk.Stack {
       DECIDIM_COMMENTS_LIMIT: "30",
     };
 
+    const decidimRepository = new aws_ecr.Repository(this, 'DecidimRepository', {
+      repositoryName: props.repository
+    })
+
     const container = taskDefinition.addContainer('appContainer', {
-      image: ecs.ContainerImage.fromRegistry(props.repository),
+      image: ecs.ContainerImage.fromEcrRepository(decidimRepository),
       environment: DecidimContainerEnvironment,
       logging: ecs.LogDriver.awsLogs({
         logGroup: new logs.LogGroup(this, 'DecidimLogGroup', {
@@ -134,39 +139,48 @@ export class DecidimStack extends cdk.Stack {
       maxCapacity: 5
     })
 
-    const http = props.loadBalancer.addListener('httpListener', {
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      port: 80
-    })
-    //
-    // const https = props.loadBalancer.addListener('httpsListener', {
-    //   protocol: elbv2.ApplicationProtocol.HTTPS,
-    //   port: 443
-    // })
 
-    const target = {
+    // ALB Definition
+    const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'Alb', {
+      vpc: props.vpc,
+      internetFacing: true,
+      http2Enabled: true,
+      loadBalancerName: `${ props.stage }-Decidim-Alb`,
+      securityGroup: props.securityGroupForAlb
+    })
+
+    const targetGroup = new ApplicationTargetGroup(this, 'TargetGroup', {
       protocol: elbv2.ApplicationProtocol.HTTP,
       port: 3000,
-      targets: [ecsService],
       healthCheck: {
         port: '3000',
         path: '/',
         protocol: elbv2.Protocol.HTTP
-      }
-    }
-
-    // Add Targate Group to ALB Listener
-    http.addTargets('DeicidimHttpTargetGroup', {
-      ...target, ...{
-        targetGroupName: `${ props.stage }-${ props.serviceName }-httpTargetGroup`,
-      }
+      },
+      targets: [ecsService],
+      targetGroupName: `${ props.stage }-${ props.serviceName }-TargetGroup`,
+      vpc: props.vpc
     })
 
-    // Add Targate Group to ALB Listener
-    // https.addTargets('DeicidimHttpsTargetGroup', {
-    //   ...target, ...{
-    //     targetGroupName: `${ props.stage }-${ props.serviceName }-httpsTargetGroup`,
-    //   }
-    // })
+    loadBalancer.addListener('httpListener', {
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      port: 80,
+      defaultTargetGroups: [targetGroup]
+    })
+
+    loadBalancer.addListener('httpsListener', {
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      port: 443,
+      defaultTargetGroups: [targetGroup],
+      certificates: props.certificate
+    })
+
+    // ALB Log
+    const logBucket = new aws_s3.Bucket(this, `${ props.stage }AlbLogBucket`, {
+      bucketName: `${ props.stage }-${ props.serviceName }-alb-logs`,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    })
+    loadBalancer.logAccessLogs(logBucket)
   }
 }

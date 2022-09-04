@@ -5,7 +5,6 @@ import {
   aws_ec2 as ec2,
   CfnOutput,
   aws_elasticache as elasticache,
-  aws_elasticloadbalancingv2 as elbv2, aws_s3, RemovalPolicy,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
@@ -16,7 +15,6 @@ export interface NetworkStackProps extends BaseStackProps {
 
 export class NetworkStack extends Stack {
   public readonly vpc: ec2.IVpc;
-  public readonly loadBalancer: elbv2.ApplicationLoadBalancer
 
   public readonly sgForDecidimService: ec2.SecurityGroup
   public readonly sgForAlb: ec2.SecurityGroup
@@ -98,24 +96,6 @@ export class NetworkStack extends Stack {
     )
     sgForCache.addIngressRule(sgForDecidimService, ec2.Port.tcp(6379))
     this.sgForCache = sgForCache
-
-    // ALB Definition
-    const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'Alb', {
-      vpc,
-      internetFacing: true,
-      http2Enabled: true,
-      loadBalancerName: `${props.stage}-Decidim-Alb`,
-      securityGroup: sgForAlb
-    })
-    this.loadBalancer = loadBalancer
-
-    // ALB Log
-    const logBucket = new aws_s3.Bucket(this, `${props.stage}AlbLogBucket`, {
-      bucketName: `${props.stage}-${props.serviceName}-alb-logs`,
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-    })
-    loadBalancer.logAccessLogs(logBucket)
   }
 
   /**
