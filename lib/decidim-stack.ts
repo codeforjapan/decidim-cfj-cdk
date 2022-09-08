@@ -155,7 +155,8 @@ export class DecidimStack extends cdk.Stack {
       healthCheck: {
         port: '3000',
         path: '/',
-        protocol: elbv2.Protocol.HTTP
+        protocol: elbv2.Protocol.HTTP,
+        healthyHttpCodes: '301',
       },
       targets: [ecsService],
       targetGroupName: `${ props.stage }-${ props.serviceName }-TargetGroup`,
