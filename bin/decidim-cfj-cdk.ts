@@ -27,8 +27,7 @@ const env = {
 new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
   stage,
   env,
-  serviceName,
-  bucketName: config.bucketName
+  serviceName
 })
 
 const network = new NetworkStack(app, `${ stage }${ serviceName }NetworkStack`, {
@@ -71,7 +70,6 @@ const service = new DecidimStack(app, `${ stage }${ serviceName }DecidimStack`, 
   certificates: config.certificates,
   securityGroup: network.sgForDecidimService,
   securityGroupForAlb: network.sgForAlb,
-  bucketName: config.bucketName,
   domain: config.domain,
   repository: config.repository,
   tag: config.tag,

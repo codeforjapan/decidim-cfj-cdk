@@ -23,7 +23,6 @@ export interface DecidimStackProps extends BaseStackProps {
     cpu: number;
     memoryLimitMiB: number;
   }
-  bucketName: string
   domain: string
   repository: string
   tag: string
@@ -69,7 +68,7 @@ export class DecidimStack extends cdk.Stack {
       SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/SMTP_USERNAME`),
       SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/SMTP_PASSWORD`),
       SMTP_DOMAIN: props.domain,
-      AWS_BUCKET_NAME: props.bucketName,
+      AWS_BUCKET_NAME: `${ props.stage }-${ props.serviceName }-bucket`,
       DECIDIM_COMMENTS_LIMIT: "30",
     };
 

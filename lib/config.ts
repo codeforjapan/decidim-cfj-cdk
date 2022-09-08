@@ -1,6 +1,5 @@
 import { InstanceType } from "aws-cdk-lib/aws-ec2";
 import { PostgresEngineVersion } from "aws-cdk-lib/aws-rds";
-import { ListenerCertificate } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
 export interface SubnetConfig {
   subnetId: string;
@@ -36,7 +35,6 @@ export interface Config {
   };
 
   // s3
-  bucketName: string
   versioned: boolean
 
   // rds
