@@ -13,7 +13,8 @@ export class S3Stack extends Stack {
     new aws_s3.Bucket(this, 'createBucket', {
       bucketName: props.bucketName,
       versioned: props.stage === "prd",
-      removalPolicy: RemovalPolicy.DESTROY
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
     });
 
   }

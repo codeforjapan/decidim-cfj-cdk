@@ -100,25 +100,28 @@ export class DecidimStack extends cdk.Stack {
       containerPort: 3000
     })
 
-    // taskDefinition.addContainer('sidekiqContainer', {
-    //   image: ecs.ContainerImage.fromRegistry(props.repository),
-    //   environment: DecidimContainerEnvironment,
-    //   logging: ecs.LogDriver.awsLogs({
-    //     logGroup: new logs.LogGroup(this, 'sidekiqLogGroup', {
-    //       logGroupName: `${ props.stage }-${ props.serviceName }-sidekiqLogGroup`,
-    //       removalPolicy: RemovalPolicy.DESTROY,
-    //       retention: RetentionDays.TWO_WEEKS
-    //     }),
-    //     streamPrefix: 'app'
-    //   }),
-    //   command: ['bundle exec sidekiq -C /app/config/sidekiq.yml'],
-    //   healthCheck: {
-    //     command: [
-    //       'CMD-SHELL',
-    //       `test -f sidekiq.pid`
-    //     ]
-    //   }
-    // })
+    taskDefinition.addContainer('sidekiqContainer', {
+      image: new ecs.EcrImage(decidimRepository, props.tag),
+      environment: DecidimContainerEnvironment,
+      logging: ecs.LogDriver.awsLogs({
+        logGroup: new logs.LogGroup(this, 'sidekiqLogGroup', {
+          logGroupName: `${ props.stage }-${ props.serviceName }-sidekiqLogGroup`,
+          removalPolicy: RemovalPolicy.DESTROY,
+          retention: RetentionDays.TWO_WEEKS
+        }),
+        streamPrefix: 'sidekiq'
+      }),
+      command: ['bundle', 'exec', 'sidekiq', '-C', '/app/config/sidekiq.yml'],
+      healthCheck: {
+        command: [
+          'CMD-SHELL',
+          `ps aux | grep '[s]idekiq'`
+        ],
+        retries: 3,
+        startPeriod: Duration.minutes(2),
+        interval: Duration.minutes(1),
+      }
+    })
 
     taskDefinition.defaultContainer = container
 
@@ -139,6 +142,12 @@ export class DecidimStack extends cdk.Stack {
       maxCapacity: 5
     })
 
+    // ALB Log
+    const logBucket = new aws_s3.Bucket(this, `${ props.stage }AlbLogBucket`, {
+      bucketName: `${ props.stage }-${ props.serviceName }-alb-logs`,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    })
 
     // ALB Definition
     const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'Alb', {
@@ -182,12 +191,6 @@ export class DecidimStack extends cdk.Stack {
       certificates: certificates
     })
 
-    // ALB Log
-    const logBucket = new aws_s3.Bucket(this, `${ props.stage }AlbLogBucket`, {
-      bucketName: `${ props.stage }-${ props.serviceName }-alb-logs`,
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-    })
     loadBalancer.logAccessLogs(logBucket)
   }
 }
