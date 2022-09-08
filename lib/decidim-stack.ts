@@ -46,10 +46,10 @@ export class DecidimStack extends cdk.Stack {
       this,
       "decidimTaskDefinition",
       {
-        cpu: props.containerSpec ? props.containerSpec.cpu : 1024,
+        cpu: props.containerSpec ? props.containerSpec.cpu : 2048,
         memoryLimitMiB: props.containerSpec
           ? props.containerSpec?.memoryLimitMiB
-          : 2048,
+          : 4096,
         family: `${ props.stage }DecidimTaskDefinition`,
       }
     );
