@@ -7,9 +7,9 @@ import {
   aws_ecr,
   aws_ecs as ecs,
   aws_elasticloadbalancingv2 as elbv2,
-  aws_logs as logs,
+  aws_logs as logs, aws_route53, aws_route53_targets,
   aws_s3,
-  aws_ssm as ssm,
+  aws_ssm as ssm, CfnOutput,
   Duration,
   RemovalPolicy
 } from 'aws-cdk-lib';
@@ -28,6 +28,7 @@ export interface DecidimStackProps extends BaseStackProps {
     cpu: number;
     memoryLimitMiB: number;
   }
+  smtpDomain: string
   domain: string
   repository: string
   tag: string
@@ -72,7 +73,7 @@ export class DecidimStack extends cdk.Stack {
       SMTP_ADDRESS: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/SMTP_ADDRESS`),
       SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/SMTP_USERNAME`),
       SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/SMTP_PASSWORD`),
-      SMTP_DOMAIN: props.domain,
+      SMTP_DOMAIN: props.smtpDomain,
       AWS_BUCKET_NAME: `${ props.stage }-${ props.serviceName }-bucket`,
       DECIDIM_COMMENTS_LIMIT: "30",
     };
@@ -212,12 +213,16 @@ export class DecidimStack extends cdk.Stack {
       comment: `${ props.stage }-${ props.serviceName }-cloudfront`
     })
 
-    distribution.addBehavior('decidim-packs/*',
-      origin,
-      {
-        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED
-      })
+    const hostZone = aws_route53.HostedZone.fromLookup(this, 'Zone', {domainName: props.domain})
+    new aws_route53.ARecord(this, 'addARecord', {
+      zone: hostZone,
+      target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(distribution)),
+      recordName: `${ props.stage }-${ props.serviceName }-alb-origin`
+    })
+
+    new CfnOutput(this, `PublicDomain`, {
+      value: `${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`,
+      exportName: `accessDomain`,
+    });
   }
 }

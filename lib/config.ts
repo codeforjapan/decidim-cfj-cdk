@@ -47,6 +47,7 @@ export interface Config {
   automaticFailoverEnabled: boolean
 
   // service
+  smtpDomain: string,
   domain: string,
   repository: string
   tag: string

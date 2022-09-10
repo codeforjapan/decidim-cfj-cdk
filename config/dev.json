@@ -20,6 +20,7 @@
   "numCacheNodes" : 1,
   "automaticFailoverEnabled": false,
 
+  "smtpDomain": "diycities.jp",
   "domain": "diycities.jp",
   "repository": "decidim-cfj",
   "tag": "testv0252-ab1c9b99",
