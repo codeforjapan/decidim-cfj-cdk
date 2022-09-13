@@ -233,4 +233,3 @@ export class NetworkStack extends Stack {
   }
 
 }
-
