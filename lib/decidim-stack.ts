@@ -7,9 +7,12 @@ import {
   aws_ecr,
   aws_ecs as ecs,
   aws_elasticloadbalancingv2 as elbv2,
-  aws_logs as logs, aws_route53, aws_route53_targets,
+  aws_logs as logs,
+  aws_route53,
+  aws_route53_targets,
   aws_s3,
-  aws_ssm as ssm, CfnOutput,
+  aws_ssm as ssm,
+  CfnOutput,
   Duration,
   RemovalPolicy
 } from 'aws-cdk-lib';
@@ -37,6 +40,8 @@ export interface DecidimStackProps extends BaseStackProps {
 }
 
 export class DecidimStack extends cdk.Stack {
+  public readonly distribution: cloudfront.Distribution;
+
   constructor(scope: Construct, id: string, props: DecidimStackProps) {
     super(scope, id, props);
 
@@ -198,10 +203,23 @@ export class DecidimStack extends cdk.Stack {
 
     loadBalancer.logAccessLogs(logBucket)
 
-    const origin = new aws_cloudfront_origins.LoadBalancerV2Origin(loadBalancer)
+    const hostZone = aws_route53.HostedZone.fromLookup(this, 'Zone', {domainName: props.domain})
+    new aws_route53.ARecord(this, 'addARecord', {
+      zone: hostZone,
+      target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.LoadBalancerTarget(loadBalancer)),
+      recordName: `${ props.stage }-${ props.serviceName }-alb-origin`,
+      deleteExisting: true
+    }).applyRemovalPolicy(RemovalPolicy.DESTROY)
+
+    new CfnOutput(this, `PublicDomain`, {
+      value: `${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`,
+      exportName: `accessDomain`,
+    });
+
+    const origin = new aws_cloudfront_origins.HttpOrigin(`${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`)
     origin.bind(this, {originId: "defaultEndPoint"})
 
-    const distribution = new cloudfront.Distribution(this, 'Distribution', {
+    this.distribution = new cloudfront.Distribution(this, 'Distribution', {
       priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
       defaultBehavior: {
         origin: origin,
@@ -212,17 +230,5 @@ export class DecidimStack extends cdk.Stack {
       },
       comment: `${ props.stage }-${ props.serviceName }-cloudfront`
     })
-
-    const hostZone = aws_route53.HostedZone.fromLookup(this, 'Zone', {domainName: props.domain})
-    new aws_route53.ARecord(this, 'addARecord', {
-      zone: hostZone,
-      target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(distribution)),
-      recordName: `${ props.stage }-${ props.serviceName }-alb-origin`
-    })
-
-    new CfnOutput(this, `PublicDomain`, {
-      value: `${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`,
-      exportName: `accessDomain`,
-    });
   }
 }
