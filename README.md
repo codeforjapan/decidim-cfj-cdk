@@ -1,8 +1,16 @@
-# Welcome to your CDK TypeScript project
+# Decidim-cfj CDK
 
-This is a blank project for CDK development with TypeScript.
+# Documentation
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+- 開発環境
+    - [ビルド方法](docs/build_dev.md)
+
+# CDK
+
+```console
+$ npx cdk --context stage=dev --profile decidim diff
+```
+
 
 ## Useful commands
 
