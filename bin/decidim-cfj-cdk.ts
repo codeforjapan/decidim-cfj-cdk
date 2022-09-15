@@ -62,7 +62,7 @@ const elastiCache = new ElasticacheStack(app, `${ stage }${ serviceName }ElastiC
 
 elastiCache.addDependency(network)
 
-const service = new DecidimStack(app, `${ stage }${ serviceName }DecidimStack`, {
+const service = new DecidimStack(app, `${ stage }${ serviceName }Stack`, {
   stage,
   env,
   serviceName,
