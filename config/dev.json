@@ -4,10 +4,10 @@
   "rds": {
     "postgresVersion": "12.8",
     "snapshot": true,
-    "snapshotIdentifier": "decidim-master-2022-08-15",
+    "snapshotIdentifier": "decidim-master-2022-09-15",
     "instanceType": "t2.micro",
     "deletionProtection": false,
-    "allocatedStorage": 10
+    "allocatedStorage": 20
   },
 
   "aws": {
@@ -23,6 +23,7 @@
   "smtpDomain": "diycities.jp",
   "domain": "diycities.jp",
   "repository": "decidim-cfj",
-  "tag": "testv0252-ab1c9b99",
-  "certificates": []
+  "tag": "staging-5541217c",
+  "certificates": [],
+  "cloudfrontCertificate": ""
 }

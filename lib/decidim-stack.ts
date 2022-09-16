@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import {
   aws_certificatemanager,
   aws_cloudfront as cloudfront,
-  aws_cloudfront_origins,
   aws_ec2,
   aws_ecr,
   aws_ecs as ecs,
@@ -20,7 +19,6 @@ import { Construct } from 'constructs';
 import { BaseStackProps } from "./props";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { ApplicationTargetGroup, ListenerCertificate } from "aws-cdk-lib/aws-elasticloadbalancingv2";
-import { AllowedMethods, CachePolicy, OriginRequestPolicy, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
 
 export interface DecidimStackProps extends BaseStackProps {
   vpc: aws_ec2.IVpc
@@ -215,20 +213,5 @@ export class DecidimStack extends cdk.Stack {
       value: `${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`,
       exportName: `accessDomain`,
     });
-
-    const origin = new aws_cloudfront_origins.HttpOrigin(`${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`)
-    origin.bind(this, {originId: "defaultEndPoint"})
-
-    this.distribution = new cloudfront.Distribution(this, 'Distribution', {
-      priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
-      defaultBehavior: {
-        origin: origin,
-        allowedMethods: AllowedMethods.ALLOW_ALL,
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: CachePolicy.CACHING_DISABLED,
-        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
-      },
-      comment: `${ props.stage }-${ props.serviceName }-cloudfront`
-    })
   }
 }

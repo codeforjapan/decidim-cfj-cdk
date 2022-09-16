@@ -52,6 +52,7 @@ export interface Config {
   repository: string
   tag: string
   certificates: string[]
+  cloudfrontCertificate: string
 }
 
 export function getConfig (stage: string): Config {

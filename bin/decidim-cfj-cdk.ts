@@ -7,6 +7,7 @@ import { NetworkStack } from "../lib/network";
 import { RdsStack } from "../lib/rds-stack";
 import { ElasticacheStack } from "../lib/elasticache-stack";
 import { DecidimStack } from "../lib/decidim-stack";
+import { CloudFrontStack } from "../lib/cloudfront";
 
 const app = new cdk.App();
 
@@ -22,6 +23,11 @@ const serviceName = `decidim`;
 const env = {
   account: config.aws.accountId,
   region: config.aws.region
+}
+
+const cloudfrontEnv = {
+  account: config.aws.accountId,
+  region: 'us-east-1'
 }
 
 new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
@@ -78,3 +84,12 @@ const service = new DecidimStack(app, `${ stage }${ serviceName }Stack`, {
   cache: elastiCache.redis.attrReaderEndPointAddress,
 })
 service.addDependency(network)
+
+const distribution = new CloudFrontStack(app, `${ stage }${ serviceName }CloudFrontStack`, {
+  stage,
+  serviceName,
+  env: cloudfrontEnv,
+  domain: config.domain,
+  certificateArn: config.cloudfrontCertificate
+})
+distribution.addDependency(service)
