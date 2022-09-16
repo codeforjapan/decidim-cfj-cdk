@@ -1,7 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_certificatemanager,
-  aws_cloudfront as cloudfront,
   aws_ec2,
   aws_ecr,
   aws_ecs as ecs,
@@ -38,8 +37,6 @@ export interface DecidimStackProps extends BaseStackProps {
 }
 
 export class DecidimStack extends cdk.Stack {
-  public readonly distribution: cloudfront.Distribution;
-
   constructor(scope: Construct, id: string, props: DecidimStackProps) {
     super(scope, id, props);
 
