@@ -95,3 +95,21 @@ $ npx cdk --context stage=dev --profile decidim deploy --all  --require-approval
 `devdecidimStack` とCloudFormationのスタック一覧から[検索](https://ap-northeast-1.console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks?filteringStatus=active&filteringText=devdecidimStack&viewNested=true&hideStacks=false&stackId=)し、以下のように各Stackに`CREATE_COMPLETE`が表示されていることを確認してください。
 
 <img src="images/dev/cloudformation.png">
+
+# 7. 初回デプロイ 
+
+## 7.1 環境へのアクセス
+```console
+$ aws ecs execute-command --region ap-northeast-1 --cluster devDecidimCluster --task ${タスク名} --container appContainer --interactive --command "/bin/ash" --profile decidim
+```
+
+## 7.2 migrateとseedの実行
+```console
+$ ./bin/rails db:migrate
+$ ./bin/rails db:seed SEED=true
+```
+
+## 7.3 環境へのアクセス
+``dev-decidim-alb-origin.${指定したドメイン}``で管理画面にアクセス
+
+

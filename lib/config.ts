@@ -1,5 +1,4 @@
 import { InstanceType } from "aws-cdk-lib/aws-ec2";
-import { PostgresEngineVersion } from "aws-cdk-lib/aws-rds";
 
 export interface SubnetConfig {
   subnetId: string;
@@ -16,7 +15,6 @@ export interface VpcConfig {
 }
 
 export interface RdsConfig {
-  postgresVersion: PostgresEngineVersion
   snapshot: boolean
   snapshotIdentifier: string
   instanceType: InstanceType

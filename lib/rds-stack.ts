@@ -1,4 +1,4 @@
-import { aws_ec2, aws_rds as rds, RemovalPolicy, Stack } from "aws-cdk-lib";
+import { aws_ec2, aws_rds as rds, RemovalPolicy, Stack, aws_ssm as ssm, SecretValue } from "aws-cdk-lib";
 
 import { Construct } from "constructs";
 import { BaseStackProps } from "./props";
@@ -25,9 +25,9 @@ export class RdsStack extends Stack {
     const config = props.rds;
 
     const rdsProps: DatabaseInstanceSourceProps = {
-      engine: DatabaseInstanceEngine.postgres({ version: config.postgresVersion }),
+      engine: DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_12_8 }),
       instanceType: config.instanceType,
-      instanceIdentifier: `${props.stage}-${props.serviceName}-postgresql`,
+      instanceIdentifier: `${ props.stage }-${ props.serviceName }-postgresql`,
       vpc: props.vpc,
       securityGroups: [props.securityGroup],
       multiAz: config.multiAz,
@@ -48,7 +48,16 @@ export class RdsStack extends Stack {
         }
       })
     } else {
-      this.rds = new rds.DatabaseInstance(this, 'createRds', rdsProps)
+      this.rds = new rds.DatabaseInstance(this, 'createRds', {
+        ...rdsProps,
+        ...{
+          databaseName: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${ props.stage }/RDS_DB_NAME`),
+          credentials: {
+            username: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${ props.stage }/RDS_USERNAME`),
+            password: SecretValue.unsafePlainText(ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${ props.stage }/RDS_PASSWORD`)),
+          }
+        }
+      })
     }
   }
 }
