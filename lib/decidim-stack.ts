@@ -59,6 +59,17 @@ export class DecidimStack extends cdk.Stack {
       }
     );
 
+    // Task Definition
+    const sidekiqTaskDefinition = new ecs.FargateTaskDefinition(
+      this,
+      "sidekiqTaskDefinition",
+      {
+        cpu: 1024,
+        memoryLimitMiB: 2048,
+        family: `${ props.stage }SidekiqTaskDefinition`,
+      }
+    );
+
     const DecidimContainerEnvironment: { [key: string]: string } = {
       AWS_ACCESS_KEY_ID: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/AWS_ACCESS_KEY_ID`),
       AWS_SECRET_ACCESS_KEY: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/AWS_SECRET_ACCESS_KEY`),
@@ -105,7 +116,7 @@ export class DecidimStack extends cdk.Stack {
       containerPort: 3000
     })
 
-    taskDefinition.addContainer('sidekiqContainer', {
+    sidekiqTaskDefinition.addContainer('sidekiqContainer', {
       image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: DecidimContainerEnvironment,
       logging: ecs.LogDriver.awsLogs({
@@ -145,6 +156,19 @@ export class DecidimStack extends cdk.Stack {
     ecsService.autoScaleTaskCount({
       minCapacity: 1,
       maxCapacity: 5
+    })
+
+    new ecs.FargateService(this, 'sidekiqService', {
+      cluster,
+      taskDefinition: sidekiqTaskDefinition,
+      serviceName: `${ props.stage }SidekiqService`,
+      vpcSubnets: {
+        subnets: props.vpc.publicSubnets
+      },
+      securityGroups: [props.securityGroup],
+      desiredCount: 1,
+      assignPublicIp: true,
+      enableExecuteCommand: true // For Debug
     })
 
     // ALB Log
