@@ -1,9 +1,9 @@
 {
-  "versioned": false,
+  "sourceBucket": "dev-testv252",
 
   "rds": {
-    "snapshot": false,
-    "snapshotIdentifier": "decidim-master-2022-09-15",
+    "snapshot": true,
+    "snapshotIdentifier": "decidim-master-2022-10-20",
     "instanceType": "t2.micro",
     "deletionProtection": false,
     "allocatedStorage": 20

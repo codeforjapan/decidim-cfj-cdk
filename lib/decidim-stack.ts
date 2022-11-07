@@ -18,6 +18,10 @@ import { Construct } from 'constructs';
 import { BaseStackProps } from "./props";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { ApplicationTargetGroup, ListenerCertificate } from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import { Repository } from 'aws-cdk-lib/aws-ecr';
+import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
+import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
+import path = require('path');
 
 export interface DecidimStackProps extends BaseStackProps {
   vpc: aws_ec2.IVpc
@@ -34,6 +38,7 @@ export interface DecidimStackProps extends BaseStackProps {
   tag: string
   rds: string
   cache: string
+  nginxRepository: string
 }
 
 export class DecidimStack extends cdk.Stack {
@@ -59,6 +64,31 @@ export class DecidimStack extends cdk.Stack {
       }
     );
 
+    // Task Definition
+    const sidekiqTaskDefinition = new ecs.FargateTaskDefinition(
+      this,
+      "sidekiqTaskDefinition",
+      {
+        cpu: 1024,
+        memoryLimitMiB: 2048,
+        family: `${ props.stage }SidekiqTaskDefinition`,
+      }
+    );
+
+    const repo = new Repository(this, 'repo', {
+      repositoryName: props.nginxRepository,
+      removalPolicy: RemovalPolicy.DESTROY
+    })
+
+    const image = new DockerImageAsset(this, 'docker-image', {
+      directory: path.join(__dirname, 'nginx') // Dockerfileがあるディレクトリを指定
+    })
+
+    new ECRDeployment(this, 'DeployDockerImage', {
+      src: new DockerImageName(image.imageUri),
+      dest: new DockerImageName(`${repo.repositoryUri}:latest`)
+    })
+
     const DecidimContainerEnvironment: { [key: string]: string } = {
       AWS_ACCESS_KEY_ID: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/AWS_ACCESS_KEY_ID`),
       AWS_SECRET_ACCESS_KEY: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${props.stage}/AWS_SECRET_ACCESS_KEY`),
@@ -80,7 +110,29 @@ export class DecidimStack extends cdk.Stack {
 
     const decidimRepository = aws_ecr.Repository.fromRepositoryName(this, 'DecidimRepository', props.repository)
 
-    const container = taskDefinition.addContainer('appContainer', {
+    const container = taskDefinition.addContainer('nginxContainer', {
+      image: ecs.ContainerImage.fromEcrRepository(repo, 'latest'),
+      environment: DecidimContainerEnvironment,
+      logging: ecs.LogDriver.awsLogs({
+        logGroup: new logs.LogGroup(this, 'NginxLogGroup', {
+          logGroupName: `${ props.stage }-${ props.serviceName }-nginxLogGroup`,
+          removalPolicy: RemovalPolicy.DESTROY,
+          retention: RetentionDays.TWO_WEEKS
+        }),
+        streamPrefix: 'nginx'
+      }),
+      healthCheck: {
+        command: [
+          'CMD-SHELL',
+          `curl --fail -s http://localhost || exit 1`
+        ],
+        retries: 3,
+        startPeriod: Duration.minutes(2),
+        interval: Duration.minutes(1),
+      },
+    })
+
+    taskDefinition.addContainer('appContainer', {
       image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: DecidimContainerEnvironment,
       logging: ecs.LogDriver.awsLogs({
@@ -102,10 +154,10 @@ export class DecidimStack extends cdk.Stack {
       },
     })
     container.addPortMappings({
-      containerPort: 3000
+      containerPort: 80
     })
 
-    taskDefinition.addContainer('sidekiqContainer', {
+    sidekiqTaskDefinition.addContainer('sidekiqContainer', {
       image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: DecidimContainerEnvironment,
       logging: ecs.LogDriver.awsLogs({
@@ -147,6 +199,19 @@ export class DecidimStack extends cdk.Stack {
       maxCapacity: 5
     })
 
+    new ecs.FargateService(this, 'sidekiqService', {
+      cluster,
+      taskDefinition: sidekiqTaskDefinition,
+      serviceName: `${ props.stage }SidekiqService`,
+      vpcSubnets: {
+        subnets: props.vpc.publicSubnets
+      },
+      securityGroups: [props.securityGroup],
+      desiredCount: 1,
+      assignPublicIp: true,
+      enableExecuteCommand: true // For Debug
+    })
+
     // ALB Log
     const logBucket = new aws_s3.Bucket(this, `${ props.stage }AlbLogBucket`, {
       bucketName: `${ props.stage }-${ props.serviceName }-alb-logs`,
@@ -165,9 +230,9 @@ export class DecidimStack extends cdk.Stack {
 
     const targetGroup = new ApplicationTargetGroup(this, 'TargetGroup', {
       protocol: elbv2.ApplicationProtocol.HTTP,
-      port: 3000,
+      port: 80,
       healthCheck: {
-        port: '3000',
+        port: '80',
         path: '/',
         protocol: elbv2.Protocol.HTTP,
         healthyHttpCodes: '301',
