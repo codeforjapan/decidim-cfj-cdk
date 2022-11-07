@@ -1,5 +1,5 @@
 {
-  "versioned": false,
+  "sourceBucket": "dev-testv252",
 
   "rds": {
     "snapshot": true,

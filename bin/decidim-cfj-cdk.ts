@@ -82,6 +82,7 @@ const service = new DecidimStack(app, `${ stage }${ serviceName }Stack`, {
   tag: config.tag,
   rds: rds.rds.dbInstanceEndpointAddress,
   cache: elastiCache.redis.attrReaderEndPointAddress,
+  nginxRepository: config.nginxRepository
 })
 service.addDependency(network)
 
