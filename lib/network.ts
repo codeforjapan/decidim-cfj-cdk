@@ -7,7 +7,7 @@ import {
   aws_elasticache as elasticache,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { IVpc } from "aws-cdk-lib/aws-ec2";
+import { IpAddresses, IVpc } from "aws-cdk-lib/aws-ec2";
 
 export interface NetworkStackProps extends BaseStackProps {
   vpc?: VpcConfig;
@@ -165,7 +165,7 @@ export class NetworkStack extends Stack {
    */
   private createVpc(props: NetworkStackProps): IVpc {
     const vpc = new ec2.Vpc(this, `Vpc`, {
-      cidr: "10.0.0.0/16",
+      ipAddresses: IpAddresses.cidr("10.0.0.0/16"),
       vpcName: `${ props.stage }${ props.serviceName }`,
       natGateways: 1,
       subnetConfiguration: [
@@ -177,7 +177,7 @@ export class NetworkStack extends Stack {
         {
           cidrMask: 24,
           name: "private",
-          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
       ],
     });
