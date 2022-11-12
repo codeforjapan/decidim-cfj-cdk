@@ -112,7 +112,95 @@ export class CloudFrontStack extends Stack {
               metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesSQLiRuleSet`,
             },
           },
-        ]
+          {
+            name: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
+            priority: 6,
+            statement: {
+              andStatement: {
+                statements: [{
+                  byteMatchStatement: {
+                    searchString: `${ props.stage }-${ props.serviceName }-alb-origin`,
+                    fieldToMatch: {
+                      singleHeader: {
+                        name: 'host'
+                      }
+                    },
+                    textTransformations: [
+                      {
+                        priority: 0,
+                        type: 'LOWERCASE'
+                      }
+                    ],
+                    positionalConstraint: "EXACTLY"
+                  }
+                },
+                  {
+                    byteMatchStatement: {
+                      searchString: "system/admins/sign_in",
+                      fieldToMatch: {
+                        uriPath: {}
+                      },
+                      textTransformations: [
+                        {
+                          priority: 0,
+                          type: 'LOWERCASE'
+                        }
+                      ],
+                      positionalConstraint: "CONTAINS"
+                    }
+                  }
+                ]
+              }
+            },
+            action: {
+              allow: {}
+            },
+            visibilityConfig: {
+              cloudWatchMetricsEnabled: true,
+              sampledRequestsEnabled: true,
+              metricName: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
+            },
+          },
+          {
+            name: `${ props.stage }-${ props.serviceName }-SystemLoginBlock`,
+            priority: 7,
+            statement: {
+              byteMatchStatement: {
+                searchString: 'system/admins/sign_in',
+                fieldToMatch: {
+                  uriPath: {}
+                },
+                textTransformations: [
+                  {
+                    priority: 0,
+                    type: "LOWERCASE"
+                  }
+                ],
+                positionalConstraint: "CONTAINS"
+              }
+            },
+
+            action: {
+              block: {
+                customResponse: {
+                  responseCode: 403,
+                  customResponseBodyKey: "disable-action"
+                }
+              }
+            },
+            visibilityConfig: {
+              cloudWatchMetricsEnabled: true,
+              sampledRequestsEnabled: true,
+              metricName: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
+            },
+          }
+        ],
+        customResponseBodies: {
+          'disable-action': {
+            content: '<div>error: access denied</div>',
+            contentType: 'TEXT_HTML'
+          }
+        }
       }
     )
 
