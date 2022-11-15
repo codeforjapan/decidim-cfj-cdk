@@ -1,6 +1,4 @@
 {
-  "sourceBucket": "dev-testv252",
-
   "rds": {
     "snapshot": true,
     "snapshotIdentifier": "decidim-master-2022-11-07",
@@ -22,7 +20,10 @@
   "smtpDomain": "diycities.jp",
   "domain": "diycities.jp",
   "repository": "decidim-cfj",
-  "tag": "",
-  "certificates": [],
-  "cloudfrontCertificate": ""
+  "tag": "staging-80373039",
+  "certificates": [
+    "arn:aws:acm:ap-northeast-1:887442827229:certificate/faa7a120-3843-4561-93ec-c3d313356ad5",
+    "arn:aws:acm:ap-northeast-1:887442827229:certificate/b02c7415-d6f8-4794-994e-fe5689ca7b74"
+  ],
+  "cloudfrontCertificate": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de"
 }
