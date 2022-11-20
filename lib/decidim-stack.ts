@@ -199,6 +199,13 @@ export class DecidimStack extends cdk.Stack {
       maxCapacity: 5
     })
 
+    autoscaling.scaleOnCpuUtilization('ScalingOnCpu', {
+      targetUtilizationPercent: 50
+    })
+    autoscaling.scaleOnMemoryUtilization('ScalingOnMemory', {
+      targetUtilizationPercent: 50
+    })
+
     new ecs.FargateService(this, 'sidekiqService', {
       cluster,
       taskDefinition: sidekiqTaskDefinition,
