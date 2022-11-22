@@ -13,6 +13,10 @@ jobs:
     name: cdk synth
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
