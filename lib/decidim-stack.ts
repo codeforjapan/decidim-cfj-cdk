@@ -194,9 +194,16 @@ export class DecidimStack extends cdk.Stack {
       assignPublicIp: true,
       enableExecuteCommand: true // For Debug
     })
-    ecsService.autoScaleTaskCount({
+    const autoscaling = ecsService.autoScaleTaskCount({
       minCapacity: 1,
       maxCapacity: 5
+    })
+
+    autoscaling.scaleOnCpuUtilization('ScalingOnCpu', {
+      targetUtilizationPercent: 50
+    })
+    autoscaling.scaleOnMemoryUtilization('ScalingOnMemory', {
+      targetUtilizationPercent: 50
     })
 
     new ecs.FargateService(this, 'sidekiqService', {

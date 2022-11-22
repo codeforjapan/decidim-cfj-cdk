@@ -5,6 +5,9 @@ on:
     branches:
       - '*'
 
+env:
+  AWS_ROLE_ARN: arn:aws:iam::887442827229:role/GithubActions_decidim-cfj-cdk
+
 jobs:
   cdk_synth:
     name: cdk synth
@@ -13,6 +16,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: aws switch role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
 
       - name: cdk synth
         uses: youyo/aws-cdk-github-actions@v2
