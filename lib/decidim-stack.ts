@@ -194,7 +194,7 @@ export class DecidimStack extends cdk.Stack {
       assignPublicIp: true,
       enableExecuteCommand: true // For Debug
     })
-    ecsService.autoScaleTaskCount({
+    const autoscaling = ecsService.autoScaleTaskCount({
       minCapacity: 1,
       maxCapacity: 5
     })
