@@ -121,3 +121,7 @@ cloudfrontの管理画面に行き作成したcloudfrontの管理画面で代替
 設定したい組織にドメインを設定して、対象のドメインいアクセスする
 
 手順を変えるとエラーでアクセスに失敗します。
+
+### seedの実行について
+decidimではproduction環境のseedは以下のenvをつけて実行する必要があります
+SEED=true bundle exec rake db:seed
