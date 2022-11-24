@@ -13,6 +13,7 @@ const app = new cdk.App();
 
 const stages = ['dev', 'stg', 'prd']
 const stage = app.node.tryGetContext('stage')
+const tag = app.node.tryGetContext('tag')
 if (!stages.includes(stage)) {
   throw new Error('set stage value using -c option')
 }
@@ -71,6 +72,7 @@ elastiCache.addDependency(network)
 const service = new DecidimStack(app, `${ stage }${ serviceName }Stack`, {
   stage,
   env,
+  tag,
   serviceName,
   vpc: network.vpc,
   certificates: config.certificates,
@@ -79,7 +81,6 @@ const service = new DecidimStack(app, `${ stage }${ serviceName }Stack`, {
   smtpDomain: config.smtpDomain,
   domain: config.domain,
   repository: config.repository,
-  tag: config.tag,
   rds: rds.rds.dbInstanceEndpointAddress,
   cache: elastiCache.redis.attrReaderEndPointAddress,
   nginxRepository: config.nginxRepository
