@@ -280,7 +280,7 @@ export class DecidimStack extends cdk.Stack {
 
     new CfnOutput(this, `PublicDomain`, {
       value: `${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`,
-      exportName: `accessDomain`,
+      exportName: `${ props.stage }${ props.serviceName }accessDomain`,
     });
   }
 }
