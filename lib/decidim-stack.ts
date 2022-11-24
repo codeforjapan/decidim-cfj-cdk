@@ -86,26 +86,28 @@ export class DecidimStack extends cdk.Stack {
 
     new ECRDeployment(this, 'DeployDockerImage', {
       src: new DockerImageName(image.imageUri),
-      dest: new DockerImageName(`${repo.repositoryUri}:latest`)
+      dest: new DockerImageName(`${ repo.repositoryUri }:latest`)
     })
 
     const DecidimContainerEnvironment: { [key: string]: string } = {
-      AWS_ACCESS_KEY_ID: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/AWS_ACCESS_KEY_ID`),
-      AWS_SECRET_ACCESS_KEY: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/AWS_SECRET_ACCESS_KEY`),
-      AWS_CLOUD_FRONT_END_POINT: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/AWS_CLOUD_FRONT_END_POINT`),
-      REDIS_URL: `redis://${props.cache}:6379`,
-      RDS_DB_NAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/RDS_DB_NAME`),
+      AWS_ACCESS_KEY_ID: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/AWS_ACCESS_KEY_ID`),
+      AWS_SECRET_ACCESS_KEY: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/AWS_SECRET_ACCESS_KEY`),
+      AWS_CLOUD_FRONT_END_POINT: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/AWS_CLOUD_FRONT_END_POINT`),
+      REDIS_URL: `redis://${ props.cache }:6379`,
+      RDS_DB_NAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_DB_NAME`),
       RDS_HOSTNAME: props.rds,
-      RDS_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/RDS_USERNAME`),
-      RDS_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/RDS_PASSWORD`),
-      SECRET_KEY_BASE: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/SECRET_KEY_BASE`),
-      NEW_RELIC_LICENSE_KEY: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/NEW_RELIC_LICENSE_KEY`),
-      SMTP_ADDRESS: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/SMTP_ADDRESS`),
-      SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/SMTP_USERNAME`),
-      SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${props.stage}/SMTP_PASSWORD`),
+      RDS_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_USERNAME`),
+      RDS_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_PASSWORD`),
+      SECRET_KEY_BASE: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SECRET_KEY_BASE`),
+      NEW_RELIC_AGENT_ENABLED: props.stage === 'prd' ? 'true' : 'false',
+      NEW_RELIC_LICENSE_KEY: props.stage === 'prd' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
+      SMTP_ADDRESS: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_ADDRESS`),
+      SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_USERNAME`),
+      SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_PASSWORD`),
       SMTP_DOMAIN: props.smtpDomain,
       AWS_BUCKET_NAME: `${ props.stage }-${ props.serviceName }-bucket`,
       DECIDIM_COMMENTS_LIMIT: "30",
+      SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SLACK_API_TOKEN`),
     };
 
     const decidimRepository = aws_ecr.Repository.fromRepositoryName(this, 'DecidimRepository', props.repository)
@@ -270,7 +272,7 @@ export class DecidimStack extends cdk.Stack {
 
     loadBalancer.logAccessLogs(logBucket)
 
-    const hostZone = aws_route53.HostedZone.fromLookup(this, 'Zone', {domainName: props.domain})
+    const hostZone = aws_route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domain })
     new aws_route53.ARecord(this, 'addARecord', {
       zone: hostZone,
       target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.LoadBalancerTarget(loadBalancer)),
@@ -280,7 +282,7 @@ export class DecidimStack extends cdk.Stack {
 
     new CfnOutput(this, `PublicDomain`, {
       value: `${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`,
-      exportName: `accessDomain`,
+      exportName: `${ props.stage }${ props.serviceName }accessDomain`,
     });
   }
 }

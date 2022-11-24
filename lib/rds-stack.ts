@@ -51,10 +51,10 @@ export class RdsStack extends Stack {
       this.rds = new rds.DatabaseInstance(this, 'createRds', {
         ...rdsProps,
         ...{
-          databaseName: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${ props.stage }/RDS_DB_NAME`),
+          databaseName: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_DB_NAME`),
           credentials: {
-            username: ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${ props.stage }/RDS_USERNAME`),
-            password: SecretValue.unsafePlainText(ssm.StringParameter.valueForTypedStringParameter(this, `/decidim-cfj/${ props.stage }/RDS_PASSWORD`)),
+            username: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_USERNAME`),
+            password: SecretValue.unsafePlainText(ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_PASSWORD`)),
           }
         }
       })
