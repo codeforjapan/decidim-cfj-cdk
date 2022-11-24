@@ -32,9 +32,6 @@ export interface Config {
     region: string;
   };
 
-  // s3
-  versioned: boolean
-
   // rds
   rds: RdsConfig
 
@@ -48,7 +45,6 @@ export interface Config {
   smtpDomain: string,
   domain: string,
   repository: string
-  tag: string
   certificates: string[]
   cloudfrontCertificate: string
   nginxRepository: string

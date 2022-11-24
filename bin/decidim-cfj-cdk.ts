@@ -11,7 +11,7 @@ import { CloudFrontStack } from "../lib/cloudfront";
 
 const app = new cdk.App();
 
-const stages = ['dev', 'stg', 'prd']
+const stages = ['dev', 'staging', 'prd']
 const stage = app.node.tryGetContext('stage')
 const tag = app.node.tryGetContext('tag')
 if (!stages.includes(stage)) {
