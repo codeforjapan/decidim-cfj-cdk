@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RdsStack Created 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/RDS_DB_NAME",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/RDS_PASSWORD",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/RDS_USERNAME",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "createRds829C4ED0": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AllocatedStorage": "20",
+        "AutoMinorVersionUpgrade": true,
+        "CopyTagsToSnapshot": true,
+        "DBInstanceClass": "db.t2.micro",
+        "DBInstanceIdentifier": "staging-decidim-postgresql",
+        "DBName": {
+          "Ref": "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+        "DBSubnetGroupName": {
+          "Ref": "createRdsSubnetGroupF7BAC266",
+        },
+        "DeleteAutomatedBackups": false,
+        "DeletionProtection": false,
+        "Engine": "postgres",
+        "EngineVersion": "12.8",
+        "MasterUserPassword": {
+          "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+        "MasterUsername": {
+          "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+        "StorageType": "gp2",
+        "VPCSecurityGroups": [
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForRDS9D249C02GroupIdC5588EA5",
+          },
+        ],
+      },
+      "Type": "AWS::RDS::DBInstance",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "createRdsSubnetGroupF7BAC266": {
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet group for createRds database",
+        "SubnetIds": [
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+          },
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+          },
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+          },
+        ],
+      },
+      "Type": "AWS::RDS::DBSubnetGroup",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
