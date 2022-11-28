@@ -1,17 +1,98 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as DecidimCfjCdk from '../lib/decidim-cfj-cdk-stack';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { DecidimStack, DecidimStackProps } from '../lib/decidim-stack';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/decidim-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new DecidimCfjCdk.DecidimStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+import { Config, getConfig } from "../lib/config";
+import { NetworkStack } from "../lib/network";
+import { S3Stack } from "../lib/s3-stack";
+import { RdsStack } from "../lib/rds-stack";
+import { ElasticacheStack } from "../lib/elasticache-stack";
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
+test('DecidimStack Created', () => {
+    const app = new cdk.App();
+    // WHEN
+
+    const stage = 'staging';
+    const tag = 'tag-test1';
+    const config: Config = getConfig(stage)
+    const serviceName = `decidim`;
+
+    const env = {
+        account: config.aws.accountId,
+        region: config.aws.region
+    }
+
+    const cloudfrontEnv = {
+        account: config.aws.accountId,
+        region: 'us-east-1'
+    }
+
+    new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
+        stage,
+        env,
+        serviceName
+    })
+
+    const network = new NetworkStack(app, `${ stage }${ serviceName }NetworkStack`, {
+        stage,
+        env,
+        serviceName,
+        vpc: config.vpc,
+    })
+
+    const rds = new RdsStack(app, `${ stage }${ serviceName }RdsStack`, {
+        stage,
+        env,
+        serviceName,
+        vpc: network.vpc,
+        securityGroup: network.sgForRds,
+        rds: config.rds
+    })
+
+    rds.addDependency(network)
+
+    const elastiCache = new ElasticacheStack(app, `${ stage }${ serviceName }ElastiCacheStack`, {
+        stage,
+        env,
+        serviceName,
+        engineVersion: config.engineVersion,
+        cacheNodeType: config.cacheNodeType,
+        numCacheNodes: config.numCacheNodes,
+        automaticFailoverEnabled: config.automaticFailoverEnabled,
+        securityGroup: network.sgForCache.securityGroupId,
+        ecSubnetGroup: network.ecSubnetGroup
+    })
+
+    elastiCache.addDependency(network)
+
+    const props = {
+        stage,
+        env,
+        tag,
+        serviceName,
+        vpc: network.vpc,
+        certificates: config.certificates,
+        securityGroup: network.sgForDecidimService,
+        securityGroupForAlb: network.sgForAlb,
+        smtpDomain: config.smtpDomain,
+        domain: config.domain,
+        repository: config.repository,
+        rds: rds.rds.dbInstanceEndpointAddress,
+        cache: elastiCache.redis.attrReaderEndPointAddress,
+        nginxRepository: config.nginxRepository
+    };
+    const stack = new DecidimStack(app, 'DecidimStack', props);
+
+    // THEN
+    const template = Template.fromStack(stack);
+    // console.dir(template);
+
+    template.resourceCountIs("AWS::IAM::Role", 4);
+    template.hasResourceProperties('AWS::S3::Bucket', {
+        BucketName: "staging-decidim-alb-logs",
+    });
+    template.resourceCountIs("AWS::ECS::Service", 1);
+
+    // Assert the template matches the snapshot.
+    expect(template.toJSON()).toMatchSnapshot();
 });
