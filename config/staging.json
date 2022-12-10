@@ -12,17 +12,27 @@
     "region": "ap-northeast-1"
   },
 
-  "cacheNodeType" : "cache.t2.micro",
-  "engineVersion" : "6.x",
-  "numCacheNodes" : 1,
+  "cacheNodeType": "cache.t2.micro",
+  "engineVersion": "6.x",
+  "numCacheNodes": 1,
   "automaticFailoverEnabled": false,
 
-  "smtpDomain": "diycities.jp",
+  "ecs": {
+    "smtpDomain": "diycities.jp",
+    "repository": "decidim-cfj",
+    "certificates": [
+      "arn:aws:acm:ap-northeast-1:887442827229:certificate/faa7a120-3843-4561-93ec-c3d313356ad5",
+      "arn:aws:acm:ap-northeast-1:887442827229:certificate/b02c7415-d6f8-4794-994e-fe5689ca7b74"
+    ],
+    "fargateSpotCapacityProvider": {
+      "base": 1,
+      "weight": 2
+    },
+    "fargateCapacityProvider": {
+      "weight": 1
+    }
+  },
+
   "domain": "diycities.jp",
-  "repository": "decidim-cfj",
-  "certificates": [
-    "arn:aws:acm:ap-northeast-1:887442827229:certificate/faa7a120-3843-4561-93ec-c3d313356ad5",
-    "arn:aws:acm:ap-northeast-1:887442827229:certificate/b02c7415-d6f8-4794-994e-fe5689ca7b74"
-  ],
   "cloudfrontCertificate": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de"
 }

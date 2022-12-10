@@ -22,23 +22,27 @@ import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
 import path = require('path');
+import { capacityProviderStrategy } from "../lib/config";
 
 export interface DecidimStackProps extends BaseStackProps {
   vpc: aws_ec2.IVpc
-  certificates: string[]
   securityGroup: aws_ec2.SecurityGroup
   securityGroupForAlb: aws_ec2.SecurityGroup
   containerSpec?: {
     cpu: number;
     memoryLimitMiB: number;
   }
-  smtpDomain: string
   domain: string
-  repository: string
   tag: string
   rds: string
   cache: string
-  nginxRepository: string
+  ecs: {
+    smtpDomain: string
+    repository: string
+    certificates: string[]
+    fargateCapacityProvider: capacityProviderStrategy
+    fargateSpotCapacityProvider: capacityProviderStrategy
+  }
 }
 
 export class DecidimStack extends cdk.Stack {
@@ -48,7 +52,8 @@ export class DecidimStack extends cdk.Stack {
     // ECS Cluster
     const cluster = new ecs.Cluster(this, 'DecidimCluster', {
       vpc: props.vpc,
-      clusterName: `${ props.stage }DecidimCluster`
+      clusterName: `${ props.stage }DecidimCluster`,
+      enableFargateCapacityProviders: true,
     })
 
     // Task Definition
@@ -76,7 +81,7 @@ export class DecidimStack extends cdk.Stack {
     );
 
     const repo = new Repository(this, 'repo', {
-      repositoryName: props.nginxRepository,
+      repositoryName: `${ props.stage }-${ props.serviceName }-nginx-repository`,
       removalPolicy: RemovalPolicy.DESTROY
     })
 
@@ -99,18 +104,18 @@ export class DecidimStack extends cdk.Stack {
       RDS_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_USERNAME`),
       RDS_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_PASSWORD`),
       SECRET_KEY_BASE: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SECRET_KEY_BASE`),
-      NEW_RELIC_AGENT_ENABLED: props.stage === 'prd' ? 'true' : 'false',
-      NEW_RELIC_LICENSE_KEY: props.stage === 'prd' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
+      NEW_RELIC_AGENT_ENABLED: props.stage === 'production' ? 'true' : 'false',
+      NEW_RELIC_LICENSE_KEY: props.stage === 'production' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
       SMTP_ADDRESS: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_ADDRESS`),
       SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_USERNAME`),
       SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_PASSWORD`),
-      SMTP_DOMAIN: props.smtpDomain,
+      SMTP_DOMAIN: props.ecs.smtpDomain,
       AWS_BUCKET_NAME: `${ props.stage }-${ props.serviceName }-bucket`,
       DECIDIM_COMMENTS_LIMIT: "30",
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SLACK_API_TOKEN`),
     };
 
-    const decidimRepository = aws_ecr.Repository.fromRepositoryName(this, 'DecidimRepository', props.repository)
+    const decidimRepository = aws_ecr.Repository.fromRepositoryName(this, 'DecidimRepository', props.ecs.repository)
 
     const container = taskDefinition.addContainer('nginxContainer', {
       image: ecs.ContainerImage.fromEcrRepository(repo, 'latest'),
@@ -194,7 +199,19 @@ export class DecidimStack extends cdk.Stack {
       securityGroups: [props.securityGroup],
       desiredCount: 1,
       assignPublicIp: true,
-      enableExecuteCommand: true // For Debug
+      enableExecuteCommand: true, // For Debug
+      capacityProviderStrategies: [
+        {
+          capacityProvider: 'FARGATE_SPOT',
+          base: props.ecs.fargateSpotCapacityProvider.base,
+          weight: props.ecs.fargateSpotCapacityProvider.weight
+        },
+        {
+          capacityProvider: 'FARGATE',
+          base: props.ecs.fargateCapacityProvider.base,
+          weight: props.ecs.fargateCapacityProvider.weight
+        }
+      ]
     })
     const autoscaling = ecsService.autoScaleTaskCount({
       minCapacity: 1,
@@ -218,7 +235,19 @@ export class DecidimStack extends cdk.Stack {
       securityGroups: [props.securityGroup],
       desiredCount: 1,
       assignPublicIp: true,
-      enableExecuteCommand: true // For Debug
+      enableExecuteCommand: true, // For Debug
+      capacityProviderStrategies: [
+        {
+          capacityProvider: 'FARGATE_SPOT',
+          base: props.ecs.fargateSpotCapacityProvider.base,
+          weight: props.ecs.fargateSpotCapacityProvider.weight
+        },
+        {
+          capacityProvider: 'FARGATE',
+          base: props.ecs.fargateCapacityProvider.base,
+          weight: props.ecs.fargateCapacityProvider.weight
+        }
+      ]
     })
 
     // ALB Log
@@ -259,7 +288,7 @@ export class DecidimStack extends cdk.Stack {
 
     const certificates: ListenerCertificate[] = [];
 
-    props.certificates.forEach((certificate, i) => {
+    props.ecs.certificates.forEach((certificate, i) => {
       certificates.push(aws_certificatemanager.Certificate.fromCertificateArn(this, `Certificate${ i }`, certificate))
     })
 

@@ -23,6 +23,19 @@ export interface RdsConfig {
   multiAz: boolean
 }
 
+export interface EcsConfig {
+  smtpDomain: string,
+  repository: string
+  certificates: string[]
+  fargateCapacityProvider: capacityProviderStrategy
+  fargateSpotCapacityProvider: capacityProviderStrategy
+}
+
+export interface capacityProviderStrategy {
+  base?: number;
+  weight: number;
+}
+
 export interface Config {
   stage: string
 
@@ -41,13 +54,11 @@ export interface Config {
   numCacheNodes: number
   automaticFailoverEnabled: boolean
 
+  ecs: EcsConfig
+
   // service
-  smtpDomain: string,
   domain: string,
-  repository: string
-  certificates: string[]
   cloudfrontCertificate: string
-  nginxRepository: string
 }
 
 export function getConfig (stage: string): Config {

@@ -11,7 +11,7 @@ import { CloudFrontStack } from "../lib/cloudfront";
 
 const app = new cdk.App();
 
-const stages = ['dev', 'staging', 'prd']
+const stages = ['dev', 'staging', 'production']
 const stage = app.node.tryGetContext('stage')
 const tag = app.node.tryGetContext('tag')
 if (!stages.includes(stage)) {
@@ -75,15 +75,12 @@ const service = new DecidimStack(app, `${ stage }${ serviceName }Stack`, {
   tag,
   serviceName,
   vpc: network.vpc,
-  certificates: config.certificates,
+  ecs: config.ecs,
   securityGroup: network.sgForDecidimService,
   securityGroupForAlb: network.sgForAlb,
-  smtpDomain: config.smtpDomain,
   domain: config.domain,
-  repository: config.repository,
   rds: rds.rds.dbInstanceEndpointAddress,
   cache: elastiCache.redis.attrReaderEndPointAddress,
-  nginxRepository: config.nginxRepository
 })
 service.addDependency(network)
 
