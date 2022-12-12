@@ -8,6 +8,7 @@ import { RdsStack } from "../lib/rds-stack";
 import { ElasticacheStack } from "../lib/elasticache-stack";
 import { DecidimStack } from "../lib/decidim-stack";
 import { CloudFrontStack } from "../lib/cloudfront";
+import { Tags } from 'aws-cdk-lib';
 
 const app = new cdk.App();
 
@@ -92,3 +93,10 @@ const distribution = new CloudFrontStack(app, `${ stage }${ serviceName }CloudFr
   certificateArn: config.cloudfrontCertificate
 })
 distribution.addDependency(service)
+
+Tags.of(app).add('Project', 'Decidim')
+Tags.of(app).add('Repository', 'decidim-cfj-cdk')
+Tags.of(app).add('GovernmentName', 'code4japan')
+Tags.of(app).add('Env', stage)
+Tags.of(app).add('ManagedBy', 'cdk')
+
