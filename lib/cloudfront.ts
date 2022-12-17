@@ -204,23 +204,44 @@ export class CloudFrontStack extends Stack {
       }
     )
 
-    new cloudfront.Distribution(this, 'Distribution', {
-      priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
-      defaultBehavior: {
-        origin: origin,
-        allowedMethods: AllowedMethods.ALLOW_ALL,
+    if (props.stage === "prd-v0252") {
+      new cloudfront.Distribution(this, 'Distribution', {
+        priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
+        defaultBehavior: {
+          origin: origin,
+          allowedMethods: AllowedMethods.ALLOW_ALL,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          cachePolicy: CachePolicy.CACHING_DISABLED,
+          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
+        },
+        comment: `${ props.stage }-${ props.serviceName }-cloudfront`,
+        domainNames: [endpoint, `*.${ props.domain }`],
+        certificate: aws_certificatemanager.Certificate.fromCertificateArn(this, 'cloudFrontCertificate', props.certificateArn),
+        webAclId: waf.attrArn
+      }).addBehavior('decidim-packs/*', origin, {
+        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: CachePolicy.CACHING_DISABLED,
-        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
-      },
-      comment: `${ props.stage }-${ props.serviceName }-cloudfront`,
-      domainNames: [endpoint],
-      certificate: aws_certificatemanager.Certificate.fromCertificateArn(this, 'cloudFrontCertificate', props.certificateArn),
-      webAclId: waf.attrArn
-    }).addBehavior('decidim-packs/*', origin, {
-      allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      cachePolicy: CachePolicy.CACHING_OPTIMIZED
-    })
+        cachePolicy: CachePolicy.CACHING_OPTIMIZED
+      })
+    } else {
+      new cloudfront.Distribution(this, 'Distribution', {
+        priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
+        defaultBehavior: {
+          origin: origin,
+          allowedMethods: AllowedMethods.ALLOW_ALL,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          cachePolicy: CachePolicy.CACHING_DISABLED,
+          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
+        },
+        comment: `${ props.stage }-${ props.serviceName }-cloudfront`,
+        domainNames: [endpoint],
+        certificate: aws_certificatemanager.Certificate.fromCertificateArn(this, 'cloudFrontCertificate', props.certificateArn),
+        webAclId: waf.attrArn
+      }).addBehavior('decidim-packs/*', origin, {
+        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: CachePolicy.CACHING_OPTIMIZED
+      })
+    }
   }
 }
