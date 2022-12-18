@@ -81,7 +81,7 @@ const service = new DecidimStack(app, `${ stage }${ serviceName }Stack`, {
   securityGroupForAlb: network.sgForAlb,
   domain: config.domain,
   rds: rds.rds.dbInstanceEndpointAddress,
-  cache: elastiCache.redis.attrReaderEndPointAddress,
+  cache: elastiCache.redis.attrPrimaryEndPointAddress
 })
 service.addDependency(network)
 
