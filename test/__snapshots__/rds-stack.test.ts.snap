@@ -39,7 +39,7 @@ exports[`RdsStack Created 1`] = `
         "DeleteAutomatedBackups": false,
         "DeletionProtection": false,
         "Engine": "postgres",
-        "EngineVersion": "12.8",
+        "EngineVersion": "12.11",
         "MasterUserPassword": {
           "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
         },
