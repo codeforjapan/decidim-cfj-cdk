@@ -5,7 +5,7 @@ exports[`DecidimStack Created 1`] = `
   "Outputs": {
     "PublicDomain": {
       "Export": {
-        "Name": "accessDomain",
+        "Name": "stagingdecidimaccessDomain",
       },
       "Value": "staging-decidim-alb-origin.diycities.jp",
     },
@@ -28,10 +28,6 @@ exports[`DecidimStack Created 1`] = `
       "Default": "/decidim-cfj/staging/AWS_SECRET_ACCESS_KEY",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
-    "SsmParameterValuedecidimcfjstagingNEWRELICLICENSEKEYC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/NEW_RELIC_LICENSE_KEY",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
     "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/decidim-cfj/staging/RDS_DB_NAME",
       "Type": "AWS::SSM::Parameter::Value<String>",
@@ -46,6 +42,10 @@ exports[`DecidimStack Created 1`] = `
     },
     "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/decidim-cfj/staging/SECRET_KEY_BASE",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/SLACK_API_TOKEN",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter": {
@@ -179,6 +179,101 @@ exports[`DecidimStack Created 1`] = `
         },
       },
       "Type": "AWS::ElasticLoadBalancingV2::ListenerCertificate",
+    },
+    "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiB28EAD8E4": {
+      "DependsOn": [
+        "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRoleDefaultPolicy280095F8",
+        "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-887442827229-ap-northeast-1",
+          "S3Key": "5bf1b8234302ff202c4cda9fa6ac3337b67aa20a3201be45d2fcbb6df9535433.zip",
+        },
+        "Handler": "main",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491",
+            "Arn",
+          ],
+        },
+        "Runtime": "go1.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRoleDefaultPolicy280095F8": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:ListImages",
+                "ecr:DescribeImages",
+                "ecr:BatchGetImage",
+                "ecr:ListTagsForResource",
+                "ecr:DescribeImageScanFindings",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload",
+                "ecr:PutImage",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRoleDefaultPolicy280095F8",
+        "Roles": [
+          {
+            "Ref": "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "CustomDeleteExistingRecordSetCustomResourceProviderHandlerAD00231E": {
       "DependsOn": [
@@ -343,6 +438,19 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::ECS::Cluster",
     },
+    "DecidimClusterCEE83ED3": {
+      "Properties": {
+        "CapacityProviders": [
+          "FARGATE",
+          "FARGATE_SPOT",
+        ],
+        "Cluster": {
+          "Ref": "DecidimCluster7E0E2A4C",
+        },
+        "DefaultCapacityProviderStrategy": [],
+      },
+      "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
+    },
     "DecidimLogGroup95A8400F": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -359,6 +467,17 @@ exports[`DecidimStack Created 1`] = `
         "AlbhttpsListenerB49E5778",
       ],
       "Properties": {
+        "CapacityProviderStrategy": [
+          {
+            "Base": 1,
+            "CapacityProvider": "FARGATE_SPOT",
+            "Weight": 2,
+          },
+          {
+            "CapacityProvider": "FARGATE",
+            "Weight": 1,
+          },
+        ],
         "Cluster": {
           "Ref": "DecidimCluster7E0E2A4C",
         },
@@ -370,11 +489,10 @@ exports[`DecidimStack Created 1`] = `
         "EnableECSManagedTags": false,
         "EnableExecuteCommand": true,
         "HealthCheckGracePeriodSeconds": 60,
-        "LaunchType": "FARGATE",
         "LoadBalancers": [
           {
-            "ContainerName": "appContainer",
-            "ContainerPort": 3000,
+            "ContainerName": "nginxContainer",
+            "ContainerPort": 80,
             "TargetGroupArn": {
               "Ref": "TargetGroup3D7CD9B8",
             },
@@ -447,16 +565,131 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
     },
+    "DecidimServiceTaskCountTargetScalingOnCpu1800AE43": {
+      "Properties": {
+        "PolicyName": "DecidimStackDecidimServiceTaskCountTargetScalingOnCpu953E69EC",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "DecidimServiceTaskCountTarget3784A9EB",
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ECSServiceAverageCPUUtilization",
+          },
+          "TargetValue": 50,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
+    "DecidimServiceTaskCountTargetScalingOnMemory0E639638": {
+      "Properties": {
+        "PolicyName": "DecidimStackDecidimServiceTaskCountTargetScalingOnMemoryF0361EFA",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "DecidimServiceTaskCountTarget3784A9EB",
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ECSServiceAverageMemoryUtilization",
+          },
+          "TargetValue": 50,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
+    "DeployDockerImageCustomResource1798FC60": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "DestImage": {
+          "Fn::Join": [
+            "",
+            [
+              "docker://",
+              {
+                "Fn::Select": [
+                  4,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "repoBEC318EA",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ".dkr.ecr.",
+              {
+                "Fn::Select": [
+                  3,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "repoBEC318EA",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ".",
+              {
+                "Ref": "AWS::URLSuffix",
+              },
+              "/",
+              {
+                "Ref": "repoBEC318EA",
+              },
+              ":latest",
+            ],
+          ],
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiB28EAD8E4",
+            "Arn",
+          ],
+        },
+        "SrcImage": {
+          "Fn::Join": [
+            "",
+            [
+              "docker://",
+              {
+                "Fn::Sub": "887442827229.dkr.ecr.ap-northeast-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-887442827229-ap-northeast-1:c4d1057c7e46dd67f01b922d78602e2c92f7dcf2f5d2f214a0d23ac6788cf9fd",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "Custom::CDKBucketDeployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "NginxLogGroupBC063F96": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "staging-decidim-nginxLogGroup",
+        "RetentionInDays": 14,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
     "TargetGroup3D7CD9B8": {
       "Properties": {
         "HealthCheckPath": "/",
-        "HealthCheckPort": "3000",
+        "HealthCheckPort": "80",
         "HealthCheckProtocol": "HTTP",
         "Matcher": {
           "HttpCode": "301",
         },
         "Name": "staging-decidim-TargetGroup",
-        "Port": 3000,
+        "Port": 80,
         "Protocol": "HTTP",
         "TargetGroupAttributes": [
           {
@@ -591,10 +824,16 @@ exports[`DecidimStack Created 1`] = `
                 },
               },
               {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
+              },
+              {
                 "Name": "NEW_RELIC_LICENSE_KEY",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingNEWRELICLICENSEKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "",
+              },
+              {
+                "Name": "NEW_RELIC_APP_NAME",
+                "Value": "decidim-appstaging",
               },
               {
                 "Name": "SMTP_ADDRESS",
@@ -626,12 +865,18 @@ exports[`DecidimStack Created 1`] = `
                 "Name": "DECIDIM_COMMENTS_LIMIT",
                 "Value": "30",
               },
+              {
+                "Name": "SLACK_API_TOKEN",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
             ],
             "Essential": true,
             "HealthCheck": {
               "Command": [
                 "CMD-SHELL",
-                "curl --fail -s http://localhost:3000 || exit 1",
+                "curl --fail -s http://localhost || exit 1",
               ],
               "Interval": 60,
               "Retries": 3,
@@ -642,11 +887,48 @@ exports[`DecidimStack Created 1`] = `
               "Fn::Join": [
                 "",
                 [
-                  "887442827229.dkr.ecr.ap-northeast-1.",
+                  {
+                    "Fn::Select": [
+                      4,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::GetAtt": [
+                              "repoBEC318EA",
+                              "Arn",
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  ".dkr.ecr.",
+                  {
+                    "Fn::Select": [
+                      3,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::GetAtt": [
+                              "repoBEC318EA",
+                              "Arn",
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  ".",
                   {
                     "Ref": "AWS::URLSuffix",
                   },
-                  "/decidim-cfj:tag-test1",
+                  "/",
+                  {
+                    "Ref": "repoBEC318EA",
+                  },
+                  ":latest",
                 ],
               ],
             },
@@ -654,28 +936,21 @@ exports[`DecidimStack Created 1`] = `
               "LogDriver": "awslogs",
               "Options": {
                 "awslogs-group": {
-                  "Ref": "DecidimLogGroup95A8400F",
+                  "Ref": "NginxLogGroupBC063F96",
                 },
                 "awslogs-region": "ap-northeast-1",
-                "awslogs-stream-prefix": "app",
+                "awslogs-stream-prefix": "nginx",
               },
             },
-            "Name": "appContainer",
+            "Name": "nginxContainer",
             "PortMappings": [
               {
-                "ContainerPort": 3000,
+                "ContainerPort": 80,
                 "Protocol": "tcp",
               },
             ],
           },
           {
-            "Command": [
-              "bundle",
-              "exec",
-              "sidekiq",
-              "-C",
-              "/app/config/sidekiq.yml",
-            ],
             "Environment": [
               {
                 "Name": "AWS_ACCESS_KEY_ID",
@@ -741,10 +1016,16 @@ exports[`DecidimStack Created 1`] = `
                 },
               },
               {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
+              },
+              {
                 "Name": "NEW_RELIC_LICENSE_KEY",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingNEWRELICLICENSEKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "",
+              },
+              {
+                "Name": "NEW_RELIC_APP_NAME",
+                "Value": "decidim-appstaging",
               },
               {
                 "Name": "SMTP_ADDRESS",
@@ -776,12 +1057,18 @@ exports[`DecidimStack Created 1`] = `
                 "Name": "DECIDIM_COMMENTS_LIMIT",
                 "Value": "30",
               },
+              {
+                "Name": "SLACK_API_TOKEN",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
             ],
             "Essential": true,
             "HealthCheck": {
               "Command": [
                 "CMD-SHELL",
-                "ps aux | grep '[s]idekiq'",
+                "curl --fail -s http://localhost:3000 || exit 1",
               ],
               "Interval": 60,
               "Retries": 3,
@@ -804,13 +1091,13 @@ exports[`DecidimStack Created 1`] = `
               "LogDriver": "awslogs",
               "Options": {
                 "awslogs-group": {
-                  "Ref": "sidekiqLogGroup87177A08",
+                  "Ref": "DecidimLogGroup95A8400F",
                 },
                 "awslogs-region": "ap-northeast-1",
-                "awslogs-stream-prefix": "sidekiq",
+                "awslogs-stream-prefix": "app",
               },
             },
-            "Name": "sidekiqContainer",
+            "Name": "appContainer",
           },
         ],
         "Cpu": "2048",
@@ -864,15 +1151,9 @@ exports[`DecidimStack Created 1`] = `
               ],
               "Effect": "Allow",
               "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
-                  ],
+                "Fn::GetAtt": [
+                  "repoBEC318EA",
+                  "Arn",
                 ],
               },
             },
@@ -889,8 +1170,28 @@ exports[`DecidimStack Created 1`] = `
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "DecidimLogGroup95A8400F",
+                  "NginxLogGroupBC063F96",
                   "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
+                  ],
                 ],
               },
             },
@@ -902,7 +1203,7 @@ exports[`DecidimStack Created 1`] = `
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "sidekiqLogGroup87177A08",
+                  "DecidimLogGroup95A8400F",
                   "Arn",
                 ],
               },
@@ -976,6 +1277,14 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
+    "repoBEC318EA": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "RepositoryName": "staging-decidim-nginx-repository",
+      },
+      "Type": "AWS::ECR::Repository",
+      "UpdateReplacePolicy": "Delete",
+    },
     "sidekiqLogGroup87177A08": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -984,6 +1293,367 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::Logs::LogGroup",
       "UpdateReplacePolicy": "Delete",
+    },
+    "sidekiqServiceD7B0038B": {
+      "Properties": {
+        "CapacityProviderStrategy": [
+          {
+            "Base": 1,
+            "CapacityProvider": "FARGATE_SPOT",
+            "Weight": 2,
+          },
+          {
+            "CapacityProvider": "FARGATE",
+            "Weight": 1,
+          },
+        ],
+        "Cluster": {
+          "Ref": "DecidimCluster7E0E2A4C",
+        },
+        "DeploymentConfiguration": {
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 50,
+        },
+        "DesiredCount": 1,
+        "EnableECSManagedTags": false,
+        "EnableExecuteCommand": true,
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
+              },
+            ],
+            "Subnets": [
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
+              },
+            ],
+          },
+        },
+        "ServiceName": "stagingSidekiqService",
+        "TaskDefinition": {
+          "Ref": "sidekiqTaskDefinitionD9F954F5",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "sidekiqTaskDefinitionD9F954F5": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Command": [
+              "bundle",
+              "exec",
+              "sidekiq",
+              "-C",
+              "/app/config/sidekiq.yml",
+            ],
+            "Environment": [
+              {
+                "Name": "AWS_ACCESS_KEY_ID",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_SECRET_ACCESS_KEY",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_CLOUD_FRONT_END_POINT",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "RDS_DB_NAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_HOSTNAME",
+                "Value": {
+                  "Fn::ImportValue": "stagingdecidimRdsStack:ExportsOutputFnGetAttcreateRds829C4ED0EndpointAddressA146A595",
+                },
+              },
+              {
+                "Name": "RDS_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SECRET_KEY_BASE",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
+              },
+              {
+                "Name": "NEW_RELIC_LICENSE_KEY",
+                "Value": "",
+              },
+              {
+                "Name": "NEW_RELIC_APP_NAME",
+                "Value": "decidim-appstaging",
+              },
+              {
+                "Name": "SMTP_ADDRESS",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_DOMAIN",
+                "Value": "diycities.jp",
+              },
+              {
+                "Name": "AWS_BUCKET_NAME",
+                "Value": "staging-decidim-bucket",
+              },
+              {
+                "Name": "DECIDIM_COMMENTS_LIMIT",
+                "Value": "30",
+              },
+              {
+                "Name": "SLACK_API_TOKEN",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+            ],
+            "Essential": true,
+            "HealthCheck": {
+              "Command": [
+                "CMD-SHELL",
+                "ps aux | grep '[s]idekiq'",
+              ],
+              "Interval": 60,
+              "Retries": 3,
+              "StartPeriod": 120,
+              "Timeout": 5,
+            },
+            "Image": {
+              "Fn::Join": [
+                "",
+                [
+                  "887442827229.dkr.ecr.ap-northeast-1.",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/decidim-cfj:tag-test1",
+                ],
+              ],
+            },
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "sidekiqLogGroup87177A08",
+                },
+                "awslogs-region": "ap-northeast-1",
+                "awslogs-stream-prefix": "sidekiq",
+              },
+            },
+            "Name": "sidekiqContainer",
+          },
+        ],
+        "Cpu": "1024",
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "sidekiqTaskDefinitionExecutionRole147A0623",
+            "Arn",
+          ],
+        },
+        "Family": "stagingSidekiqTaskDefinition",
+        "Memory": "2048",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE",
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "sidekiqTaskDefinitionTaskRole2B6DB9EB",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "sidekiqTaskDefinitionExecutionRole147A0623": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "sidekiqTaskDefinitionExecutionRoleDefaultPolicyF7CDBBD4": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "sidekiqLogGroup87177A08",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "sidekiqTaskDefinitionExecutionRoleDefaultPolicyF7CDBBD4",
+        "Roles": [
+          {
+            "Ref": "sidekiqTaskDefinitionExecutionRole147A0623",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "sidekiqTaskDefinitionTaskRole2B6DB9EB": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "sidekiqTaskDefinitionTaskRoleDefaultPolicyB75C9B6B": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "logs:DescribeLogGroups",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "sidekiqTaskDefinitionTaskRoleDefaultPolicyB75C9B6B",
+        "Roles": [
+          {
+            "Ref": "sidekiqTaskDefinitionTaskRole2B6DB9EB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "stagingAlbLogBucket03414E90": {
       "DeletionPolicy": "Delete",
