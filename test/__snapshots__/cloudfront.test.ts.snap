@@ -10,6 +10,202 @@ exports[`Cloudfront Stack Created 1`] = `
     },
   },
   "Resources": {
+    "CfnWebACL": {
+      "Properties": {
+        "CustomResponseBodies": {
+          "disable-action": {
+            "Content": "<div>error: access denied</div>",
+            "ContentType": "TEXT_HTML",
+          },
+        },
+        "DefaultAction": {
+          "Allow": {},
+        },
+        "Description": "Web ACL for staging-decidim-cloudfront",
+        "Name": "staging-decidim-webAcl",
+        "Rules": [
+          {
+            "Name": "staging-decidim-AWSManagedRulesCommonRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 1,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesCommonRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AWSManagedRulesCommonRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "staging-decidim-AWSManagedRulesKnownBadInputsRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 2,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesKnownBadInputsRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AWSManagedRulesKnownBadInputsRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "staging-decidim-AWSManagedRulesAmazonIpReputationList",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 3,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesAmazonIpReputationList",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AWSManagedRulesAmazonIpReputationList",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "staging-decidim-AWSManagedRulesLinuxRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 4,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesLinuxRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AWSManagedRulesLinuxRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "staging-decidim-AWSManagedRulesSQLiRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 5,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesSQLiRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AWSManagedRulesSQLiRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Action": {
+              "Allow": {},
+            },
+            "Name": "staging-decidim-AllowSystemLogin",
+            "Priority": 6,
+            "Statement": {
+              "AndStatement": {
+                "Statements": [
+                  {
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "SingleHeader": {
+                          "name": "host",
+                        },
+                      },
+                      "PositionalConstraint": "EXACTLY",
+                      "SearchString": "staging-decidim-alb-origin",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "UriPath": {},
+                      },
+                      "PositionalConstraint": "CONTAINS",
+                      "SearchString": "system/admins/sign_in",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AllowSystemLogin",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Action": {
+              "Block": {
+                "CustomResponse": {
+                  "CustomResponseBodyKey": "disable-action",
+                  "ResponseCode": 403,
+                },
+              },
+            },
+            "Name": "staging-decidim-SystemLoginBlock",
+            "Priority": 7,
+            "Statement": {
+              "ByteMatchStatement": {
+                "FieldToMatch": {
+                  "UriPath": {},
+                },
+                "PositionalConstraint": "CONTAINS",
+                "SearchString": "system/admins/sign_in",
+                "TextTransformations": [
+                  {
+                    "Priority": 0,
+                    "Type": "LOWERCASE",
+                  },
+                ],
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AllowSystemLogin",
+              "SampledRequestsEnabled": true,
+            },
+          },
+        ],
+        "Scope": "CLOUDFRONT",
+        "VisibilityConfig": {
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": "staging-decidim-webAcl-metrics",
+          "SampledRequestsEnabled": true,
+        },
+      },
+      "Type": "AWS::WAFv2::WebACL",
+    },
     "Distribution830FAC52": {
       "Properties": {
         "DistributionConfig": {
@@ -67,6 +263,12 @@ exports[`Cloudfront Stack Created 1`] = `
             "AcmCertificateArn": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de",
             "MinimumProtocolVersion": "TLSv1.2_2021",
             "SslSupportMethod": "sni-only",
+          },
+          "WebACLId": {
+            "Fn::GetAtt": [
+              "CfnWebACL",
+              "Arn",
+            ],
           },
         },
       },
