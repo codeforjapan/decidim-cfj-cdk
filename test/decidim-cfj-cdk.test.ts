@@ -71,15 +71,12 @@ test('DecidimStack Created', () => {
         tag,
         serviceName,
         vpc: network.vpc,
-        certificates: config.certificates,
+        ecs: config.ecs,
         securityGroup: network.sgForDecidimService,
         securityGroupForAlb: network.sgForAlb,
-        smtpDomain: config.smtpDomain,
         domain: config.domain,
-        repository: config.repository,
         rds: rds.rds.dbInstanceEndpointAddress,
-        cache: elastiCache.redis.attrReaderEndPointAddress,
-        nginxRepository: config.nginxRepository
+        cache: elastiCache.redis.attrReaderEndPointAddress
     };
     const stack = new DecidimStack(app, 'DecidimStack', props);
 
