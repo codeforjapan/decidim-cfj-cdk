@@ -106,6 +106,7 @@ export class DecidimStack extends cdk.Stack {
       SECRET_KEY_BASE: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SECRET_KEY_BASE`),
       NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0252' ? 'true' : 'false',
       NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0252' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
+      NEW_RELIC_APP_NAME: `decidim-app${ props.stage }`,
       SMTP_ADDRESS: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_ADDRESS`),
       SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_USERNAME`),
       SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_PASSWORD`),
