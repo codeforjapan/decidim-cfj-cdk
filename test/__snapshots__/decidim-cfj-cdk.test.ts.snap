@@ -1,0 +1,1849 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DecidimStack Created 1`] = `
+{
+  "Outputs": {
+    "PublicDomain": {
+      "Export": {
+        "Name": "stagingdecidimaccessDomain",
+      },
+      "Value": "staging-decidim-alb-origin.diycities.jp",
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/AWS_ACCESS_KEY_ID",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/AWS_SECRET_ACCESS_KEY",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/RDS_DB_NAME",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/RDS_PASSWORD",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/RDS_USERNAME",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/SECRET_KEY_BASE",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/SLACK_API_TOKEN",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/SMTP_ADDRESS",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/SMTP_PASSWORD",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/SMTP_USERNAME",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "Alb16C2F182": {
+      "DependsOn": [
+        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
+        "stagingAlbLogBucketPolicyCFEC4BC9",
+        "stagingAlbLogBucket03414E90",
+      ],
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "deletion_protection.enabled",
+            "Value": "false",
+          },
+          {
+            "Key": "access_logs.s3.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "access_logs.s3.bucket",
+            "Value": {
+              "Ref": "stagingAlbLogBucket03414E90",
+            },
+          },
+          {
+            "Key": "access_logs.s3.prefix",
+            "Value": "",
+          },
+        ],
+        "Name": "staging-Decidim-Alb",
+        "Scheme": "internet-facing",
+        "SecurityGroups": [
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForAlbE9A4D6A4GroupIdF0683917",
+          },
+        ],
+        "Subnets": [
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
+          },
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
+          },
+          {
+            "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "AlbhttpListener75E510B4": {
+      "DependsOn": [
+        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
+        "stagingAlbLogBucketPolicyCFEC4BC9",
+        "stagingAlbLogBucket03414E90",
+      ],
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "TargetGroup3D7CD9B8",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": {
+          "Ref": "Alb16C2F182",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "AlbhttpsListenerB49E5778": {
+      "DependsOn": [
+        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
+        "stagingAlbLogBucketPolicyCFEC4BC9",
+        "stagingAlbLogBucket03414E90",
+      ],
+      "Properties": {
+        "Certificates": [
+          {
+            "CertificateArn": "arn:aws:acm:ap-northeast-1:887442827229:certificate/faa7a120-3843-4561-93ec-c3d313356ad5",
+          },
+        ],
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "TargetGroup3D7CD9B8",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": {
+          "Ref": "Alb16C2F182",
+        },
+        "Port": 443,
+        "Protocol": "HTTPS",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "AlbhttpsListenerDefaultCertificates1CE6DF251": {
+      "DependsOn": [
+        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
+        "stagingAlbLogBucketPolicyCFEC4BC9",
+        "stagingAlbLogBucket03414E90",
+      ],
+      "Properties": {
+        "Certificates": [
+          {
+            "CertificateArn": "arn:aws:acm:ap-northeast-1:887442827229:certificate/b02c7415-d6f8-4794-994e-fe5689ca7b74",
+          },
+        ],
+        "ListenerArn": {
+          "Ref": "AlbhttpsListenerB49E5778",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::ListenerCertificate",
+    },
+    "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiB28EAD8E4": {
+      "DependsOn": [
+        "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRoleDefaultPolicy280095F8",
+        "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-887442827229-ap-northeast-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Handler": "main",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491",
+            "Arn",
+          ],
+        },
+        "Runtime": "go1.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRoleDefaultPolicy280095F8": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:ListImages",
+                "ecr:DescribeImages",
+                "ecr:BatchGetImage",
+                "ecr:ListTagsForResource",
+                "ecr:DescribeImageScanFindings",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload",
+                "ecr:PutImage",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRoleDefaultPolicy280095F8",
+        "Roles": [
+          {
+            "Ref": "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRole8C8B0491",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CustomDeleteExistingRecordSetCustomResourceProviderHandlerAD00231E": {
+      "DependsOn": [
+        "CustomDeleteExistingRecordSetCustomResourceProviderRole03A7ED08",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-887442827229-ap-northeast-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomDeleteExistingRecordSetCustomResourceProviderRole03A7ED08",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomDeleteExistingRecordSetCustomResourceProviderRole03A7ED08": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "route53:GetChange",
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+                {
+                  "Action": "route53:ListResourceRecordSets",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":route53:::hostedzone/DUMMY",
+                      ],
+                    ],
+                  },
+                },
+                {
+                  "Action": "route53:ChangeResourceRecordSets",
+                  "Condition": {
+                    "ForAllValues:StringEquals": {
+                      "route53:ChangeResourceRecordSetsActions": [
+                        "DELETE",
+                      ],
+                      "route53:ChangeResourceRecordSetsRecordTypes": [
+                        "A",
+                      ],
+                    },
+                  },
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":route53:::hostedzone/DUMMY",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "Inline",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+      "DependsOn": [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-887442827229-ap-northeast-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Lambda function for auto-deleting objects in ",
+              {
+                "Ref": "stagingAlbLogBucket03414E90",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DecidimCluster7E0E2A4C": {
+      "Properties": {
+        "ClusterName": "stagingDecidimCluster",
+      },
+      "Type": "AWS::ECS::Cluster",
+    },
+    "DecidimClusterCEE83ED3": {
+      "Properties": {
+        "CapacityProviders": [
+          "FARGATE",
+          "FARGATE_SPOT",
+        ],
+        "Cluster": {
+          "Ref": "DecidimCluster7E0E2A4C",
+        },
+        "DefaultCapacityProviderStrategy": [],
+      },
+      "Type": "AWS::ECS::ClusterCapacityProviderAssociations",
+    },
+    "DecidimLogGroup95A8400F": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "staging-decidim-serviceLogGroup",
+        "RetentionInDays": 14,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DecidimService075C16C3": {
+      "DependsOn": [
+        "AlbhttpListener75E510B4",
+        "AlbhttpsListenerDefaultCertificates1CE6DF251",
+        "AlbhttpsListenerB49E5778",
+      ],
+      "Properties": {
+        "CapacityProviderStrategy": [
+          {
+            "Base": 1,
+            "CapacityProvider": "FARGATE_SPOT",
+            "Weight": 2,
+          },
+          {
+            "CapacityProvider": "FARGATE",
+            "Weight": 1,
+          },
+        ],
+        "Cluster": {
+          "Ref": "DecidimCluster7E0E2A4C",
+        },
+        "DeploymentConfiguration": {
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 50,
+        },
+        "DesiredCount": 1,
+        "EnableECSManagedTags": false,
+        "EnableExecuteCommand": true,
+        "HealthCheckGracePeriodSeconds": 60,
+        "LoadBalancers": [
+          {
+            "ContainerName": "nginxContainer",
+            "ContainerPort": 80,
+            "TargetGroupArn": {
+              "Ref": "TargetGroup3D7CD9B8",
+            },
+          },
+        ],
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
+              },
+            ],
+            "Subnets": [
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
+              },
+            ],
+          },
+        },
+        "ServiceName": "stagingDecidimService",
+        "TaskDefinition": {
+          "Ref": "decidimTaskDefinition2308FB5B",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "DecidimServiceTaskCountTarget3784A9EB": {
+      "Properties": {
+        "MaxCapacity": 5,
+        "MinCapacity": 1,
+        "ResourceId": {
+          "Fn::Join": [
+            "",
+            [
+              "service/",
+              {
+                "Ref": "DecidimCluster7E0E2A4C",
+              },
+              "/",
+              {
+                "Fn::GetAtt": [
+                  "DecidimService075C16C3",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+        "RoleARN": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":iam::887442827229:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
+            ],
+          ],
+        },
+        "ScalableDimension": "ecs:service:DesiredCount",
+        "ServiceNamespace": "ecs",
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+    },
+    "DecidimServiceTaskCountTargetScalingOnCpu1800AE43": {
+      "Properties": {
+        "PolicyName": "DecidimStackDecidimServiceTaskCountTargetScalingOnCpu953E69EC",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "DecidimServiceTaskCountTarget3784A9EB",
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ECSServiceAverageCPUUtilization",
+          },
+          "TargetValue": 50,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
+    "DecidimServiceTaskCountTargetScalingOnMemory0E639638": {
+      "Properties": {
+        "PolicyName": "DecidimStackDecidimServiceTaskCountTargetScalingOnMemoryF0361EFA",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "DecidimServiceTaskCountTarget3784A9EB",
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ECSServiceAverageMemoryUtilization",
+          },
+          "TargetValue": 50,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
+    "DeployDockerImageCustomResource1798FC60": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "DestImage": {
+          "Fn::Join": [
+            "",
+            [
+              "docker://",
+              {
+                "Fn::Select": [
+                  4,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "repoBEC318EA",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ".dkr.ecr.",
+              {
+                "Fn::Select": [
+                  3,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "repoBEC318EA",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ".",
+              {
+                "Ref": "AWS::URLSuffix",
+              },
+              "/",
+              {
+                "Ref": "repoBEC318EA",
+              },
+              ":latest",
+            ],
+          ],
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiB28EAD8E4",
+            "Arn",
+          ],
+        },
+        "SrcImage": {
+          "Fn::Join": [
+            "",
+            [
+              "docker://",
+              {
+                "Fn::Sub": "887442827229.dkr.ecr.ap-northeast-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-887442827229-ap-northeast-1:c4d1057c7e46dd67f01b922d78602e2c92f7dcf2f5d2f214a0d23ac6788cf9fd",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "Custom::CDKBucketDeployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "NginxLogGroupBC063F96": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "staging-decidim-nginxLogGroup",
+        "RetentionInDays": 14,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "TargetGroup3D7CD9B8": {
+      "Properties": {
+        "HealthCheckPath": "/",
+        "HealthCheckPort": "80",
+        "HealthCheckProtocol": "HTTP",
+        "Matcher": {
+          "HttpCode": "301",
+        },
+        "Name": "staging-decidim-TargetGroup",
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": {
+          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "addARecordA6D3D93D": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "addARecordDeleteExistingRecordSetCustomResource333FD988",
+      ],
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::Join": [
+              "",
+              [
+                "dualstack.",
+                {
+                  "Fn::GetAtt": [
+                    "Alb16C2F182",
+                    "DNSName",
+                  ],
+                },
+              ],
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::GetAtt": [
+              "Alb16C2F182",
+              "CanonicalHostedZoneID",
+            ],
+          },
+        },
+        "HostedZoneId": "DUMMY",
+        "Name": "staging-decidim-alb-origin.diycities.jp.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "addARecordDeleteExistingRecordSetCustomResource333FD988": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "HostedZoneId": "DUMMY",
+        "RecordName": "staging-decidim-alb-origin.diycities.jp.",
+        "RecordType": "A",
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomDeleteExistingRecordSetCustomResourceProviderHandlerAD00231E",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::DeleteExistingRecordSet",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "decidimTaskDefinition2308FB5B": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Environment": [
+              {
+                "Name": "AWS_ACCESS_KEY_ID",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_SECRET_ACCESS_KEY",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_CLOUD_FRONT_END_POINT",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "RDS_DB_NAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_HOSTNAME",
+                "Value": {
+                  "Fn::ImportValue": "stagingdecidimRdsStack:ExportsOutputFnGetAttcreateRds829C4ED0EndpointAddressA146A595",
+                },
+              },
+              {
+                "Name": "RDS_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SECRET_KEY_BASE",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
+              },
+              {
+                "Name": "NEW_RELIC_LICENSE_KEY",
+                "Value": "",
+              },
+              {
+                "Name": "NEW_RELIC_APP_NAME",
+                "Value": "decidim-appstaging",
+              },
+              {
+                "Name": "SMTP_ADDRESS",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_DOMAIN",
+                "Value": "diycities.jp",
+              },
+              {
+                "Name": "AWS_BUCKET_NAME",
+                "Value": "staging-decidim-bucket",
+              },
+              {
+                "Name": "DECIDIM_COMMENTS_LIMIT",
+                "Value": "30",
+              },
+              {
+                "Name": "SLACK_API_TOKEN",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+            ],
+            "Essential": true,
+            "HealthCheck": {
+              "Command": [
+                "CMD-SHELL",
+                "curl --fail -s http://localhost || exit 1",
+              ],
+              "Interval": 60,
+              "Retries": 3,
+              "StartPeriod": 120,
+              "Timeout": 5,
+            },
+            "Image": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Select": [
+                      4,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::GetAtt": [
+                              "repoBEC318EA",
+                              "Arn",
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  ".dkr.ecr.",
+                  {
+                    "Fn::Select": [
+                      3,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::GetAtt": [
+                              "repoBEC318EA",
+                              "Arn",
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  {
+                    "Ref": "repoBEC318EA",
+                  },
+                  ":latest",
+                ],
+              ],
+            },
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "NginxLogGroupBC063F96",
+                },
+                "awslogs-region": "ap-northeast-1",
+                "awslogs-stream-prefix": "nginx",
+              },
+            },
+            "Name": "nginxContainer",
+            "PortMappings": [
+              {
+                "ContainerPort": 80,
+                "Protocol": "tcp",
+              },
+            ],
+          },
+          {
+            "Environment": [
+              {
+                "Name": "AWS_ACCESS_KEY_ID",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_SECRET_ACCESS_KEY",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_CLOUD_FRONT_END_POINT",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "RDS_DB_NAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_HOSTNAME",
+                "Value": {
+                  "Fn::ImportValue": "stagingdecidimRdsStack:ExportsOutputFnGetAttcreateRds829C4ED0EndpointAddressA146A595",
+                },
+              },
+              {
+                "Name": "RDS_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SECRET_KEY_BASE",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
+              },
+              {
+                "Name": "NEW_RELIC_LICENSE_KEY",
+                "Value": "",
+              },
+              {
+                "Name": "NEW_RELIC_APP_NAME",
+                "Value": "decidim-appstaging",
+              },
+              {
+                "Name": "SMTP_ADDRESS",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_DOMAIN",
+                "Value": "diycities.jp",
+              },
+              {
+                "Name": "AWS_BUCKET_NAME",
+                "Value": "staging-decidim-bucket",
+              },
+              {
+                "Name": "DECIDIM_COMMENTS_LIMIT",
+                "Value": "30",
+              },
+              {
+                "Name": "SLACK_API_TOKEN",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+            ],
+            "Essential": true,
+            "HealthCheck": {
+              "Command": [
+                "CMD-SHELL",
+                "curl --fail -s http://localhost:3000 || exit 1",
+              ],
+              "Interval": 60,
+              "Retries": 3,
+              "StartPeriod": 120,
+              "Timeout": 5,
+            },
+            "Image": {
+              "Fn::Join": [
+                "",
+                [
+                  "887442827229.dkr.ecr.ap-northeast-1.",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/decidim-cfj:tag-test1",
+                ],
+              ],
+            },
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "DecidimLogGroup95A8400F",
+                },
+                "awslogs-region": "ap-northeast-1",
+                "awslogs-stream-prefix": "app",
+              },
+            },
+            "Name": "appContainer",
+          },
+        ],
+        "Cpu": "2048",
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "decidimTaskDefinitionExecutionRole30861524",
+            "Arn",
+          ],
+        },
+        "Family": "stagingDecidimTaskDefinition",
+        "Memory": "4096",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE",
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "decidimTaskDefinitionTaskRole563C655F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "decidimTaskDefinitionExecutionRole30861524": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "decidimTaskDefinitionExecutionRoleDefaultPolicyFB5569E3": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "repoBEC318EA",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "NginxLogGroupBC063F96",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DecidimLogGroup95A8400F",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "decidimTaskDefinitionExecutionRoleDefaultPolicyFB5569E3",
+        "Roles": [
+          {
+            "Ref": "decidimTaskDefinitionExecutionRole30861524",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "decidimTaskDefinitionTaskRole563C655F": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "decidimTaskDefinitionTaskRoleDefaultPolicy926C4DB3": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "logs:DescribeLogGroups",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "decidimTaskDefinitionTaskRoleDefaultPolicy926C4DB3",
+        "Roles": [
+          {
+            "Ref": "decidimTaskDefinitionTaskRole563C655F",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "repoBEC318EA": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "RepositoryName": "staging-decidim-nginx-repository",
+      },
+      "Type": "AWS::ECR::Repository",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "sidekiqLogGroup87177A08": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "staging-decidim-sidekiqLogGroup",
+        "RetentionInDays": 14,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "sidekiqServiceD7B0038B": {
+      "Properties": {
+        "CapacityProviderStrategy": [
+          {
+            "Base": 1,
+            "CapacityProvider": "FARGATE_SPOT",
+            "Weight": 2,
+          },
+          {
+            "CapacityProvider": "FARGATE",
+            "Weight": 1,
+          },
+        ],
+        "Cluster": {
+          "Ref": "DecidimCluster7E0E2A4C",
+        },
+        "DeploymentConfiguration": {
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 50,
+        },
+        "DesiredCount": 1,
+        "EnableECSManagedTags": false,
+        "EnableExecuteCommand": true,
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
+              },
+            ],
+            "Subnets": [
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
+              },
+            ],
+          },
+        },
+        "ServiceName": "stagingSidekiqService",
+        "TaskDefinition": {
+          "Ref": "sidekiqTaskDefinitionD9F954F5",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "sidekiqTaskDefinitionD9F954F5": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Command": [
+              "bundle",
+              "exec",
+              "sidekiq",
+              "-C",
+              "/app/config/sidekiq.yml",
+            ],
+            "Environment": [
+              {
+                "Name": "AWS_ACCESS_KEY_ID",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_SECRET_ACCESS_KEY",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "AWS_CLOUD_FRONT_END_POINT",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "RDS_DB_NAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_HOSTNAME",
+                "Value": {
+                  "Fn::ImportValue": "stagingdecidimRdsStack:ExportsOutputFnGetAttcreateRds829C4ED0EndpointAddressA146A595",
+                },
+              },
+              {
+                "Name": "RDS_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "RDS_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SECRET_KEY_BASE",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
+              },
+              {
+                "Name": "NEW_RELIC_LICENSE_KEY",
+                "Value": "",
+              },
+              {
+                "Name": "NEW_RELIC_APP_NAME",
+                "Value": "decidim-appstaging",
+              },
+              {
+                "Name": "SMTP_ADDRESS",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "SMTP_DOMAIN",
+                "Value": "diycities.jp",
+              },
+              {
+                "Name": "AWS_BUCKET_NAME",
+                "Value": "staging-decidim-bucket",
+              },
+              {
+                "Name": "DECIDIM_COMMENTS_LIMIT",
+                "Value": "30",
+              },
+              {
+                "Name": "SLACK_API_TOKEN",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+            ],
+            "Essential": true,
+            "HealthCheck": {
+              "Command": [
+                "CMD-SHELL",
+                "ps aux | grep '[s]idekiq'",
+              ],
+              "Interval": 60,
+              "Retries": 3,
+              "StartPeriod": 120,
+              "Timeout": 5,
+            },
+            "Image": {
+              "Fn::Join": [
+                "",
+                [
+                  "887442827229.dkr.ecr.ap-northeast-1.",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/decidim-cfj:tag-test1",
+                ],
+              ],
+            },
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "sidekiqLogGroup87177A08",
+                },
+                "awslogs-region": "ap-northeast-1",
+                "awslogs-stream-prefix": "sidekiq",
+              },
+            },
+            "Name": "sidekiqContainer",
+          },
+        ],
+        "Cpu": "1024",
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "sidekiqTaskDefinitionExecutionRole147A0623",
+            "Arn",
+          ],
+        },
+        "Family": "stagingSidekiqTaskDefinition",
+        "Memory": "2048",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE",
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "sidekiqTaskDefinitionTaskRole2B6DB9EB",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "sidekiqTaskDefinitionExecutionRole147A0623": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "sidekiqTaskDefinitionExecutionRoleDefaultPolicyF7CDBBD4": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "sidekiqLogGroup87177A08",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "sidekiqTaskDefinitionExecutionRoleDefaultPolicyF7CDBBD4",
+        "Roles": [
+          {
+            "Ref": "sidekiqTaskDefinitionExecutionRole147A0623",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "sidekiqTaskDefinitionTaskRole2B6DB9EB": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "sidekiqTaskDefinitionTaskRoleDefaultPolicyB75C9B6B": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "logs:DescribeLogGroups",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "sidekiqTaskDefinitionTaskRoleDefaultPolicyB75C9B6B",
+        "Roles": [
+          {
+            "Ref": "sidekiqTaskDefinitionTaskRole2B6DB9EB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "stagingAlbLogBucket03414E90": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "BucketName": "staging-decidim-alb-logs",
+        "Tags": [
+          {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "stagingAlbLogBucketPolicyCFEC4BC9",
+      ],
+      "Properties": {
+        "BucketName": {
+          "Ref": "stagingAlbLogBucket03414E90",
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "stagingAlbLogBucketPolicyCFEC4BC9": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "stagingAlbLogBucket03414E90",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "stagingAlbLogBucket03414E90",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "stagingAlbLogBucket03414E90",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::582318560864:root",
+                    ],
+                  ],
+                },
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "stagingAlbLogBucket03414E90",
+                        "Arn",
+                      ],
+                    },
+                    "/AWSLogs/887442827229/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "s3:PutObject",
+              "Condition": {
+                "StringEquals": {
+                  "s3:x-amz-acl": "bucket-owner-full-control",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "delivery.logs.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "stagingAlbLogBucket03414E90",
+                        "Arn",
+                      ],
+                    },
+                    "/AWSLogs/887442827229/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "s3:GetBucketAcl",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "delivery.logs.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "stagingAlbLogBucket03414E90",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
