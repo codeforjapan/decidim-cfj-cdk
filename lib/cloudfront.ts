@@ -39,6 +39,11 @@ export class CloudFrontStack extends Stack {
               managedRuleGroupStatement: {
                 vendorName: "AWS",
                 name: "AWSManagedRulesCommonRuleSet",
+                excludedRules: [
+                  { name: 'CrossSiteScripting_BODY' },
+                  { name: 'SizeRestrictions_BODY'},
+                  { name: 'GenericRFI_BODY'}
+                ]
               },
             },
             overrideAction: { none: {} },
@@ -103,6 +108,9 @@ export class CloudFrontStack extends Stack {
               managedRuleGroupStatement: {
                 vendorName: "AWS",
                 name: "AWSManagedRulesSQLiRuleSet",
+                excludedRules: [
+                  {name: 'SQLi_BODY'}
+                ]
               },
             },
             overrideAction: { none: {} },
