@@ -824,18 +824,6 @@ exports[`DecidimStack Created 1`] = `
                 },
               },
               {
-                "Name": "NEW_RELIC_AGENT_ENABLED",
-                "Value": "false",
-              },
-              {
-                "Name": "NEW_RELIC_LICENSE_KEY",
-                "Value": "",
-              },
-              {
-                "Name": "NEW_RELIC_APP_NAME",
-                "Value": "decidim-appstaging",
-              },
-              {
                 "Name": "SMTP_ADDRESS",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
@@ -1016,18 +1004,6 @@ exports[`DecidimStack Created 1`] = `
                 },
               },
               {
-                "Name": "NEW_RELIC_AGENT_ENABLED",
-                "Value": "false",
-              },
-              {
-                "Name": "NEW_RELIC_LICENSE_KEY",
-                "Value": "",
-              },
-              {
-                "Name": "NEW_RELIC_APP_NAME",
-                "Value": "decidim-appstaging",
-              },
-              {
                 "Name": "SMTP_ADDRESS",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
@@ -1062,6 +1038,18 @@ exports[`DecidimStack Created 1`] = `
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
                 },
+              },
+              {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
+              },
+              {
+                "Name": "NEW_RELIC_LICENSE_KEY",
+                "Value": "",
+              },
+              {
+                "Name": "NEW_RELIC_APP_NAME",
+                "Value": "decidim-appstaging",
               },
             ],
             "Essential": true,
@@ -1419,18 +1407,6 @@ exports[`DecidimStack Created 1`] = `
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter",
                 },
-              },
-              {
-                "Name": "NEW_RELIC_AGENT_ENABLED",
-                "Value": "false",
-              },
-              {
-                "Name": "NEW_RELIC_LICENSE_KEY",
-                "Value": "",
-              },
-              {
-                "Name": "NEW_RELIC_APP_NAME",
-                "Value": "decidim-appstaging",
               },
               {
                 "Name": "SMTP_ADDRESS",
