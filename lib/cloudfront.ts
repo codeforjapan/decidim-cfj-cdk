@@ -21,7 +21,232 @@ export class CloudFrontStack extends Stack {
     const origin = new aws_cloudfront_origins.HttpOrigin(endpoint)
     origin.bind(this, { originId: "defaultEndPoint" })
 
-    const waf = new aws_wafv2.CfnWebACL(this, "CfnWebACL", {
+    const rules: any[] = [
+      {
+        name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesCommonRuleSet`,
+        priority: 1,
+        statement: {
+          managedRuleGroupStatement: {
+            vendorName: "AWS",
+            name: "AWSManagedRulesCommonRuleSet",
+            excludedRules: [
+              { name: 'CrossSiteScripting_BODY' },
+              { name: 'SizeRestrictions_BODY' },
+              { name: 'GenericRFI_BODY' }
+            ]
+          },
+        },
+        overrideAction: { none: {} },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesCommonRuleSet`,
+        },
+      },
+      {
+        name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesKnownBadInputsRuleSet`,
+        priority: 2,
+        statement: {
+          managedRuleGroupStatement: {
+            vendorName: "AWS",
+            name: "AWSManagedRulesKnownBadInputsRuleSet",
+          },
+        },
+        overrideAction: { none: {} },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesKnownBadInputsRuleSet`,
+        },
+      },
+      {
+        name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesAmazonIpReputationList`,
+        priority: 3,
+        statement: {
+          managedRuleGroupStatement: {
+            vendorName: "AWS",
+            name: "AWSManagedRulesAmazonIpReputationList",
+          },
+        },
+        overrideAction: { none: {} },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesAmazonIpReputationList`,
+        },
+      },
+      {
+        name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesLinuxRuleSet`,
+        priority: 4,
+        statement: {
+          managedRuleGroupStatement: {
+            vendorName: "AWS",
+            name: "AWSManagedRulesLinuxRuleSet",
+          },
+        },
+        overrideAction: { none: {} },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesLinuxRuleSet`,
+        },
+      },
+      {
+        name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesSQLiRuleSet`,
+        priority: 5,
+        statement: {
+          managedRuleGroupStatement: {
+            vendorName: "AWS",
+            name: "AWSManagedRulesSQLiRuleSet",
+            excludedRules: [
+              { name: 'SQLi_BODY' }
+            ]
+          },
+        },
+        overrideAction: { none: {} },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesSQLiRuleSet`,
+        },
+      },
+      {
+        name: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
+        priority: 6,
+        statement: {
+          andStatement: {
+            statements: [{
+              byteMatchStatement: {
+                searchString: `${ props.stage }-${ props.serviceName }-alb-origin`,
+                fieldToMatch: {
+                  singleHeader: {
+                    name: 'host'
+                  }
+                },
+                textTransformations: [
+                  {
+                    priority: 0,
+                    type: 'LOWERCASE'
+                  }
+                ],
+                positionalConstraint: "EXACTLY"
+              }
+            },
+              {
+                byteMatchStatement: {
+                  searchString: "system/admins/sign_in",
+                  fieldToMatch: {
+                    uriPath: {}
+                  },
+                  textTransformations: [
+                    {
+                      priority: 0,
+                      type: 'LOWERCASE'
+                    }
+                  ],
+                  positionalConstraint: "CONTAINS"
+                }
+              }
+            ]
+          }
+        },
+        action: {
+          allow: {}
+        },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
+        },
+      }
+    ]
+
+    if (props.stage === 'prd-v0252') {
+      rules.push({
+        name: 'production-AllowSystemLogin',
+        priority: 7,
+        statement: {
+          andStatement: {
+            statements: [{
+              byteMatchStatement: {
+                searchString: 'production',
+                fieldToMatch: {
+                  singleHeader: {
+                    name: 'host'
+                  }
+                },
+                textTransformations: [
+                  {
+                    priority: 0,
+                    type: 'LOWERCASE'
+                  }
+                ],
+                positionalConstraint: "EXACTLY"
+              }
+            },
+              {
+                byteMatchStatement: {
+                  searchString: "system/admins/sign_in",
+                  fieldToMatch: {
+                    uriPath: {}
+                  },
+                  textTransformations: [
+                    {
+                      priority: 0,
+                      type: 'LOWERCASE'
+                    }
+                  ],
+                  positionalConstraint: "CONTAINS"
+                }
+              }
+            ]
+          }
+        },
+        action: {
+          allow: {}
+        },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `production-AllowSystemLogin`,
+        },
+      })
+    }
+
+    rules.push({
+      name: `${ props.stage }-${ props.serviceName }-SystemLoginBlock`,
+      priority: 8,
+      statement: {
+        byteMatchStatement: {
+          searchString: 'system/admins/sign_in',
+          fieldToMatch: {
+            uriPath: {}
+          },
+          textTransformations: [
+            {
+              priority: 0,
+              type: "LOWERCASE"
+            }
+          ],
+          positionalConstraint: "CONTAINS"
+        }
+      },
+      action: {
+        block: {
+          customResponse: {
+            responseCode: 403,
+            customResponseBodyKey: "disable-action"
+          }
+        }
+      },
+      visibilityConfig: {
+        cloudWatchMetricsEnabled: true,
+        sampledRequestsEnabled: true,
+        metricName: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
+      },
+    })
+
+    const waf: aws_wafv2.CfnWebACL = new aws_wafv2.CfnWebACL(this, "CfnWebACL", {
         name: `${ props.stage }-${ props.serviceName }-webAcl`,
         defaultAction: { allow: {} },
         scope: "CLOUDFRONT",
@@ -31,178 +256,7 @@ export class CloudFrontStack extends Stack {
           metricName: `${ props.stage }-${ props.serviceName }-webAcl-metrics`
         },
         description: `Web ACL for ${ props.stage }-${ props.serviceName }-cloudfront`,
-        rules: [
-          {
-            name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesCommonRuleSet`,
-            priority: 1,
-            statement: {
-              managedRuleGroupStatement: {
-                vendorName: "AWS",
-                name: "AWSManagedRulesCommonRuleSet",
-                excludedRules: [
-                  { name: 'CrossSiteScripting_BODY' },
-                  { name: 'SizeRestrictions_BODY'},
-                  { name: 'GenericRFI_BODY'}
-                ]
-              },
-            },
-            overrideAction: { none: {} },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              sampledRequestsEnabled: true,
-              metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesCommonRuleSet`,
-            },
-          },
-          {
-            name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesKnownBadInputsRuleSet`,
-            priority: 2,
-            statement: {
-              managedRuleGroupStatement: {
-                vendorName: "AWS",
-                name: "AWSManagedRulesKnownBadInputsRuleSet",
-              },
-            },
-            overrideAction: { none: {} },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              sampledRequestsEnabled: true,
-              metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesKnownBadInputsRuleSet`,
-            },
-          },
-          {
-            name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesAmazonIpReputationList`,
-            priority: 3,
-            statement: {
-              managedRuleGroupStatement: {
-                vendorName: "AWS",
-                name: "AWSManagedRulesAmazonIpReputationList",
-              },
-            },
-            overrideAction: { none: {} },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              sampledRequestsEnabled: true,
-              metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesAmazonIpReputationList`,
-            },
-          },
-          {
-            name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesLinuxRuleSet`,
-            priority: 4,
-            statement: {
-              managedRuleGroupStatement: {
-                vendorName: "AWS",
-                name: "AWSManagedRulesLinuxRuleSet",
-              },
-            },
-            overrideAction: { none: {} },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              sampledRequestsEnabled: true,
-              metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesLinuxRuleSet`,
-            },
-          },
-          {
-            name: `${ props.stage }-${ props.serviceName }-AWSManagedRulesSQLiRuleSet`,
-            priority: 5,
-            statement: {
-              managedRuleGroupStatement: {
-                vendorName: "AWS",
-                name: "AWSManagedRulesSQLiRuleSet",
-                excludedRules: [
-                  {name: 'SQLi_BODY'}
-                ]
-              },
-            },
-            overrideAction: { none: {} },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              sampledRequestsEnabled: true,
-              metricName: `${ props.stage }-${ props.serviceName }-AWSManagedRulesSQLiRuleSet`,
-            },
-          },
-          {
-            name: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
-            priority: 6,
-            statement: {
-              andStatement: {
-                statements: [{
-                  byteMatchStatement: {
-                    searchString: `${ props.stage }-${ props.serviceName }-alb-origin`,
-                    fieldToMatch: {
-                      singleHeader: {
-                        name: 'host'
-                      }
-                    },
-                    textTransformations: [
-                      {
-                        priority: 0,
-                        type: 'LOWERCASE'
-                      }
-                    ],
-                    positionalConstraint: "EXACTLY"
-                  }
-                },
-                  {
-                    byteMatchStatement: {
-                      searchString: "system/admins/sign_in",
-                      fieldToMatch: {
-                        uriPath: {}
-                      },
-                      textTransformations: [
-                        {
-                          priority: 0,
-                          type: 'LOWERCASE'
-                        }
-                      ],
-                      positionalConstraint: "CONTAINS"
-                    }
-                  }
-                ]
-              }
-            },
-            action: {
-              allow: {}
-            },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              sampledRequestsEnabled: true,
-              metricName: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
-            },
-          },
-          {
-            name: `${ props.stage }-${ props.serviceName }-SystemLoginBlock`,
-            priority: 7,
-            statement: {
-              byteMatchStatement: {
-                searchString: 'system/admins/sign_in',
-                fieldToMatch: {
-                  uriPath: {}
-                },
-                textTransformations: [
-                  {
-                    priority: 0,
-                    type: "LOWERCASE"
-                  }
-                ],
-                positionalConstraint: "CONTAINS"
-              }
-            },
-
-            action: {
-              block: {
-                customResponse: {
-                  responseCode: 403,
-                  customResponseBodyKey: "disable-action"
-                }
-              }
-            },
-            visibilityConfig: {
-              cloudWatchMetricsEnabled: true,
-              sampledRequestsEnabled: true,
-              metricName: `${ props.stage }-${ props.serviceName }-AllowSystemLogin`,
-            },
-          }
-        ],
+        rules: rules,
         customResponseBodies: {
           'disable-action': {
             content: '<div>error: access denied</div>',
