@@ -519,6 +519,7 @@ exports[`DecidimStack Created 1`] = `
             ],
           },
         },
+        "PropagateTags": "TASK_DEFINITION",
         "ServiceName": "stagingDecidimService",
         "TaskDefinition": {
           "Ref": "decidimTaskDefinition2308FB5B",
@@ -1326,6 +1327,7 @@ exports[`DecidimStack Created 1`] = `
             ],
           },
         },
+        "PropagateTags": "TASK_DEFINITION",
         "ServiceName": "stagingSidekiqService",
         "TaskDefinition": {
           "Ref": "sidekiqTaskDefinitionD9F954F5",
