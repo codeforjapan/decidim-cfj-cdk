@@ -215,7 +215,8 @@ export class DecidimStack extends cdk.Stack {
           base: props.ecs.fargateCapacityProvider.base,
           weight: props.ecs.fargateCapacityProvider.weight
         }
-      ]
+      ],
+      propagateTags: ecs.PropagatedTagSource.TASK_DEFINITION
     })
     const autoscaling = ecsService.autoScaleTaskCount({
       minCapacity: 1,
@@ -251,7 +252,8 @@ export class DecidimStack extends cdk.Stack {
           base: props.ecs.fargateCapacityProvider.base,
           weight: props.ecs.fargateCapacityProvider.weight
         }
-      ]
+      ],
+      propagateTags: ecs.PropagatedTagSource.TASK_DEFINITION
     })
 
     // ALB Log
