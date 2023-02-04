@@ -4,7 +4,7 @@ import {
   aws_ec2,
   aws_ecr,
   aws_ecs as ecs,
-  aws_elasticloadbalancingv2 as elbv2,
+  aws_elasticloadbalancingv2 as elbv2, aws_iam,
   aws_logs as logs,
   aws_route53,
   aws_route53_targets,
@@ -56,6 +56,22 @@ export class DecidimStack extends cdk.Stack {
       enableFargateCapacityProviders: true,
     })
 
+    const ECSExecPolicyStatement = new aws_iam.PolicyStatement({
+      sid: 'allowS3access',
+      resources: [`arn:aws:s3:::${ props.stage }-${ props.serviceName }-bucket/*`],
+      actions: [
+        's3:PutObject',
+        's3:GetObject',
+        's3:DeleteObject'
+      ],
+    });
+
+    const backendTaskRole = new aws_iam.Role(this, 'BackendTaskRole', {
+      assumedBy: new aws_iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+    });
+
+    backendTaskRole.addToPolicy(ECSExecPolicyStatement);
+
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(
       this,
@@ -66,6 +82,7 @@ export class DecidimStack extends cdk.Stack {
           ? props.containerSpec?.memoryLimitMiB
           : 4096,
         family: `${ props.stage }DecidimTaskDefinition`,
+        taskRole: backendTaskRole
       }
     );
 
@@ -77,6 +94,7 @@ export class DecidimStack extends cdk.Stack {
         cpu: 1024,
         memoryLimitMiB: 2048,
         family: `${ props.stage }SidekiqTaskDefinition`,
+        taskRole: backendTaskRole
       }
     );
 
@@ -95,8 +113,6 @@ export class DecidimStack extends cdk.Stack {
     })
 
     const DecidimContainerEnvironment: { [key: string]: string } = {
-      AWS_ACCESS_KEY_ID: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/AWS_ACCESS_KEY_ID`),
-      AWS_SECRET_ACCESS_KEY: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/AWS_SECRET_ACCESS_KEY`),
       AWS_CLOUD_FRONT_END_POINT: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/AWS_CLOUD_FRONT_END_POINT`),
       REDIS_URL: `redis://${ props.cache }:6379`,
       RDS_DB_NAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_DB_NAME`),
