@@ -16,16 +16,8 @@ exports[`DecidimStack Created 1`] = `
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
-    "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/AWS_ACCESS_KEY_ID",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
     "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
-    "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/AWS_SECRET_ACCESS_KEY",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
@@ -179,6 +171,73 @@ exports[`DecidimStack Created 1`] = `
         },
       },
       "Type": "AWS::ElasticLoadBalancingV2::ListenerCertificate",
+    },
+    "BackendTaskRole65DD5890": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "BackendTaskRoleDefaultPolicyD82ED08E": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+              ],
+              "Effect": "Allow",
+              "Resource": "arn:aws:s3:::staging-decidim-bucket/*",
+              "Sid": "allowS3access",
+            },
+            {
+              "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "logs:DescribeLogGroups",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "BackendTaskRoleDefaultPolicyD82ED08E",
+        "Roles": [
+          {
+            "Ref": "BackendTaskRole65DD5890",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiB28EAD8E4": {
       "DependsOn": [
@@ -762,18 +821,6 @@ exports[`DecidimStack Created 1`] = `
           {
             "Environment": [
               {
-                "Name": "AWS_ACCESS_KEY_ID",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
-              {
-                "Name": "AWS_SECRET_ACCESS_KEY",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
-              {
                 "Name": "AWS_CLOUD_FRONT_END_POINT",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
@@ -942,18 +989,6 @@ exports[`DecidimStack Created 1`] = `
           {
             "Environment": [
               {
-                "Name": "AWS_ACCESS_KEY_ID",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
-              {
-                "Name": "AWS_SECRET_ACCESS_KEY",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
-              {
                 "Name": "AWS_CLOUD_FRONT_END_POINT",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
@@ -1104,7 +1139,7 @@ exports[`DecidimStack Created 1`] = `
         ],
         "TaskRoleArn": {
           "Fn::GetAtt": [
-            "decidimTaskDefinitionTaskRole563C655F",
+            "BackendTaskRole65DD5890",
             "Arn",
           ],
         },
@@ -1209,63 +1244,6 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "decidimTaskDefinitionTaskRole563C655F": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "ecs-tasks.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "decidimTaskDefinitionTaskRoleDefaultPolicy926C4DB3": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "ssmmessages:CreateControlChannel",
-                "ssmmessages:CreateDataChannel",
-                "ssmmessages:OpenControlChannel",
-                "ssmmessages:OpenDataChannel",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": "logs:DescribeLogGroups",
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:DescribeLogStreams",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "decidimTaskDefinitionTaskRoleDefaultPolicy926C4DB3",
-        "Roles": [
-          {
-            "Ref": "decidimTaskDefinitionTaskRole563C655F",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
     "repoBEC318EA": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -1347,18 +1325,6 @@ exports[`DecidimStack Created 1`] = `
               "/app/config/sidekiq.yml",
             ],
             "Environment": [
-              {
-                "Name": "AWS_ACCESS_KEY_ID",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSACCESSKEYIDC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
-              {
-                "Name": "AWS_SECRET_ACCESS_KEY",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSSECRETACCESSKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
               {
                 "Name": "AWS_CLOUD_FRONT_END_POINT",
                 "Value": {
@@ -1498,7 +1464,7 @@ exports[`DecidimStack Created 1`] = `
         ],
         "TaskRoleArn": {
           "Fn::GetAtt": [
-            "sidekiqTaskDefinitionTaskRole2B6DB9EB",
+            "BackendTaskRole65DD5890",
             "Arn",
           ],
         },
@@ -1571,63 +1537,6 @@ exports[`DecidimStack Created 1`] = `
         "Roles": [
           {
             "Ref": "sidekiqTaskDefinitionExecutionRole147A0623",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "sidekiqTaskDefinitionTaskRole2B6DB9EB": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "ecs-tasks.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "sidekiqTaskDefinitionTaskRoleDefaultPolicyB75C9B6B": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "ssmmessages:CreateControlChannel",
-                "ssmmessages:CreateDataChannel",
-                "ssmmessages:OpenControlChannel",
-                "ssmmessages:OpenDataChannel",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": "logs:DescribeLogGroups",
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:DescribeLogStreams",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "sidekiqTaskDefinitionTaskRoleDefaultPolicyB75C9B6B",
-        "Roles": [
-          {
-            "Ref": "sidekiqTaskDefinitionTaskRole2B6DB9EB",
           },
         ],
       },
