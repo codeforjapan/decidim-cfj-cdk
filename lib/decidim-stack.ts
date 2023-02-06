@@ -58,13 +58,8 @@ export class DecidimStack extends cdk.Stack {
 
     const ECSExecPolicyStatement = new aws_iam.PolicyStatement({
       sid: 'allowS3access',
-      resources: [`arn:aws:s3:::${ props.stage }-${ props.serviceName }-bucket/*`],
-      actions: [
-        's3:ListBucket',
-        's3:PutObject',
-        's3:GetObject',
-        's3:DeleteObject'
-      ],
+      resources: [`arn:aws:s3:::${ props.stage }-${ props.serviceName }-bucket*`],
+      actions: ['s3:*'],
     });
 
     const backendTaskRole = new aws_iam.Role(this, 'BackendTaskRole', {
