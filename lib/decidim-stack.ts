@@ -60,6 +60,7 @@ export class DecidimStack extends cdk.Stack {
       sid: 'allowS3access',
       resources: [`arn:aws:s3:::${ props.stage }-${ props.serviceName }-bucket/*`],
       actions: [
+        's3:ListBucket',
         's3:PutObject',
         's3:GetObject',
         's3:DeleteObject'
