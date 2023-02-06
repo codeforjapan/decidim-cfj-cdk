@@ -194,13 +194,9 @@ exports[`DecidimStack Created 1`] = `
         "PolicyDocument": {
           "Statement": [
             {
-              "Action": [
-                "s3:PutObject",
-                "s3:GetObject",
-                "s3:DeleteObject",
-              ],
+              "Action": "s3:*",
               "Effect": "Allow",
-              "Resource": "arn:aws:s3:::staging-decidim-bucket/*",
+              "Resource": "arn:aws:s3:::staging-decidim-bucket*",
               "Sid": "allowS3access",
             },
             {
