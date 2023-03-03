@@ -169,7 +169,7 @@ export class CloudFrontStack extends Stack {
           andStatement: {
             statements: [{
               byteMatchStatement: {
-                searchString: 'production',
+                searchString: 'production.diycities.jp',
                 fieldToMatch: {
                   singleHeader: {
                     name: 'host'
