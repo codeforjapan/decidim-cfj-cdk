@@ -16,7 +16,7 @@ export class S3Stack extends Stack {
 
     const bucket = new aws_s3.Bucket(this, 'createBucket', {
       bucketName: `${ props.stage }-${ props.serviceName }-bucket`,
-      versioned: props.stage === "prd-v0264",
+      versioned: props.stage === "prd-v0265",
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
