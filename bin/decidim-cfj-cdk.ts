@@ -12,7 +12,7 @@ import { Tags } from 'aws-cdk-lib';
 
 const app = new cdk.App();
 
-const stages = ['dev', 'staging', 'prd-v0252']
+const stages = ['dev', 'staging', 'prd-v0265']
 const stage = app.node.tryGetContext('stage')
 const tag = app.node.tryGetContext('tag')
 if (!stages.includes(stage)) {

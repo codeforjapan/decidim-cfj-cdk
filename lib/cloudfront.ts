@@ -161,7 +161,7 @@ export class CloudFrontStack extends Stack {
       }
     ]
 
-    if (props.stage === 'prd-v0252') {
+    if (props.stage === 'prd-v0265') {
       rules.push({
         name: 'production-AllowSystemLogin',
         priority: 7,
@@ -266,7 +266,7 @@ export class CloudFrontStack extends Stack {
       }
     )
 
-    if (props.stage === "prd-v0252") {
+    if (props.stage === "prd-v0265") {
       new cloudfront.Distribution(this, 'Distribution', {
         priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
         defaultBehavior: {
