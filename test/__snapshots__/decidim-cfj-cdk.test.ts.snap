@@ -186,6 +186,20 @@ exports[`DecidimStack Created 1`] = `
           ],
           "Version": "2012-10-17",
         },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AWSXrayWriteOnlyAccess",
+              ],
+            ],
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -510,7 +524,7 @@ exports[`DecidimStack Created 1`] = `
       "DeletionPolicy": "Delete",
       "Properties": {
         "LogGroupName": "staging-decidim-serviceLogGroup",
-        "RetentionInDays": 14,
+        "RetentionInDays": 60,
       },
       "Type": "AWS::Logs::LogGroup",
       "UpdateReplacePolicy": "Delete",
@@ -718,7 +732,7 @@ exports[`DecidimStack Created 1`] = `
             [
               "docker://",
               {
-                "Fn::Sub": "887442827229.dkr.ecr.ap-northeast-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-887442827229-ap-northeast-1:c4d1057c7e46dd67f01b922d78602e2c92f7dcf2f5d2f214a0d23ac6788cf9fd",
+                "Fn::Sub": "887442827229.dkr.ecr.ap-northeast-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-887442827229-ap-northeast-1:1a043bd8215c4b79feb027b83c47eab8a9726d8b45e4d042c72c0973899953f3",
               },
             ],
           ],
@@ -731,7 +745,7 @@ exports[`DecidimStack Created 1`] = `
       "DeletionPolicy": "Delete",
       "Properties": {
         "LogGroupName": "staging-decidim-nginxLogGroup",
-        "RetentionInDays": 14,
+        "RetentionInDays": 60,
       },
       "Type": "AWS::Logs::LogGroup",
       "UpdateReplacePolicy": "Delete",
@@ -903,6 +917,10 @@ exports[`DecidimStack Created 1`] = `
                   "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
                 },
               },
+              {
+                "Name": "AWS_XRAY_TRACING_NAME",
+                "Value": "decidim-appstaging",
+              },
             ],
             "Essential": true,
             "HealthCheck": {
@@ -1070,6 +1088,10 @@ exports[`DecidimStack Created 1`] = `
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
                 },
+              },
+              {
+                "Name": "AWS_XRAY_TRACING_NAME",
+                "Value": "decidim-appstaging",
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
@@ -1252,7 +1274,7 @@ exports[`DecidimStack Created 1`] = `
       "DeletionPolicy": "Delete",
       "Properties": {
         "LogGroupName": "staging-decidim-sidekiqLogGroup",
-        "RetentionInDays": 14,
+        "RetentionInDays": 60,
       },
       "Type": "AWS::Logs::LogGroup",
       "UpdateReplacePolicy": "Delete",
@@ -1407,6 +1429,10 @@ exports[`DecidimStack Created 1`] = `
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
                 },
+              },
+              {
+                "Name": "AWS_XRAY_TRACING_NAME",
+                "Value": "decidim-appstaging",
               },
             ],
             "Essential": true,
