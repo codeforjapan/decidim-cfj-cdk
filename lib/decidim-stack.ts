@@ -22,7 +22,6 @@ import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
 import { capacityProviderStrategy } from "../lib/config";
-import { Protocol } from "aws-cdk-lib/aws-ecs";
 import path = require('path');
 
 export interface DecidimStackProps extends BaseStackProps {
@@ -181,19 +180,6 @@ export class DecidimStack extends cdk.Stack {
     })
     container.addPortMappings({
       containerPort: 80
-    })
-
-    taskDefinition.addContainer('xrayDaemon', {
-      image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon'),
-      cpu: 32,
-      portMappings: [
-        {
-          containerPort: 2000,
-          hostPort:2000,
-          protocol: Protocol.UDP
-        }
-      ],
-      essential: true
     })
 
     sidekiqTaskDefinition.addContainer('sidekiqContainer', {
