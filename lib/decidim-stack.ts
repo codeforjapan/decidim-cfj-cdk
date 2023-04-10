@@ -19,10 +19,11 @@ import { BaseStackProps } from "./props";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { ApplicationTargetGroup, ListenerCertificate } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { Repository } from 'aws-cdk-lib/aws-ecr';
-import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
+import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
-import path = require('path');
 import { capacityProviderStrategy } from "../lib/config";
+import { Protocol } from "aws-cdk-lib/aws-ecs";
+import path = require('path');
 
 export interface DecidimStackProps extends BaseStackProps {
   vpc: aws_ec2.IVpc
@@ -67,6 +68,7 @@ export class DecidimStack extends cdk.Stack {
     });
 
     backendTaskRole.addToPolicy(ECSExecPolicyStatement);
+    backendTaskRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXrayWriteOnlyAccess'))
 
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(
@@ -100,7 +102,8 @@ export class DecidimStack extends cdk.Stack {
     })
 
     const image = new DockerImageAsset(this, 'docker-image', {
-      directory: path.join(__dirname, 'nginx') // Dockerfileがあるディレクトリを指定
+      directory: path.join(__dirname, 'nginx'), // Dockerfileがあるディレクトリを指定
+      platform: Platform.LINUX_AMD64
     })
 
     new ECRDeployment(this, 'DeployDockerImage', {
@@ -123,6 +126,7 @@ export class DecidimStack extends cdk.Stack {
       AWS_BUCKET_NAME: `${ props.stage }-${ props.serviceName }-bucket`,
       DECIDIM_COMMENTS_LIMIT: "30",
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SLACK_API_TOKEN`),
+      AWS_XRAY_TRACING_NAME: `decidim-app${ props.stage }`,
     };
 
     const decidimRepository = aws_ecr.Repository.fromRepositoryName(this, 'DecidimRepository', props.ecs.repository)
@@ -134,7 +138,7 @@ export class DecidimStack extends cdk.Stack {
         logGroup: new logs.LogGroup(this, 'NginxLogGroup', {
           logGroupName: `${ props.stage }-${ props.serviceName }-nginxLogGroup`,
           removalPolicy: RemovalPolicy.DESTROY,
-          retention: RetentionDays.TWO_WEEKS
+          retention: RetentionDays.TWO_MONTHS
         }),
         streamPrefix: 'nginx'
       }),
@@ -162,7 +166,7 @@ export class DecidimStack extends cdk.Stack {
         logGroup: new logs.LogGroup(this, 'DecidimLogGroup', {
           logGroupName: `${ props.stage }-${ props.serviceName }-serviceLogGroup`,
           removalPolicy: RemovalPolicy.DESTROY,
-          retention: RetentionDays.TWO_WEEKS
+          retention: RetentionDays.TWO_MONTHS
         }),
         streamPrefix: 'app'
       }),
@@ -180,6 +184,19 @@ export class DecidimStack extends cdk.Stack {
       containerPort: 80
     })
 
+    taskDefinition.addContainer('xrayDaemon', {
+      image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon'),
+      cpu: 32,
+      portMappings: [
+        {
+          containerPort: 2000,
+          hostPort:2000,
+          protocol: Protocol.UDP
+        }
+      ],
+      essential: true
+    })
+
     sidekiqTaskDefinition.addContainer('sidekiqContainer', {
       image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: DecidimContainerEnvironment,
@@ -187,7 +204,7 @@ export class DecidimStack extends cdk.Stack {
         logGroup: new logs.LogGroup(this, 'sidekiqLogGroup', {
           logGroupName: `${ props.stage }-${ props.serviceName }-sidekiqLogGroup`,
           removalPolicy: RemovalPolicy.DESTROY,
-          retention: RetentionDays.TWO_WEEKS
+          retention: RetentionDays.TWO_MONTHS
         }),
         streamPrefix: 'sidekiq'
       }),
