@@ -59,6 +59,10 @@ export class NetworkStack extends Stack {
       }
     )
     sgForDecidimService.addIngressRule(sgForAlb, ec2.Port.tcp(80))
+    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(465))
+    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(587))
+    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(2465))
+    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(2587))
     this.sgForDecidimService = sgForDecidimService
 
     // SG for Rds
@@ -96,6 +100,20 @@ export class NetworkStack extends Stack {
     )
     sgForCache.addIngressRule(sgForDecidimService, ec2.Port.tcp(6379))
     this.sgForCache = sgForCache
+
+    // VPC Endpoint for SES
+    new ec2.InterfaceVpcEndpoint(
+      this,
+      `${ props.stage }VpcEndpointForSES`,
+      {
+        vpc,
+        service: ec2.InterfaceVpcEndpointAwsService.SES,
+        securityGroups: [sgForDecidimService],
+        subnets: {
+          subnetType: ec2.SubnetType.PUBLIC
+        }
+      }
+    )
   }
 
   /**

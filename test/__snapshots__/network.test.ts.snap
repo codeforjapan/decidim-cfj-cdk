@@ -697,6 +697,62 @@ exports[`NetworkStack Created 1`] = `
             "IpProtocol": "-1",
           },
         ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "from 0.0.0.0/0:465",
+            "FromPort": 465,
+            "IpProtocol": "tcp",
+            "ToPort": 465,
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "from 0.0.0.0/0:587",
+            "FromPort": 587,
+            "IpProtocol": "tcp",
+            "ToPort": 587,
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "from 0.0.0.0/0:2465",
+            "FromPort": 2465,
+            "IpProtocol": "tcp",
+            "ToPort": 2465,
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "from 0.0.0.0/0:2587",
+            "FromPort": 2587,
+            "IpProtocol": "tcp",
+            "ToPort": 2587,
+          },
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "Vpc8378EB38",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "Vpc8378EB38",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
         "VpcId": {
           "Ref": "Vpc8378EB38",
         },
@@ -799,6 +855,36 @@ exports[`NetworkStack Created 1`] = `
         "ToPort": 5432,
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "stagingVpcEndpointForSES46F622C4": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "stagingSecurityGroupForDecidimService688CA6B9",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.ap-northeast-1.email-smtp",
+        "SubnetIds": [
+          {
+            "Ref": "VpcpublicSubnet1Subnet2BB74ED7",
+          },
+          {
+            "Ref": "VpcpublicSubnet2SubnetE34B022A",
+          },
+          {
+            "Ref": "VpcpublicSubnet3SubnetDFEF064A",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
     },
   },
   "Rules": {
