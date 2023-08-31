@@ -20,6 +20,10 @@ exports[`DecidimStack Created 1`] = `
       "Default": "/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
+    "SsmParameterValuedecidimcfjstagingNEWRELICLICENSEKEYC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/NEW_RELIC_LICENSE_KEY",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
     "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/decidim-cfj/staging/RDS_DB_NAME",
       "Type": "AWS::SSM::Parameter::Value<String>",
@@ -186,20 +190,6 @@ exports[`DecidimStack Created 1`] = `
           ],
           "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/AWSXrayWriteOnlyAccess",
-              ],
-            ],
-          },
-        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -361,7 +351,7 @@ exports[`DecidimStack Created 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs14.x",
+        "Runtime": "nodejs18.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -466,7 +456,7 @@ exports[`DecidimStack Created 1`] = `
             ],
           ],
         },
-        "Handler": "__entrypoint__.handler",
+        "Handler": "index.handler",
         "MemorySize": 128,
         "Role": {
           "Fn::GetAtt": [
@@ -474,7 +464,7 @@ exports[`DecidimStack Created 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs14.x",
+        "Runtime": "nodejs18.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -534,6 +524,8 @@ exports[`DecidimStack Created 1`] = `
         "AlbhttpListener75E510B4",
         "AlbhttpsListenerDefaultCertificates1CE6DF251",
         "AlbhttpsListenerB49E5778",
+        "BackendTaskRoleDefaultPolicyD82ED08E",
+        "BackendTaskRole65DD5890",
       ],
       "Properties": {
         "CapacityProviderStrategy": [
@@ -551,6 +543,11 @@ exports[`DecidimStack Created 1`] = `
           "Ref": "DecidimCluster7E0E2A4C",
         },
         "DeploymentConfiguration": {
+          "Alarms": {
+            "AlarmNames": [],
+            "Enable": false,
+            "Rollback": false,
+          },
           "MaximumPercent": 200,
           "MinimumHealthyPercent": 50,
         },
@@ -597,6 +594,10 @@ exports[`DecidimStack Created 1`] = `
       "Type": "AWS::ECS::Service",
     },
     "DecidimServiceTaskCountTarget3784A9EB": {
+      "DependsOn": [
+        "BackendTaskRoleDefaultPolicyD82ED08E",
+        "BackendTaskRole65DD5890",
+      ],
       "Properties": {
         "MaxCapacity": 5,
         "MinCapacity": 1,
@@ -636,6 +637,10 @@ exports[`DecidimStack Created 1`] = `
       "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
     },
     "DecidimServiceTaskCountTargetScalingOnCpu1800AE43": {
+      "DependsOn": [
+        "BackendTaskRoleDefaultPolicyD82ED08E",
+        "BackendTaskRole65DD5890",
+      ],
       "Properties": {
         "PolicyName": "DecidimStackDecidimServiceTaskCountTargetScalingOnCpu953E69EC",
         "PolicyType": "TargetTrackingScaling",
@@ -652,6 +657,10 @@ exports[`DecidimStack Created 1`] = `
       "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
     },
     "DecidimServiceTaskCountTargetScalingOnMemory0E639638": {
+      "DependsOn": [
+        "BackendTaskRoleDefaultPolicyD82ED08E",
+        "BackendTaskRole65DD5890",
+      ],
       "Properties": {
         "PolicyName": "DecidimStackDecidimServiceTaskCountTargetScalingOnMemoryF0361EFA",
         "PolicyType": "TargetTrackingScaling",
@@ -921,6 +930,26 @@ exports[`DecidimStack Created 1`] = `
                 "Name": "AWS_XRAY_TRACING_NAME",
                 "Value": "decidim-appstaging",
               },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_STRONG",
+                "Value": "false",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS",
+                "Value": "100000000",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES",
+                "Value": "1000",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_MIN_LENGTH",
+                "Value": "8",
+              },
+              {
+                "Name": "DECIDIM_ENABLE_HTML_HEADER_SNIPPETS",
+                "Value": "true",
+              },
             ],
             "Essential": true,
             "HealthCheck": {
@@ -1094,16 +1123,66 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "decidim-appstaging",
               },
               {
-                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Name": "DECIDIM_ADMIN_PASSWORD_STRONG",
                 "Value": "false",
               },
               {
+                "Name": "DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS",
+                "Value": "100000000",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES",
+                "Value": "1000",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_MIN_LENGTH",
+                "Value": "8",
+              },
+              {
+                "Name": "DECIDIM_ENABLE_HTML_HEADER_SNIPPETS",
+                "Value": "true",
+              },
+              {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "true",
+              },
+              {
                 "Name": "NEW_RELIC_LICENSE_KEY",
-                "Value": "",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingNEWRELICLICENSEKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
               },
               {
                 "Name": "NEW_RELIC_APP_NAME",
                 "Value": "decidim-appstaging",
+              },
+              {
+                "Name": "MAPS_PROVIDER",
+                "Value": "osm",
+              },
+              {
+                "Name": "MAPS_STATIC_PROVIDER",
+                "Value": "cfj_osm",
+              },
+              {
+                "Name": "MAPS_STATIC_URL",
+                "Value": "http://www.openstreetmap.org/",
+              },
+              {
+                "Name": "MAPS_DYNAMIC_URL",
+                "Value": "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              },
+              {
+                "Name": "MAPS_ATTRIBUTION",
+                "Value": "<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap</a> contributors",
+              },
+              {
+                "Name": "MAPS_DYNAMIC_API_KEY",
+                "Value": "true",
+              },
+              {
+                "Name": "MAPS_GEOCODING_HOST",
+                "Value": "nominatim.openstreetmap.org",
               },
             ],
             "Essential": true,
@@ -1140,19 +1219,6 @@ exports[`DecidimStack Created 1`] = `
               },
             },
             "Name": "appContainer",
-          },
-          {
-            "Cpu": 32,
-            "Essential": true,
-            "Image": "amazon/aws-xray-daemon",
-            "Name": "xrayDaemon",
-            "PortMappings": [
-              {
-                "ContainerPort": 2000,
-                "HostPort": 2000,
-                "Protocol": "udp",
-              },
-            ],
           },
         ],
         "Cpu": "2048",
@@ -1293,6 +1359,10 @@ exports[`DecidimStack Created 1`] = `
       "UpdateReplacePolicy": "Delete",
     },
     "sidekiqServiceD7B0038B": {
+      "DependsOn": [
+        "BackendTaskRoleDefaultPolicyD82ED08E",
+        "BackendTaskRole65DD5890",
+      ],
       "Properties": {
         "CapacityProviderStrategy": [
           {
@@ -1309,6 +1379,11 @@ exports[`DecidimStack Created 1`] = `
           "Ref": "DecidimCluster7E0E2A4C",
         },
         "DeploymentConfiguration": {
+          "Alarms": {
+            "AlarmNames": [],
+            "Enable": false,
+            "Rollback": false,
+          },
           "MaximumPercent": 200,
           "MinimumHealthyPercent": 50,
         },
@@ -1446,6 +1521,30 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "AWS_XRAY_TRACING_NAME",
                 "Value": "decidim-appstaging",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_STRONG",
+                "Value": "false",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS",
+                "Value": "100000000",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES",
+                "Value": "1000",
+              },
+              {
+                "Name": "DECIDIM_ADMIN_PASSWORD_MIN_LENGTH",
+                "Value": "8",
+              },
+              {
+                "Name": "DECIDIM_ENABLE_HTML_HEADER_SNIPPETS",
+                "Value": "true",
+              },
+              {
+                "Name": "NEW_RELIC_AGENT_ENABLED",
+                "Value": "false",
               },
             ],
             "Essential": true,
@@ -1656,14 +1755,7 @@ exports[`DecidimStack Created 1`] = `
               ],
             },
             {
-              "Action": [
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
-              ],
+              "Action": "s3:PutObject",
               "Effect": "Allow",
               "Principal": {
                 "AWS": {
