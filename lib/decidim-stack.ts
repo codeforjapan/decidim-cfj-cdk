@@ -68,7 +68,7 @@ export class DecidimStack extends cdk.Stack {
     });
 
     backendTaskRole.addToPolicy(ECSExecPolicyStatement);
-    backendTaskRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXrayWriteOnlyAccess'))
+    // backendTaskRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXrayWriteOnlyAccess'))
 
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(
@@ -127,6 +127,11 @@ export class DecidimStack extends cdk.Stack {
       DECIDIM_COMMENTS_LIMIT: "30",
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SLACK_API_TOKEN`),
       AWS_XRAY_TRACING_NAME: `decidim-app${ props.stage }`,
+      DECIDIM_ADMIN_PASSWORD_STRONG: 'false',
+      DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS: '100000000',
+      DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES: '1000',
+      DECIDIM_ADMIN_PASSWORD_MIN_LENGTH: '8',
+      DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true',
     };
 
     const decidimRepository = aws_ecr.Repository.fromRepositoryName(this, 'DecidimRepository', props.ecs.repository)
@@ -160,6 +165,13 @@ export class DecidimStack extends cdk.Stack {
           NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0265' ? 'true' : 'false',
           NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0265' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
           NEW_RELIC_APP_NAME: `decidim-app${ props.stage }`,
+          MAPS_PROVIDER: 'osm',
+          MAPS_STATIC_PROVIDER: 'cfj_osm',
+          MAPS_STATIC_URL: 'http://www.openstreetmap.org/',
+          MAPS_DYNAMIC_URL: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          MAPS_ATTRIBUTION: '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap</a> contributors',
+          MAPS_DYNAMIC_API_KEY: 'true',
+          MAPS_GEOCODING_HOST: 'nominatim.openstreetmap.org'
         }
       },
       logging: ecs.LogDriver.awsLogs({
@@ -184,22 +196,26 @@ export class DecidimStack extends cdk.Stack {
       containerPort: 80
     })
 
-    taskDefinition.addContainer('xrayDaemon', {
-      image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon'),
-      cpu: 32,
-      portMappings: [
-        {
-          containerPort: 2000,
-          hostPort:2000,
-          protocol: Protocol.UDP
-        }
-      ],
-      essential: true
-    })
+    // taskDefinition.addContainer('xrayDaemon', {
+    //   image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon'),
+    //   cpu: 32,
+    //   portMappings: [
+    //     {
+    //       containerPort: 2000,
+    //       hostPort:2000,
+    //       protocol: Protocol.UDP
+    //     }
+    //   ],
+    //   essential: true
+    // })
 
     sidekiqTaskDefinition.addContainer('sidekiqContainer', {
       image: new ecs.EcrImage(decidimRepository, props.tag),
-      environment: DecidimContainerEnvironment,
+      environment: {
+        ...DecidimContainerEnvironment, ...{
+          NEW_RELIC_AGENT_ENABLED: 'false',
+        }
+      },
       logging: ecs.LogDriver.awsLogs({
         logGroup: new logs.LogGroup(this, 'sidekiqLogGroup', {
           logGroupName: `${ props.stage }-${ props.serviceName }-sidekiqLogGroup`,
