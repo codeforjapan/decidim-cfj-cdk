@@ -128,7 +128,7 @@ export class DecidimStack extends cdk.Stack {
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SLACK_API_TOKEN`),
       AWS_XRAY_TRACING_NAME: `decidim-app${ props.stage }`,
       DECIDIM_ADMIN_PASSWORD_STRONG: 'false',
-      DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS: '100000000',
+      DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS: '0',
       DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES: '1000',
       DECIDIM_ADMIN_PASSWORD_MIN_LENGTH: '8',
       DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true',

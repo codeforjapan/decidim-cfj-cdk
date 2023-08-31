@@ -936,7 +936,7 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS",
-                "Value": "100000000",
+                "Value": "0",
               },
               {
                 "Name": "DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES",
@@ -1128,7 +1128,7 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS",
-                "Value": "100000000",
+                "Value": "0",
               },
               {
                 "Name": "DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES",
@@ -1528,7 +1528,7 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "DECIDIM_ADMIN_PASSWORD_EXPIRATION_DAYS",
-                "Value": "100000000",
+                "Value": "0",
               },
               {
                 "Name": "DECIDIM_ADMIN_PASSWORD_REPETITION_TIMES",
