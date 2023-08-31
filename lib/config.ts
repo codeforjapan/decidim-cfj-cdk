@@ -20,7 +20,9 @@ export interface RdsConfig {
   instanceType: InstanceType
   deletionProtection: boolean
   allocatedStorage: number
+  maxAllocatedStorage: number
   multiAz: boolean
+  enablePerformanceInsights: boolean
 }
 
 export interface EcsConfig {

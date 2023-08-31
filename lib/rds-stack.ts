@@ -35,8 +35,10 @@ export class RdsStack extends Stack {
       deletionProtection: config.deletionProtection,
       storageType: StorageType.GP2,
       allocatedStorage: config.allocatedStorage,
+      maxAllocatedStorage: config.maxAllocatedStorage,
       autoMinorVersionUpgrade: true,
       deleteAutomatedBackups: false,
+      enablePerformanceInsights: config.enablePerformanceInsights
     }
 
     // snapshotから復元するかどうか
