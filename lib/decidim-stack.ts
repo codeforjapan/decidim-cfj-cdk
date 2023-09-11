@@ -22,7 +22,6 @@ import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
 import { capacityProviderStrategy } from "../lib/config";
-import { Protocol } from "aws-cdk-lib/aws-ecs";
 import path = require('path');
 
 export interface DecidimStackProps extends BaseStackProps {
@@ -162,8 +161,8 @@ export class DecidimStack extends cdk.Stack {
       image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: {
         ...DecidimContainerEnvironment, ...{
-          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0265' || 'prd-v0274' ? 'true' : 'false',
-          NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0265' || 'prd-v0274' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
+          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0265' || props.stage === 'prd-v0274' ? 'true' : 'false',
+          NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0265' || props.stage === 'prd-v0274' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
           NEW_RELIC_APP_NAME: `decidim-app${ props.stage }`,
           MAPS_PROVIDER: 'osm',
           MAPS_STATIC_PROVIDER: 'cfj_osm',
