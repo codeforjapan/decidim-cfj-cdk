@@ -20,10 +20,6 @@ exports[`DecidimStack Created 1`] = `
       "Default": "/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
-    "SsmParameterValuedecidimcfjstagingNEWRELICLICENSEKEYC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/NEW_RELIC_LICENSE_KEY",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
     "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/decidim-cfj/staging/RDS_DB_NAME",
       "Type": "AWS::SSM::Parameter::Value<String>",
@@ -1144,13 +1140,11 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
-                "Value": "true",
+                "Value": "false",
               },
               {
                 "Name": "NEW_RELIC_LICENSE_KEY",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingNEWRELICLICENSEKEYC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "",
               },
               {
                 "Name": "NEW_RELIC_APP_NAME",
