@@ -25,7 +25,7 @@ export class RdsStack extends Stack {
     const config = props.rds;
 
     const rdsProps: DatabaseInstanceSourceProps = {
-      engine: DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_12_11 }),
+      engine: DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_12_14 }),
       instanceType: config.instanceType,
       instanceIdentifier: `${ props.stage }-${ props.serviceName }-postgresql`,
       vpc: props.vpc,
@@ -35,8 +35,10 @@ export class RdsStack extends Stack {
       deletionProtection: config.deletionProtection,
       storageType: StorageType.GP2,
       allocatedStorage: config.allocatedStorage,
+      maxAllocatedStorage: config.maxAllocatedStorage,
       autoMinorVersionUpgrade: true,
       deleteAutomatedBackups: false,
+      enablePerformanceInsights: config.enablePerformanceInsights
     }
 
     // snapshotから復元するかどうか

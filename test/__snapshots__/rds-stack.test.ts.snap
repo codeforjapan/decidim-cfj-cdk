@@ -38,14 +38,16 @@ exports[`RdsStack Created 1`] = `
         },
         "DeleteAutomatedBackups": false,
         "DeletionProtection": false,
+        "EnablePerformanceInsights": false,
         "Engine": "postgres",
-        "EngineVersion": "12.11",
+        "EngineVersion": "12.14",
         "MasterUserPassword": {
           "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
         },
         "MasterUsername": {
           "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
         },
+        "MaxAllocatedStorage": 20,
         "StorageType": "gp2",
         "VPCSecurityGroups": [
           {

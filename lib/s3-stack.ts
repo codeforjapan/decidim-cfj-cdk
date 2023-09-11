@@ -1,12 +1,7 @@
-import {
-  aws_cloudfront as cloudfront,
-  aws_iam as iam,
-  aws_s3,
-  RemovalPolicy,
-  Stack
-} from "aws-cdk-lib";
+import { aws_cloudfront as cloudfront, aws_iam as iam, aws_s3, RemovalPolicy, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { BaseStackProps } from "./props";
+import { HttpMethods } from "aws-cdk-lib/aws-s3";
 
 export class S3Stack extends Stack {
   public readonly bucket: aws_s3.Bucket
@@ -16,10 +11,24 @@ export class S3Stack extends Stack {
 
     const bucket = new aws_s3.Bucket(this, 'createBucket', {
       bucketName: `${ props.stage }-${ props.serviceName }-bucket`,
-      versioned: props.stage === "prd-v0265",
+      versioned: props.stage === "prd-v0265" || props.stage === 'prd-v0274',
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
+      cors: [
+        {
+          allowedHeaders: ['*'],
+          allowedMethods: [HttpMethods.PUT],
+          allowedOrigins: ['*'],
+          exposedHeaders: [
+            'Origin',
+            'Content-Type',
+            'Content-MD5',
+            'Content-Disposition'
+          ],
+          maxAge: 3600
+        }
+      ]
     });
 
     this.bucket = bucket

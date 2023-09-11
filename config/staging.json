@@ -4,7 +4,9 @@
     "snapshotIdentifier": "",
     "instanceType": "t2.micro",
     "deletionProtection": false,
-    "allocatedStorage": 20
+    "allocatedStorage": 20,
+    "maxAllocatedStorage": 20,
+    "enablePerformanceInsights": false
   },
 
   "aws": {

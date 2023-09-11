@@ -4,7 +4,9 @@
     "snapshotIdentifier": "decidim-master-2023-04-03",
     "instanceType": "t2.medium",
     "deletionProtection": true,
-    "allocatedStorage": 20
+    "allocatedStorage": 20,
+    "maxAllocatedStorage": 30,
+    "enablePerformanceInsights": true
   },
 
   "aws": {
