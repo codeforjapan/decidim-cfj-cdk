@@ -946,6 +946,10 @@ exports[`DecidimStack Created 1`] = `
                 "Name": "DECIDIM_ENABLE_HTML_HEADER_SNIPPETS",
                 "Value": "true",
               },
+              {
+                "Name": "WEB_CONCURRENCY",
+                "Value": "2",
+              },
             ],
             "Essential": true,
             "HealthCheck": {
@@ -1137,6 +1141,10 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "DECIDIM_ENABLE_HTML_HEADER_SNIPPETS",
                 "Value": "true",
+              },
+              {
+                "Name": "WEB_CONCURRENCY",
+                "Value": "2",
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
@@ -1535,6 +1543,10 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "DECIDIM_ENABLE_HTML_HEADER_SNIPPETS",
                 "Value": "true",
+              },
+              {
+                "Name": "WEB_CONCURRENCY",
+                "Value": "2",
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
