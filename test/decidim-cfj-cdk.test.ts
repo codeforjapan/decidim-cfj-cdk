@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import { DecidimStack, DecidimStackProps } from '../lib/decidim-stack';
+import { DecidimStack } from '../lib/decidim-stack';
 
 import { Config, getConfig } from "../lib/config";
 import { NetworkStack } from "../lib/network";
