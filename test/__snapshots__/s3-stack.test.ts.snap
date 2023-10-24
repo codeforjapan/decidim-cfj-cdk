@@ -136,6 +136,7 @@ exports[`S3Stack Created 1`] = `
           "Statement": [
             {
               "Action": [
+                "s3:PutBucketPolicy",
                 "s3:GetBucket*",
                 "s3:List*",
                 "s3:DeleteObject*",
