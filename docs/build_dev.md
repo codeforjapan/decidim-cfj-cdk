@@ -53,8 +53,11 @@ AWS Systems Manager のパラメータストアで以下のようなパラメー
 [Docker イメージをプッシュする](https://docs.aws.amazon.com/ja_jp/AmazonECR/latest/userguide/docker-push-ecr-image.html)を参考に
 buildしたdocker imageを用意したリポジトリにpushする。
 
-# 4-3 [dev.json](../config/dev.json) を編集する
-[dev.json](../config/dev.json)の’repository’部分に用意したECRリポジトリ名、’tag’部分にpushした際のtagに書き換える。
+# 4-3 tagをexportする
+4-2でpushしたdockerイメージのタグをexportする
+```console
+$ export IMAGE_TAG=先ほどpushしたimage tag
+```
 
 # 5. 証明書の準備
 
@@ -71,7 +74,7 @@ buildしたdocker imageを用意したリポジトリにpushする。
 使用するリージョンごとに一回実行する必要がある。2回目以降は不要。
 
 ```console
-$ npx cdk --context stage=dev --profile decidim bootstrap
+$ npx cdk --context stage=dev tag=${IMAGE_TAG} --profile decidim bootstrap
 ```
 
 ## 6-2. デプロイ前の差分確認
@@ -79,13 +82,13 @@ $ npx cdk --context stage=dev --profile decidim bootstrap
 どんなリソースが作成されるのかを確認できる。
 
 ```console
-$ npx cdk --context stage=dev --profile decidim diff  
+$ npx cdk --context stage=dev tag=${IMAGE_TAG} --profile decidim diff  
 ```
 
 ## 6-3. デプロイ実行
 
 ```console
-$ npx cdk --context stage=dev --profile decidim deploy --all  --require-approval never
+$ npx cdk --context stage=dev tag=${IMAGE_TAG} --profile decidim deploy --all  --require-approval never
 ```
 
 上記コマンドが成功すれば、デプロイは成功です。
