@@ -6,7 +6,8 @@
     "deletionProtection": false,
     "allocatedStorage": 20,
     "maxAllocatedStorage": 20,
-    "enablePerformanceInsights": false
+    "enablePerformanceInsights": false,
+    "multiAz": false
   },
 
   "aws": {
