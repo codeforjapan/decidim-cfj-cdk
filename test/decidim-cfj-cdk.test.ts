@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import { DecidimStack, DecidimStackProps } from '../lib/decidim-stack';
+import { DecidimStack } from '../lib/decidim-stack';
 
 import { Config, getConfig } from "../lib/config";
 import { NetworkStack } from "../lib/network";
@@ -84,7 +84,7 @@ test('DecidimStack Created', () => {
     const template = Template.fromStack(stack);
     // console.dir(template);
 
-    template.resourceCountIs("AWS::IAM::Role", 6);
+    template.resourceCountIs("AWS::IAM::Role", 7);
     template.hasResourceProperties('AWS::S3::Bucket', {
         BucketName: "staging-decidim-alb-logs",
     });

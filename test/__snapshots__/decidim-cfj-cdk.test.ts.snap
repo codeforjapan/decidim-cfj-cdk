@@ -235,6 +235,118 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
+    "ComputeMetrics08CB6F17": {
+      "Properties": {
+        "ScheduleExpression": "cron(10 0 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DecidimCluster7E0E2A4C",
+                "Arn",
+              ],
+            },
+            "EcsParameters": {
+              "LaunchType": "FARGATE",
+              "NetworkConfiguration": {
+                "AwsVpcConfiguration": {
+                  "AssignPublicIp": "DISABLED",
+                  "SecurityGroups": [
+                    {
+                      "Fn::GetAtt": [
+                        "decidimTaskDefinitionSecurityGroup7C75DD43",
+                        "GroupId",
+                      ],
+                    },
+                  ],
+                  "Subnets": [
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                    },
+                  ],
+                },
+              },
+              "TaskCount": 1,
+              "TaskDefinitionArn": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            "Id": "Target0",
+            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim:metrics:all"]}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "decidimTaskDefinitionEventsRole6CB2B894",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "ComputeOpenData54A963CE": {
+      "Properties": {
+        "ScheduleExpression": "cron(20 0 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DecidimCluster7E0E2A4C",
+                "Arn",
+              ],
+            },
+            "EcsParameters": {
+              "LaunchType": "FARGATE",
+              "NetworkConfiguration": {
+                "AwsVpcConfiguration": {
+                  "AssignPublicIp": "DISABLED",
+                  "SecurityGroups": [
+                    {
+                      "Fn::GetAtt": [
+                        "decidimTaskDefinitionSecurityGroup7C75DD43",
+                        "GroupId",
+                      ],
+                    },
+                  ],
+                  "Subnets": [
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                    },
+                  ],
+                },
+              },
+              "TaskCount": 1,
+              "TaskDefinitionArn": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            "Id": "Target0",
+            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim:open_data:export"]}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "decidimTaskDefinitionEventsRole6CB2B894",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
     "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiB28EAD8E4": {
       "DependsOn": [
         "CustomCDKECRDeploymentbd07c930edb94112a20f03f096f53666512MiBServiceRoleDefaultPolicy280095F8",
@@ -672,6 +784,62 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
     },
+    "DeleteOldRegistrationsForms62ED6A14": {
+      "Properties": {
+        "ScheduleExpression": "cron(30 0 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DecidimCluster7E0E2A4C",
+                "Arn",
+              ],
+            },
+            "EcsParameters": {
+              "LaunchType": "FARGATE",
+              "NetworkConfiguration": {
+                "AwsVpcConfiguration": {
+                  "AssignPublicIp": "DISABLED",
+                  "SecurityGroups": [
+                    {
+                      "Fn::GetAtt": [
+                        "decidimTaskDefinitionSecurityGroup7C75DD43",
+                        "GroupId",
+                      ],
+                    },
+                  ],
+                  "Subnets": [
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                    },
+                  ],
+                },
+              },
+              "TaskCount": 1,
+              "TaskDefinitionArn": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            "Id": "Target0",
+            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim_meetings:clean_registration_forms"]}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "decidimTaskDefinitionEventsRole6CB2B894",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
     "DeployDockerImageCustomResource1798FC60": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -745,6 +913,174 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
+    },
+    "GenerateReminders42374D94": {
+      "Properties": {
+        "ScheduleExpression": "cron(40 0 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DecidimCluster7E0E2A4C",
+                "Arn",
+              ],
+            },
+            "EcsParameters": {
+              "LaunchType": "FARGATE",
+              "NetworkConfiguration": {
+                "AwsVpcConfiguration": {
+                  "AssignPublicIp": "DISABLED",
+                  "SecurityGroups": [
+                    {
+                      "Fn::GetAtt": [
+                        "decidimTaskDefinitionSecurityGroup7C75DD43",
+                        "GroupId",
+                      ],
+                    },
+                  ],
+                  "Subnets": [
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                    },
+                  ],
+                },
+              },
+              "TaskCount": 1,
+              "TaskDefinitionArn": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            "Id": "Target0",
+            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim:reminders:all"]}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "decidimTaskDefinitionEventsRole6CB2B894",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "MailDigestDaily53F04B93": {
+      "Properties": {
+        "ScheduleExpression": "cron(0 18 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DecidimCluster7E0E2A4C",
+                "Arn",
+              ],
+            },
+            "EcsParameters": {
+              "LaunchType": "FARGATE",
+              "NetworkConfiguration": {
+                "AwsVpcConfiguration": {
+                  "AssignPublicIp": "DISABLED",
+                  "SecurityGroups": [
+                    {
+                      "Fn::GetAtt": [
+                        "decidimTaskDefinitionSecurityGroup7C75DD43",
+                        "GroupId",
+                      ],
+                    },
+                  ],
+                  "Subnets": [
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                    },
+                  ],
+                },
+              },
+              "TaskCount": 1,
+              "TaskDefinitionArn": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            "Id": "Target0",
+            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim:mailers:notifications_digest_daily"]}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "decidimTaskDefinitionEventsRole6CB2B894",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "MailDigestWeekly21AC9F1D": {
+      "Properties": {
+        "ScheduleExpression": "cron(0 19 ? * 6 *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DecidimCluster7E0E2A4C",
+                "Arn",
+              ],
+            },
+            "EcsParameters": {
+              "LaunchType": "FARGATE",
+              "NetworkConfiguration": {
+                "AwsVpcConfiguration": {
+                  "AssignPublicIp": "DISABLED",
+                  "SecurityGroups": [
+                    {
+                      "Fn::GetAtt": [
+                        "decidimTaskDefinitionSecurityGroup7C75DD43",
+                        "GroupId",
+                      ],
+                    },
+                  ],
+                  "Subnets": [
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                    },
+                  ],
+                },
+              },
+              "TaskCount": 1,
+              "TaskDefinitionArn": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            "Id": "Target0",
+            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim:mailers:notifications_digest_weekly"]}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "decidimTaskDefinitionEventsRole6CB2B894",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
     },
     "NginxLogGroupBC063F96": {
       "DeletionPolicy": "Delete",
@@ -1237,6 +1573,76 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::ECS::TaskDefinition",
     },
+    "decidimTaskDefinitionEventsRole6CB2B894": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "decidimTaskDefinitionEventsRoleDefaultPolicyCA31F404": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ecs:RunTask",
+              "Condition": {
+                "ArnEquals": {
+                  "ecs:cluster": {
+                    "Fn::GetAtt": [
+                      "DecidimCluster7E0E2A4C",
+                      "Arn",
+                    ],
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "decidimTaskDefinitionExecutionRole30861524",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "BackendTaskRole65DD5890",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "decidimTaskDefinitionEventsRoleDefaultPolicyCA31F404",
+        "Roles": [
+          {
+            "Ref": "decidimTaskDefinitionEventsRole6CB2B894",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "decidimTaskDefinitionExecutionRole30861524": {
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -1334,6 +1740,78 @@ exports[`DecidimStack Created 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "decidimTaskDefinitionSecurityGroup7C75DD43": {
+      "Properties": {
+        "GroupDescription": "DecidimStack/decidimTaskDefinition/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "removeDownloadDataFilesC5602772": {
+      "Properties": {
+        "ScheduleExpression": "cron(0 0 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DecidimCluster7E0E2A4C",
+                "Arn",
+              ],
+            },
+            "EcsParameters": {
+              "LaunchType": "FARGATE",
+              "NetworkConfiguration": {
+                "AwsVpcConfiguration": {
+                  "AssignPublicIp": "DISABLED",
+                  "SecurityGroups": [
+                    {
+                      "Fn::GetAtt": [
+                        "decidimTaskDefinitionSecurityGroup7C75DD43",
+                        "GroupId",
+                      ],
+                    },
+                  ],
+                  "Subnets": [
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                    },
+                    {
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                    },
+                  ],
+                },
+              },
+              "TaskCount": 1,
+              "TaskDefinitionArn": {
+                "Ref": "decidimTaskDefinition2308FB5B",
+              },
+            },
+            "Id": "Target0",
+            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim:delete_download_your_data_files"]}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "decidimTaskDefinitionEventsRole6CB2B894",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
     },
     "repoBEC318EA": {
       "DeletionPolicy": "Delete",
@@ -1712,6 +2190,7 @@ exports[`DecidimStack Created 1`] = `
           "Statement": [
             {
               "Action": [
+                "s3:PutBucketPolicy",
                 "s3:GetBucket*",
                 "s3:List*",
                 "s3:DeleteObject*",

@@ -23,6 +23,8 @@ import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
 import { capacityProviderStrategy } from "../lib/config";
 import path = require('path');
+import { EcsTask } from "aws-cdk-lib/aws-events-targets";
+import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 
 export interface DecidimStackProps extends BaseStackProps {
   vpc: aws_ec2.IVpc
@@ -363,5 +365,63 @@ export class DecidimStack extends cdk.Stack {
       value: `${ props.stage }-${ props.serviceName }-alb-origin.${ props.domain }`,
       exportName: `${ props.stage }${ props.serviceName }accessDomain`,
     });
+
+    const eventTasks: {
+      id: string,
+      command: string[],
+      scheduleExpression: string
+    }[] = [
+      {
+        id: 'removeDownloadDataFiles',
+        command: ['bundle','exec', 'rake', 'decidim:delete_download_your_data_files'],
+        scheduleExpression: 'cron(0 0 * * ? *)'
+      },
+      {
+        id: 'ComputeMetrics',
+        command: ['bundle','exec', 'rake', 'decidim:metrics:all'],
+        scheduleExpression: 'cron(10 0 * * ? *)'
+      },
+      {
+        id: 'ComputeOpenData',
+        command: ['bundle','exec', 'rake', 'decidim:open_data:export'],
+        scheduleExpression: 'cron(20 0 * * ? *)'
+      },
+      {
+        id: 'DeleteOldRegistrationsForms',
+        command: ['bundle','exec', 'rake', 'decidim_meetings:clean_registration_forms'],
+        scheduleExpression: 'cron(30 0 * * ? *)'
+      },
+      {
+        id: 'GenerateReminders',
+        command: ['bundle','exec', 'rake', 'decidim:reminders:all'],
+        scheduleExpression: 'cron(40 0 * * ? *)'
+      },
+      {
+        id: 'MailDigestDaily',
+        command: ['bundle','exec', 'rake', 'decidim:mailers:notifications_digest_daily'],
+        scheduleExpression: 'cron(0 18 * * ? *)'
+      },
+      {
+        id: 'MailDigestWeekly',
+        command: ['bundle','exec', 'rake', 'decidim:mailers:notifications_digest_weekly'],
+        scheduleExpression: 'cron(0 19 ? * 6 *)'
+      }
+    ]
+
+    eventTasks.map(task => {
+      new Rule(this, task.id, {
+        schedule: Schedule.expression(task.scheduleExpression),
+        targets: [new EcsTask({
+          cluster: cluster,
+          taskDefinition: taskDefinition,
+          containerOverrides: [
+            {
+              containerName: 'appContainer',
+              command: task.command
+            }
+          ]
+        })]
+      })
+    })
   }
 }
