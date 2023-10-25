@@ -5,8 +5,9 @@
     "instanceType": "t2.medium",
     "deletionProtection": true,
     "allocatedStorage": 20,
-    "maxAllocatedStorage": 30,
-    "enablePerformanceInsights": true
+    "maxAllocatedStorage": 40,
+    "enablePerformanceInsights": true,
+    "multiAz": true
   },
 
   "aws": {
