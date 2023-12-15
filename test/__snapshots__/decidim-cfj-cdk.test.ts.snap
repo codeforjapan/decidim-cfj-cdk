@@ -56,9 +56,7 @@ exports[`DecidimStack Created 1`] = `
   "Resources": {
     "Alb16C2F182": {
       "DependsOn": [
-        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
         "stagingAlbLogBucketPolicyCFEC4BC9",
-        "stagingAlbLogBucket03414E90",
       ],
       "Properties": {
         "LoadBalancerAttributes": [
@@ -104,11 +102,6 @@ exports[`DecidimStack Created 1`] = `
       "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
     },
     "AlbhttpListener75E510B4": {
-      "DependsOn": [
-        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
-        "stagingAlbLogBucketPolicyCFEC4BC9",
-        "stagingAlbLogBucket03414E90",
-      ],
       "Properties": {
         "DefaultActions": [
           {
@@ -127,11 +120,6 @@ exports[`DecidimStack Created 1`] = `
       "Type": "AWS::ElasticLoadBalancingV2::Listener",
     },
     "AlbhttpsListenerB49E5778": {
-      "DependsOn": [
-        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
-        "stagingAlbLogBucketPolicyCFEC4BC9",
-        "stagingAlbLogBucket03414E90",
-      ],
       "Properties": {
         "Certificates": [
           {
@@ -155,11 +143,6 @@ exports[`DecidimStack Created 1`] = `
       "Type": "AWS::ElasticLoadBalancingV2::Listener",
     },
     "AlbhttpsListenerDefaultCertificates1CE6DF251": {
-      "DependsOn": [
-        "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F",
-        "stagingAlbLogBucketPolicyCFEC4BC9",
-        "stagingAlbLogBucket03414E90",
-      ],
       "Properties": {
         "Certificates": [
           {
