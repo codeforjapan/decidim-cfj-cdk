@@ -48,6 +48,7 @@ exports[`RdsStack Created 1`] = `
           "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
         },
         "MaxAllocatedStorage": 20,
+        "MultiAZ": false,
         "StorageType": "gp2",
         "VPCSecurityGroups": [
           {

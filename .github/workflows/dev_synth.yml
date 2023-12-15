@@ -31,7 +31,7 @@ jobs:
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: 'synth'
-          cdk_version: '2.102.0'
+          cdk_version: '2.115.0'
           working_dir: 'cdk'
           cdk_args: '--context stage=dev'
         env:
