@@ -41,6 +41,7 @@ AWS Systems Manager のパラメータストアで以下のようなパラメー
   /decidim-cfj/${props.stage}/NEW_RELIC_LICENSE_KEY
   /decidim-cfj/${props.stage}/SMTP_ADDRESS
   /decidim-cfj/${props.stage}/SMTP_USERNAME
+  /decidim-cfj/${props.stage}/SLACK_API_TOKEN
 ```
 
 # 4. ECRの準備
@@ -103,7 +104,7 @@ $ npx cdk --context stage=dev tag=${IMAGE_TAG} --profile decidim deploy --all  -
 
 ## 7.1 環境へのアクセス
 ```console
-$ aws ecs execute-command --region ap-northeast-1 --cluster devDecidimCluster --task ${タスク名} --container appContainer --interactive --command "/bin/ash" --profile decidim
+$ aws ecs execute-command --region ap-northeast-1 --cluster devDecidimCluster --task ${タスク名} --container appContainer --interactive --command "/bin/bash" --profile decidim
 ```
 
 ## 7.2 migrateとseedの実行

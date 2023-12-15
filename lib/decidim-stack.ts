@@ -163,8 +163,8 @@ export class DecidimStack extends cdk.Stack {
       image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: {
         ...DecidimContainerEnvironment, ...{
-          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0265' || props.stage === 'prd-v0274' ? 'true' : 'false',
-          NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0265' || props.stage === 'prd-v0274' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
+          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0274' ? 'true' : 'false',
+          NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0274' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
           NEW_RELIC_APP_NAME: `decidim-app${ props.stage }`,
           MAPS_PROVIDER: 'osm',
           MAPS_STATIC_PROVIDER: 'cfj_osm',
@@ -273,7 +273,7 @@ export class DecidimStack extends cdk.Stack {
       targetUtilizationPercent: 50
     })
     autoscaling.scaleOnMemoryUtilization('ScalingOnMemory', {
-      targetUtilizationPercent: 50
+      targetUtilizationPercent: 70
     })
 
     new ecs.FargateService(this, 'sidekiqService', {

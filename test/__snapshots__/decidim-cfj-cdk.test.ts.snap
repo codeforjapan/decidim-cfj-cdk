@@ -779,7 +779,7 @@ exports[`DecidimStack Created 1`] = `
           "PredefinedMetricSpecification": {
             "PredefinedMetricType": "ECSServiceAverageMemoryUtilization",
           },
-          "TargetValue": 50,
+          "TargetValue": 70,
         },
       },
       "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
