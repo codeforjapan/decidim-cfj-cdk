@@ -1479,11 +1479,11 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "MAPS_STATIC_URL",
-                "Value": "http://www.openstreetmap.org/",
+                "Value": "https://www.openstreetmap.org/",
               },
               {
                 "Name": "MAPS_DYNAMIC_URL",
-                "Value": "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "Value": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
               },
               {
                 "Name": "MAPS_ATTRIBUTION",

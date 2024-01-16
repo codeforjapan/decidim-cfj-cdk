@@ -168,8 +168,8 @@ export class DecidimStack extends cdk.Stack {
           NEW_RELIC_APP_NAME: `decidim-app${ props.stage }`,
           MAPS_PROVIDER: 'osm',
           MAPS_STATIC_PROVIDER: 'cfj_osm',
-          MAPS_STATIC_URL: 'http://www.openstreetmap.org/',
-          MAPS_DYNAMIC_URL: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          MAPS_STATIC_URL: 'https://www.openstreetmap.org/',
+          MAPS_DYNAMIC_URL: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           MAPS_ATTRIBUTION: '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap</a> contributors',
           MAPS_DYNAMIC_API_KEY: 'true',
           MAPS_GEOCODING_HOST: 'nominatim.openstreetmap.org'
