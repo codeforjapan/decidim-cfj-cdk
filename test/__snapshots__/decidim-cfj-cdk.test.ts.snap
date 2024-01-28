@@ -1345,6 +1345,11 @@ exports[`DecidimStack Created 1`] = `
             ],
           },
           {
+            "Command": [
+              "sh",
+              "-c",
+              "bundle exec rails db:create; bundle exec rake db:migrate && rails s -b 0.0.0.0",
+            ],
             "Environment": [
               {
                 "Name": "AWS_CLOUD_FRONT_END_POINT",
