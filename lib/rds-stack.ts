@@ -25,7 +25,7 @@ export class RdsStack extends Stack {
     const config = props.rds;
 
     const rdsProps: DatabaseInstanceSourceProps = {
-      engine: DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_12_14 }),
+      engine: DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_12_17 }),
       instanceType: config.instanceType,
       instanceIdentifier: `${ props.stage }-${ props.serviceName }-postgresql`,
       vpc: props.vpc,
