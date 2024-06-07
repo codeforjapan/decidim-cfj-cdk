@@ -330,7 +330,7 @@ export class DecidimStack extends cdk.Stack {
         port: '80',
         path: '/',
         protocol: elbv2.Protocol.HTTP,
-        healthyHttpCodes: '301',
+        healthyHttpCodes: '301,302',
       },
       targets: [ecsService],
       targetGroupName: `${ props.stage }-${ props.serviceName }-TargetGroup`,
