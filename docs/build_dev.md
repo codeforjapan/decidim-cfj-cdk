@@ -50,7 +50,38 @@ AWS Systems Manager のパラメータストアで以下のようなパラメー
 [プライベートリポジトリを作成する](https://docs.aws.amazon.com/ja_jp/AmazonECR/latest/userguide/repository-create.html) を参考に AWS ECRのリポジトリを用意する。
 
 # 4-2 用意したリポジトリにdecidim の docker imageをpushする
-手元の環境で、[decidim-cfj](https://github.com/codeforjapan/decidim-cfj)のdocker imageをbuildし、
+手元の環境で、[decidim-cfj](https://github.com/codeforjapan/decidim-cfj)のdocker imageをbuildする。
+デフォルトのままだと接続されるドメインを拒否してしまうため、Decidim の [config/environments/development.rb](https://github.com/codeforjapan/decidim-cfj/blob/main/config/environments/development.rb) に該当のドメイン（ホスト名）、もしくは全てのホスト名をconfigに追記する。
+
+<detaills>
+<summary>追記例</summary>
+
+#### `something_your_domain.example.com` を許可する場合
+
+```
+  config.hosts << "something_your_domain.example.com"
+  # No precompilation on demand on first request
+end
+```
+
+#### 全てのホスト名を許可する場合
+
+```
+  config.hosts.clear
+  # No precompilation on demand on first request
+end
+```
+
+#### この問題で発生するエラー例
+
+```
+Blocked host: something_your_domain.example.com
+To allow requests to local.example.com make sure it is a valid hostname (containing only numbers, letters, dashes and dots), then add the following to your environment configuration:
+```
+
+![image (8)](https://github.com/codeforjapan/decidim-cfj-cdk/assets/561613/658fce09-8d1f-49d1-b9e7-48ab5b15f13d)
+
+</details>
 [Docker イメージをプッシュする](https://docs.aws.amazon.com/ja_jp/AmazonECR/latest/userguide/docker-push-ecr-image.html)を参考に
 buildしたdocker imageを用意したリポジトリにpushする。
 
