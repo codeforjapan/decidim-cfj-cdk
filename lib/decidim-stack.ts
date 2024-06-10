@@ -119,6 +119,11 @@ export class DecidimStack extends cdk.Stack {
       RDS_HOSTNAME: props.rds,
       RDS_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_USERNAME`),
       RDS_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_PASSWORD`),
+      // 以下は decidim リポジトリにあるdatabase.yaml の default で取得されている環境変数名。
+      DATABASE_HOST: props.rds,
+      // DATABASE_PORT: '5432',
+      DATABASE_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_USERNAME`),
+      DATABASE_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_PASSWORD`),
       SECRET_KEY_BASE: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SECRET_KEY_BASE`),
       SMTP_ADDRESS: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_ADDRESS`),
       SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_USERNAME`),
