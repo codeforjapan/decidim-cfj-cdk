@@ -1080,7 +1080,7 @@ exports[`DecidimStack Created 1`] = `
         "HealthCheckPort": "80",
         "HealthCheckProtocol": "HTTP",
         "Matcher": {
-          "HttpCode": "301",
+          "HttpCode": "301,302",
         },
         "Name": "staging-decidim-TargetGroup",
         "Port": 80,
