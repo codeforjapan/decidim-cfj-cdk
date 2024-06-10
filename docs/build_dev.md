@@ -53,7 +53,7 @@ AWS Systems Manager のパラメータストアで以下のようなパラメー
 手元の環境で、[decidim-cfj](https://github.com/codeforjapan/decidim-cfj)のdocker imageをbuildする。
 デフォルトのままだと接続されるドメインを拒否してしまうため、Decidim の [config/environments/development.rb](https://github.com/codeforjapan/decidim-cfj/blob/main/config/environments/development.rb) に該当のドメイン（ホスト名）、もしくは全てのホスト名をconfigに追記する。
 
-<detaills>
+<details>
 <summary>追記例</summary>
 
 #### `something_your_domain.example.com` を許可する場合
