@@ -236,18 +236,6 @@ exports[`NetworkStack Created 1`] = `
       },
       "Type": "AWS::EC2::VPCGatewayAttachment",
     },
-    "VpcprivateSubnet1DefaultRouteB506891A": {
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "NatGatewayId": {
-          "Ref": "VpcpublicSubnet1NATGatewayA036E8A6",
-        },
-        "RouteTableId": {
-          "Ref": "VpcprivateSubnet1RouteTable1979EACB",
-        },
-      },
-      "Type": "AWS::EC2::Route",
-    },
     "VpcprivateSubnet1RouteTable1979EACB": {
       "Properties": {
         "Tags": [
@@ -298,18 +286,6 @@ exports[`NetworkStack Created 1`] = `
       },
       "Type": "AWS::EC2::Subnet",
     },
-    "VpcprivateSubnet2DefaultRouteBAC3C1C3": {
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "NatGatewayId": {
-          "Ref": "VpcpublicSubnet1NATGatewayA036E8A6",
-        },
-        "RouteTableId": {
-          "Ref": "VpcprivateSubnet2RouteTable4D0FFC8C",
-        },
-      },
-      "Type": "AWS::EC2::Route",
-    },
     "VpcprivateSubnet2RouteTable4D0FFC8C": {
       "Properties": {
         "Tags": [
@@ -359,18 +335,6 @@ exports[`NetworkStack Created 1`] = `
         },
       },
       "Type": "AWS::EC2::Subnet",
-    },
-    "VpcprivateSubnet3DefaultRoute5028F7A1": {
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "NatGatewayId": {
-          "Ref": "VpcpublicSubnet1NATGatewayA036E8A6",
-        },
-        "RouteTableId": {
-          "Ref": "VpcprivateSubnet3RouteTableAF0D9985",
-        },
-      },
-      "Type": "AWS::EC2::Route",
     },
     "VpcprivateSubnet3RouteTableAF0D9985": {
       "Properties": {
@@ -436,42 +400,6 @@ exports[`NetworkStack Created 1`] = `
         },
       },
       "Type": "AWS::EC2::Route",
-    },
-    "VpcpublicSubnet1EIP411541E6": {
-      "Properties": {
-        "Domain": "vpc",
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "stagingdecidimNetworkStack/Vpc/publicSubnet1",
-          },
-        ],
-      },
-      "Type": "AWS::EC2::EIP",
-    },
-    "VpcpublicSubnet1NATGatewayA036E8A6": {
-      "DependsOn": [
-        "VpcpublicSubnet1DefaultRouteB88F9E93",
-        "VpcpublicSubnet1RouteTableAssociation4E83B6E4",
-      ],
-      "Properties": {
-        "AllocationId": {
-          "Fn::GetAtt": [
-            "VpcpublicSubnet1EIP411541E6",
-            "AllocationId",
-          ],
-        },
-        "SubnetId": {
-          "Ref": "VpcpublicSubnet1Subnet2BB74ED7",
-        },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "stagingdecidimNetworkStack/Vpc/publicSubnet1",
-          },
-        ],
-      },
-      "Type": "AWS::EC2::NatGateway",
     },
     "VpcpublicSubnet1RouteTable15C15F8E": {
       "Properties": {
@@ -697,62 +625,6 @@ exports[`NetworkStack Created 1`] = `
             "IpProtocol": "-1",
           },
         ],
-        "SecurityGroupIngress": [
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "from 0.0.0.0/0:465",
-            "FromPort": 465,
-            "IpProtocol": "tcp",
-            "ToPort": 465,
-          },
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "from 0.0.0.0/0:587",
-            "FromPort": 587,
-            "IpProtocol": "tcp",
-            "ToPort": 587,
-          },
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "from 0.0.0.0/0:2465",
-            "FromPort": 2465,
-            "IpProtocol": "tcp",
-            "ToPort": 2465,
-          },
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "from 0.0.0.0/0:2587",
-            "FromPort": 2587,
-            "IpProtocol": "tcp",
-            "ToPort": 2587,
-          },
-          {
-            "CidrIp": {
-              "Fn::GetAtt": [
-                "Vpc8378EB38",
-                "CidrBlock",
-              ],
-            },
-            "Description": {
-              "Fn::Join": [
-                "",
-                [
-                  "from ",
-                  {
-                    "Fn::GetAtt": [
-                      "Vpc8378EB38",
-                      "CidrBlock",
-                    ],
-                  },
-                  ":443",
-                ],
-              ],
-            },
-            "FromPort": 443,
-            "IpProtocol": "tcp",
-            "ToPort": 443,
-          },
-        ],
         "VpcId": {
           "Ref": "Vpc8378EB38",
         },
@@ -856,13 +728,142 @@ exports[`NetworkStack Created 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "stagingSecurityGroupForSesService81DCF852": {
+      "Properties": {
+        "GroupDescription": "stagingdecidimNetworkStack/stagingSecurityGroupForSesService",
+        "GroupName": "stagingForSesService",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "Vpc8378EB38",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "Vpc8378EB38",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "stagingSecurityGroupForSesServicefromstagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E502465AA37B745": {
+      "Properties": {
+        "Description": "from stagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E50:2465",
+        "FromPort": 2465,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForSesService81DCF852",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForDecidimService688CA6B9",
+            "GroupId",
+          ],
+        },
+        "ToPort": 2465,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "stagingSecurityGroupForSesServicefromstagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E5025879858F6A8": {
+      "Properties": {
+        "Description": "from stagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E50:2587",
+        "FromPort": 2587,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForSesService81DCF852",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForDecidimService688CA6B9",
+            "GroupId",
+          ],
+        },
+        "ToPort": 2587,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "stagingSecurityGroupForSesServicefromstagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E50465EEA5CE7F": {
+      "Properties": {
+        "Description": "from stagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E50:465",
+        "FromPort": 465,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForSesService81DCF852",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForDecidimService688CA6B9",
+            "GroupId",
+          ],
+        },
+        "ToPort": 465,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "stagingSecurityGroupForSesServicefromstagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E505874687D998": {
+      "Properties": {
+        "Description": "from stagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E50:587",
+        "FromPort": 587,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForSesService81DCF852",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "stagingSecurityGroupForDecidimService688CA6B9",
+            "GroupId",
+          ],
+        },
+        "ToPort": 587,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
     "stagingVpcEndpointForSES46F622C4": {
       "Properties": {
         "PrivateDnsEnabled": true,
         "SecurityGroupIds": [
           {
             "Fn::GetAtt": [
-              "stagingSecurityGroupForDecidimService688CA6B9",
+              "stagingSecurityGroupForSesService81DCF852",
               "GroupId",
             ],
           },

@@ -245,13 +245,13 @@ exports[`DecidimStack Created 1`] = `
                   ],
                   "Subnets": [
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
                     },
                   ],
                 },
@@ -301,13 +301,13 @@ exports[`DecidimStack Created 1`] = `
                   ],
                   "Subnets": [
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
                     },
                   ],
                 },
@@ -442,7 +442,7 @@ exports[`DecidimStack Created 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs18.x",
+        "Runtime": "nodejs20.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -555,7 +555,7 @@ exports[`DecidimStack Created 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs18.x",
+        "Runtime": "nodejs20.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -794,13 +794,13 @@ exports[`DecidimStack Created 1`] = `
                   ],
                   "Subnets": [
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
                     },
                   ],
                 },
@@ -924,13 +924,13 @@ exports[`DecidimStack Created 1`] = `
                   ],
                   "Subnets": [
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
                     },
                   ],
                 },
@@ -980,13 +980,13 @@ exports[`DecidimStack Created 1`] = `
                   ],
                   "Subnets": [
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
                     },
                   ],
                 },
@@ -1036,13 +1036,13 @@ exports[`DecidimStack Created 1`] = `
                   ],
                   "Subnets": [
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
                     },
                   ],
                 },
@@ -1792,13 +1792,13 @@ exports[`DecidimStack Created 1`] = `
                   ],
                   "Subnets": [
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
                     },
                     {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
                     },
                   ],
                 },

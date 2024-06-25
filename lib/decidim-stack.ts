@@ -419,6 +419,9 @@ export class DecidimStack extends cdk.Stack {
         targets: [new EcsTask({
           cluster: cluster,
           taskDefinition: taskDefinition,
+          subnetSelection: {
+            subnets: props.vpc.publicSubnets
+          },
           containerOverrides: [
             {
               containerName: 'appContainer',

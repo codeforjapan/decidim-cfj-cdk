@@ -59,11 +59,20 @@ export class NetworkStack extends Stack {
       }
     )
     sgForDecidimService.addIngressRule(sgForAlb, ec2.Port.tcp(80))
-    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(465))
-    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(587))
-    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(2465))
-    sgForDecidimService.addIngressRule(fromPeer, ec2.Port.tcp(2587))
     this.sgForDecidimService = sgForDecidimService
+
+    const sgForSes = new ec2.SecurityGroup(
+        this,
+        `${ props.stage }SecurityGroupForSesService`,
+        {
+          vpc,
+          securityGroupName: `${ props.stage }ForSesService`
+        }
+    )
+    sgForSes.addIngressRule(sgForDecidimService, ec2.Port.tcp(465))
+    sgForSes.addIngressRule(sgForDecidimService, ec2.Port.tcp(587))
+    sgForSes.addIngressRule(sgForDecidimService, ec2.Port.tcp(2465))
+    sgForSes.addIngressRule(sgForDecidimService, ec2.Port.tcp(2587))
 
     // SG for Rds
     const sgForRds = new ec2.SecurityGroup(
@@ -108,7 +117,7 @@ export class NetworkStack extends Stack {
       {
         vpc,
         service: ec2.InterfaceVpcEndpointAwsService.SES,
-        securityGroups: [sgForDecidimService],
+        securityGroups: [sgForSes],
         subnets: {
           subnetType: ec2.SubnetType.PUBLIC
         }
@@ -185,7 +194,7 @@ export class NetworkStack extends Stack {
     const vpc = new ec2.Vpc(this, `Vpc`, {
       ipAddresses: IpAddresses.cidr("10.0.0.0/16"),
       vpcName: `${ props.stage }${ props.serviceName }`,
-      natGateways: 1,
+      natGateways: 0,
       subnetConfiguration: [
         {
           cidrMask: 24,
