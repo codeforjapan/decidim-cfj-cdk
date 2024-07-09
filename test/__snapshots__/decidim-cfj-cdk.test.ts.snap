@@ -2063,7 +2063,7 @@ exports[`DecidimStack Created 1`] = `
             "Name": "sidekiqContainer",
           },
         ],
-        "Cpu": "1024",
+        "Cpu": "512",
         "ExecutionRoleArn": {
           "Fn::GetAtt": [
             "sidekiqTaskDefinitionExecutionRole147A0623",
