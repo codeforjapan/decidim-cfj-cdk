@@ -90,7 +90,7 @@ export class DecidimStack extends cdk.Stack {
       this,
       "sidekiqTaskDefinition",
       {
-        cpu: 1024,
+        cpu: 512,
         memoryLimitMiB: 2048,
         family: `${ props.stage }SidekiqTaskDefinition`,
         taskRole: backendTaskRole
