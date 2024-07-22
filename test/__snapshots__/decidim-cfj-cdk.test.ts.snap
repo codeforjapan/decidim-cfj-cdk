@@ -1200,6 +1200,24 @@ exports[`DecidimStack Created 1`] = `
                 },
               },
               {
+                "Name": "DATABASE_HOST",
+                "Value": {
+                  "Fn::ImportValue": "stagingdecidimRdsStack:ExportsOutputFnGetAttcreateRds829C4ED0EndpointAddressA146A595",
+                },
+              },
+              {
+                "Name": "DATABASE_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "DATABASE_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
                 "Name": "SECRET_KEY_BASE",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSECRETKEYBASEC96584B6F00A464EAD1953AFF4B05118Parameter",
@@ -1392,6 +1410,24 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "RDS_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "DATABASE_HOST",
+                "Value": {
+                  "Fn::ImportValue": "stagingdecidimRdsStack:ExportsOutputFnGetAttcreateRds829C4ED0EndpointAddressA146A595",
+                },
+              },
+              {
+                "Name": "DATABASE_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "DATABASE_PASSWORD",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
                 },
@@ -1952,6 +1988,24 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "RDS_PASSWORD",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "DATABASE_HOST",
+                "Value": {
+                  "Fn::ImportValue": "stagingdecidimRdsStack:ExportsOutputFnGetAttcreateRds829C4ED0EndpointAddressA146A595",
+                },
+              },
+              {
+                "Name": "DATABASE_USERNAME",
+                "Value": {
+                  "Ref": "SsmParameterValuedecidimcfjstagingRDSUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              },
+              {
+                "Name": "DATABASE_PASSWORD",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
                 },
