@@ -411,6 +411,11 @@ export class DecidimStack extends cdk.Stack {
         id: 'MailDigestWeekly',
         command: ['bundle','exec', 'rake', 'decidim:mailers:notifications_digest_weekly'],
         scheduleExpression: 'cron(0 19 ? * 6 *)'
+      },
+      {
+        id: 'UpdateActiveStep',
+        command: ['bundle','exec', 'rake', 'decidim_participatory_processes:change_active_step'],
+        scheduleExpression: 'cron(*/15 * * * ? *)'
       }
     ]
 
