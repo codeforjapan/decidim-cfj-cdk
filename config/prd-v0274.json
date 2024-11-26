@@ -2,7 +2,7 @@
   "rds": {
     "snapshot": true,
     "snapshotIdentifier": "decidim-master-2023-11-01",
-    "instanceType": "t2.medium",
+    "instanceType": "t3.medium",
     "deletionProtection": true,
     "allocatedStorage": 20,
     "maxAllocatedStorage": 40,
@@ -15,7 +15,7 @@
     "region": "ap-northeast-1"
   },
 
-  "cacheNodeType": "cache.t2.micro",
+  "cacheNodeType": "cache.t3.medium",
   "engineVersion": "6.x",
   "numCacheNodes": 3,
   "automaticFailoverEnabled": true,
