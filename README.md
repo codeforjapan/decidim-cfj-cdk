@@ -8,7 +8,7 @@
 # CDK
 
 ```console
-$ npx cdk --context stage=dev --profile decidim diff
+$ cdk --context stage=dev --profile decidim diff
 ```
 
 
