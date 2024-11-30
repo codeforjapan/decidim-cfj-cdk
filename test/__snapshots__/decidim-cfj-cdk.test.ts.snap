@@ -173,6 +173,20 @@ exports[`DecidimStack Created 1`] = `
           ],
           "Version": "2012-10-17",
         },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+              ],
+            ],
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -185,6 +199,84 @@ exports[`DecidimStack Created 1`] = `
               "Effect": "Allow",
               "Resource": "arn:aws:s3:::staging-decidim-bucket*",
               "Sid": "allowS3access",
+            },
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "repoBEC318EA",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "NginxLogGroupBC063F96",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DecidimLogGroup95A8400F",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "sidekiqLogGroup87177A08",
+                  "Arn",
+                ],
+              },
             },
             {
               "Action": [
@@ -238,13 +330,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
@@ -294,13 +383,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
@@ -787,13 +873,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
@@ -917,13 +1000,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
@@ -973,13 +1053,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
@@ -1029,13 +1106,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
@@ -1576,7 +1650,7 @@ exports[`DecidimStack Created 1`] = `
         "Cpu": "2048",
         "ExecutionRoleArn": {
           "Fn::GetAtt": [
-            "decidimTaskDefinitionExecutionRole30861524",
+            "BackendTaskRole65DD5890",
             "Arn",
           ],
         },
@@ -1658,16 +1732,6 @@ exports[`DecidimStack Created 1`] = `
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "decidimTaskDefinitionExecutionRole30861524",
-                  "Arn",
-                ],
-              },
-            },
-            {
-              "Action": "iam:PassRole",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
                   "BackendTaskRole65DD5890",
                   "Arn",
                 ],
@@ -1685,120 +1749,6 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "decidimTaskDefinitionExecutionRole30861524": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "ecs-tasks.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "decidimTaskDefinitionExecutionRoleDefaultPolicyFB5569E3": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "repoBEC318EA",
-                  "Arn",
-                ],
-              },
-            },
-            {
-              "Action": "ecr:GetAuthorizationToken",
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "NginxLogGroupBC063F96",
-                  "Arn",
-                ],
-              },
-            },
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DecidimLogGroup95A8400F",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "decidimTaskDefinitionExecutionRoleDefaultPolicyFB5569E3",
-        "Roles": [
-          {
-            "Ref": "decidimTaskDefinitionExecutionRole30861524",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "decidimTaskDefinitionSecurityGroup7C75DD43": {
-      "Properties": {
-        "GroupDescription": "DecidimStack/decidimTaskDefinition/SecurityGroup",
-        "SecurityGroupEgress": [
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "Allow all outbound traffic by default",
-            "IpProtocol": "-1",
-          },
-        ],
-        "VpcId": {
-          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
-        },
-      },
-      "Type": "AWS::EC2::SecurityGroup",
-    },
     "removeDownloadDataFilesC5602772": {
       "Properties": {
         "ScheduleExpression": "cron(0 0 * * ? *)",
@@ -1815,13 +1765,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
@@ -2115,7 +2062,7 @@ exports[`DecidimStack Created 1`] = `
         "Cpu": "512",
         "ExecutionRoleArn": {
           "Fn::GetAtt": [
-            "sidekiqTaskDefinitionExecutionRole147A0623",
+            "BackendTaskRole65DD5890",
             "Arn",
           ],
         },
@@ -2133,77 +2080,6 @@ exports[`DecidimStack Created 1`] = `
         },
       },
       "Type": "AWS::ECS::TaskDefinition",
-    },
-    "sidekiqTaskDefinitionExecutionRole147A0623": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "ecs-tasks.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "sidekiqTaskDefinitionExecutionRoleDefaultPolicyF7CDBBD4": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":ecr:ap-northeast-1:887442827229:repository/decidim-cfj",
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": "ecr:GetAuthorizationToken",
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "sidekiqLogGroup87177A08",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "sidekiqTaskDefinitionExecutionRoleDefaultPolicyF7CDBBD4",
-        "Roles": [
-          {
-            "Ref": "sidekiqTaskDefinitionExecutionRole147A0623",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "stagingAlbLogBucket03414E90": {
       "DeletionPolicy": "Delete",
