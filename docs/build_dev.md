@@ -115,13 +115,13 @@ $ npx cdk --context stage=dev tag=${IMAGE_TAG} --profile decidim bootstrap
 どんなリソースが作成されるのかを確認できる。
 
 ```console
-$ npx cdk --context stage=dev tag=${IMAGE_TAG} --profile decidim diff  
+$ npx cdk --context stage=dev -c tag=${IMAGE_TAG} --profile decidim diff  
 ```
 
 ## 6-3. デプロイ実行
 
 ```console
-$ npx cdk --context stage=dev tag=${IMAGE_TAG} --profile decidim deploy --all  --require-approval never
+$ npx cdk --context stage=dev -c tag=${IMAGE_TAG} --profile decidim deploy --all  --require-approval never
 ```
 
 上記コマンドが成功すれば、デプロイは成功です。
