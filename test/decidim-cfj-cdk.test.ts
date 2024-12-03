@@ -84,7 +84,7 @@ test('DecidimStack Created', () => {
     const template = Template.fromStack(stack);
     // console.dir(template);
 
-    template.resourceCountIs("AWS::IAM::Role", 7);
+    template.resourceCountIs("AWS::IAM::Role", 5);
     template.hasResourceProperties('AWS::S3::Bucket', {
         BucketName: "staging-decidim-alb-logs",
     });

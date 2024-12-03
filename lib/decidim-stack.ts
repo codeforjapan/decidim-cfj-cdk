@@ -69,6 +69,7 @@ export class DecidimStack extends cdk.Stack {
     });
 
     backendTaskRole.addToPolicy(ECSExecPolicyStatement);
+    backendTaskRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
     // backendTaskRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXrayWriteOnlyAccess'))
 
     // Task Definition
@@ -81,7 +82,8 @@ export class DecidimStack extends cdk.Stack {
           ? props.containerSpec?.memoryLimitMiB
           : 4096,
         family: `${ props.stage }DecidimTaskDefinition`,
-        taskRole: backendTaskRole
+        taskRole: backendTaskRole,
+        executionRole: backendTaskRole
       }
     );
 
@@ -93,7 +95,8 @@ export class DecidimStack extends cdk.Stack {
         cpu: 512,
         memoryLimitMiB: 2048,
         family: `${ props.stage }SidekiqTaskDefinition`,
-        taskRole: backendTaskRole
+        taskRole: backendTaskRole,
+        executionRole: backendTaskRole
       }
     );
 
@@ -425,8 +428,10 @@ export class DecidimStack extends cdk.Stack {
         targets: [new EcsTask({
           cluster: cluster,
           taskDefinition: taskDefinition,
+          assignPublicIp: true,
+          securityGroups: [props.securityGroup],
           subnetSelection: {
-            subnets: props.vpc.publicSubnets
+            subnetType: aws_ec2.SubnetType.PUBLIC // ここでサブネットタイプを指定
           },
           containerOverrides: [
             {
