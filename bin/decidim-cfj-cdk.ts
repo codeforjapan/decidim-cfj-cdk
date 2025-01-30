@@ -12,7 +12,7 @@ import { Tags } from 'aws-cdk-lib';
 
 const app = new cdk.App();
 
-const stages = ['dev', 'staging', 'prd-v0274']
+const stages = ['dev', 'staging', 'prd-v0283', 'dev-v028']
 const stage = app.node.tryGetContext('stage')
 const tag = app.node.tryGetContext('tag')
 if (!stages.includes(stage)) {
@@ -99,4 +99,5 @@ Tags.of(app).add('Repository', 'decidim-cfj-cdk')
 Tags.of(app).add('GovernmentName', 'code4japan')
 Tags.of(app).add('Env', stage)
 Tags.of(app).add('ManagedBy', 'cdk')
+Tags.of(app).add('AppManagerCFNStackKey', `${ stage }${ serviceName }Resources`)
 

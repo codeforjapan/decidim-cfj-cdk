@@ -167,8 +167,8 @@ export class DecidimStack extends cdk.Stack {
       image: new ecs.EcrImage(decidimRepository, props.tag),
       environment: {
         ...DecidimContainerEnvironment, ...{
-          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0274' ? 'true' : 'false',
-          NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0274' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
+          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0283' ? 'true' : 'false',
+          NEW_RELIC_LICENSE_KEY: props.stage === 'prd-v0283' ? ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/NEW_RELIC_LICENSE_KEY`) : '',
           NEW_RELIC_APP_NAME: `decidim-app${ props.stage }`,
           MAPS_PROVIDER: 'osm',
           MAPS_STATIC_PROVIDER: 'cfj_osm',
@@ -414,6 +414,11 @@ export class DecidimStack extends cdk.Stack {
         id: 'MailDigestWeekly',
         command: ['bundle','exec', 'rake', 'decidim:mailers:notifications_digest_weekly'],
         scheduleExpression: 'cron(0 19 ? * 6 *)'
+      },
+      {
+        id: 'UpdateActiveStep',
+        command: ['bundle','exec', 'rake', 'decidim_participatory_processes:change_active_step'],
+        scheduleExpression: 'cron(*/15 * * * ? *)'
       }
     ]
 
