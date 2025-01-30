@@ -99,4 +99,5 @@ Tags.of(app).add('Repository', 'decidim-cfj-cdk')
 Tags.of(app).add('GovernmentName', 'code4japan')
 Tags.of(app).add('Env', stage)
 Tags.of(app).add('ManagedBy', 'cdk')
+Tags.of(app).add('AppManagerCFNStackKey', `${ stage }${ serviceName }Resources`)
 
