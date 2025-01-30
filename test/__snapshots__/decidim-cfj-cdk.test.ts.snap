@@ -1192,13 +1192,10 @@ exports[`DecidimStack Created 1`] = `
               "LaunchType": "FARGATE",
               "NetworkConfiguration": {
                 "AwsVpcConfiguration": {
-                  "AssignPublicIp": "DISABLED",
+                  "AssignPublicIp": "ENABLED",
                   "SecurityGroups": [
                     {
-                      "Fn::GetAtt": [
-                        "decidimTaskDefinitionSecurityGroup7C75DD43",
-                        "GroupId",
-                      ],
+                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
                     },
                   ],
                   "Subnets": [
