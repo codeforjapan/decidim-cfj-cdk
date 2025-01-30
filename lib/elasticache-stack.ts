@@ -31,7 +31,7 @@ export class ElasticacheStack extends Stack {
       cacheSubnetGroupName: props.ecSubnetGroup.cacheSubnetGroupName,
     }
 
-    if (props.stage === 'prd-v0274') {
+    if (props.stage === 'prd-v0283') {
       this.redis = new elasticache.CfnReplicationGroup(this, 'prdElasticache', {
         ...elastiCacheProps,
         ...{
