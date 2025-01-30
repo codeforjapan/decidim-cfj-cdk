@@ -211,6 +211,75 @@ export class CloudFrontStack extends Stack {
           metricName: `production-AllowSystemLogin`,
         },
       })
+    } else {
+      rules.push({
+        name: `${props.stage}-${props.serviceName}-BlockAllBots`,
+        priority: 7,
+        statement: {
+          managedRuleGroupStatement: {
+            vendorName: "AWS",
+            name: "AWSManagedRulesBotControlRuleSet",
+            managedRuleGroupConfigs: [
+              {
+                awsManagedRulesBotControlRuleSet: {
+                  inspectionLevel: "TARGETED",
+                  enableMachineLearning: true,
+                }
+              }
+            ],
+            ruleActionOverrides: [
+              {
+                name: 'TGT_VolumetricIpTokenAbsent',
+                actionToUse: {
+                  block: {}
+                }
+              },
+              {
+                name: 'TGT_VolumetricSession',
+                actionToUse: {
+                  block: {}
+                }
+              },
+              {
+                name: 'TGT_SignalAutomatedBrowser',
+                actionToUse: {
+                  block: {}
+                }
+              },
+              {
+                name: 'TGT_ML_CoordinatedActivityMedium',
+                actionToUse: {
+                  block: {}
+                }
+              },
+              {
+                name: 'TGT_TokenReuseIp',
+                actionToUse: {
+                  block: {}
+                }
+              },
+              {
+                name: 'TGT_SignalBrowserInconsistency',
+                actionToUse: {
+                  block: {}
+                }
+              },
+              {
+                name: 'TGT_ML_CoordinatedActivityHigh',
+                actionToUse: {
+                  block: {}
+                }
+              }
+            ]
+          },
+        },
+        overrideAction: { none: {} },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${props.stage}-${props.serviceName}-BlockAllBots`,
+        },
+      });
     }
 
     rules.push({

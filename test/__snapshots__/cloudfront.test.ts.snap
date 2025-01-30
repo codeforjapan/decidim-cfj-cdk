@@ -181,6 +181,76 @@ exports[`Cloudfront Stack Created 1`] = `
             },
           },
           {
+            "Name": "staging-decidim-BlockAllBots",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 7,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "ManagedRuleGroupConfigs": [
+                  {
+                    "AWSManagedRulesBotControlRuleSet": {
+                      "EnableMachineLearning": true,
+                      "InspectionLevel": "TARGETED",
+                    },
+                  },
+                ],
+                "Name": "AWSManagedRulesBotControlRuleSet",
+                "RuleActionOverrides": [
+                  {
+                    "ActionToUse": {
+                      "Block": {},
+                    },
+                    "Name": "TGT_VolumetricIpTokenAbsent",
+                  },
+                  {
+                    "ActionToUse": {
+                      "Block": {},
+                    },
+                    "Name": "TGT_VolumetricSession",
+                  },
+                  {
+                    "ActionToUse": {
+                      "Block": {},
+                    },
+                    "Name": "TGT_SignalAutomatedBrowser",
+                  },
+                  {
+                    "ActionToUse": {
+                      "Block": {},
+                    },
+                    "Name": "TGT_ML_CoordinatedActivityMedium",
+                  },
+                  {
+                    "ActionToUse": {
+                      "Block": {},
+                    },
+                    "Name": "TGT_TokenReuseIp",
+                  },
+                  {
+                    "ActionToUse": {
+                      "Block": {},
+                    },
+                    "Name": "TGT_SignalBrowserInconsistency",
+                  },
+                  {
+                    "ActionToUse": {
+                      "Block": {},
+                    },
+                    "Name": "TGT_ML_CoordinatedActivityHigh",
+                  },
+                ],
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-BlockAllBots",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
             "Action": {
               "Block": {
                 "CustomResponse": {
