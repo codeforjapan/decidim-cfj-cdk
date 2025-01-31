@@ -197,50 +197,6 @@ exports[`Cloudfront Stack Created 1`] = `
                   },
                 ],
                 "Name": "AWSManagedRulesBotControlRuleSet",
-                "RuleActionOverrides": [
-                  {
-                    "ActionToUse": {
-                      "Block": {},
-                    },
-                    "Name": "TGT_VolumetricIpTokenAbsent",
-                  },
-                  {
-                    "ActionToUse": {
-                      "Block": {},
-                    },
-                    "Name": "TGT_VolumetricSession",
-                  },
-                  {
-                    "ActionToUse": {
-                      "Block": {},
-                    },
-                    "Name": "TGT_SignalAutomatedBrowser",
-                  },
-                  {
-                    "ActionToUse": {
-                      "Block": {},
-                    },
-                    "Name": "TGT_ML_CoordinatedActivityMedium",
-                  },
-                  {
-                    "ActionToUse": {
-                      "Block": {},
-                    },
-                    "Name": "TGT_TokenReuseIp",
-                  },
-                  {
-                    "ActionToUse": {
-                      "Block": {},
-                    },
-                    "Name": "TGT_SignalBrowserInconsistency",
-                  },
-                  {
-                    "ActionToUse": {
-                      "Block": {},
-                    },
-                    "Name": "TGT_ML_CoordinatedActivityHigh",
-                  },
-                ],
                 "VendorName": "AWS",
               },
             },
