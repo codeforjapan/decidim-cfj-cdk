@@ -226,50 +226,6 @@ export class CloudFrontStack extends Stack {
                   enableMachineLearning: true,
                 }
               }
-            ],
-            ruleActionOverrides: [
-              {
-                name: 'TGT_VolumetricIpTokenAbsent',
-                actionToUse: {
-                  block: {}
-                }
-              },
-              {
-                name: 'TGT_VolumetricSession',
-                actionToUse: {
-                  block: {}
-                }
-              },
-              {
-                name: 'TGT_SignalAutomatedBrowser',
-                actionToUse: {
-                  block: {}
-                }
-              },
-              {
-                name: 'TGT_ML_CoordinatedActivityMedium',
-                actionToUse: {
-                  block: {}
-                }
-              },
-              {
-                name: 'TGT_TokenReuseIp',
-                actionToUse: {
-                  block: {}
-                }
-              },
-              {
-                name: 'TGT_SignalBrowserInconsistency',
-                actionToUse: {
-                  block: {}
-                }
-              },
-              {
-                name: 'TGT_ML_CoordinatedActivityHigh',
-                actionToUse: {
-                  block: {}
-                }
-              }
             ]
           },
         },
