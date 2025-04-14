@@ -97,6 +97,8 @@ exports[`S3Stack Created 1`] = `
               ],
               "AllowedMethods": [
                 "PUT",
+                "GET",
+                "POST",
               ],
               "AllowedOrigins": [
                 "*",
