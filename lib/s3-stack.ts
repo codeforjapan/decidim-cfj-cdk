@@ -18,7 +18,7 @@ export class S3Stack extends Stack {
       cors: [
         {
           allowedHeaders: ['*'],
-          allowedMethods: [HttpMethods.PUT],
+          allowedMethods: [HttpMethods.PUT, HttpMethods.GET, HttpMethods.POST ],
           allowedOrigins: ['*'],
           exposedHeaders: [
             'Origin',
