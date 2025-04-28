@@ -1,11 +1,11 @@
 {
   "rds": {
     "snapshot": true,
-    "snapshotIdentifier": "decidim-master-2023-08-15",
-    "instanceType": "t2.micro",
+    "snapshotIdentifier": "decidim-master-2025-03-12",
+    "instanceType": "t3.micro",
     "deletionProtection": false,
     "allocatedStorage": 20,
-    "maxAllocatedStorage": 20,
+    "maxAllocatedStorage": 40,
     "enablePerformanceInsights": false,
     "multiAz": false
   },

@@ -4,7 +4,7 @@ import {
   Stack,
   aws_ec2 as ec2,
   CfnOutput,
-  aws_elasticache as elasticache,
+  aws_elasticache as elasticache, Tags,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { IpAddresses, IVpc } from "aws-cdk-lib/aws-ec2";
@@ -111,7 +111,7 @@ export class NetworkStack extends Stack {
     this.sgForCache = sgForCache
 
     // VPC Endpoint for SES
-    new ec2.InterfaceVpcEndpoint(
+    const endpoint = new ec2.InterfaceVpcEndpoint(
       this,
       `${ props.stage }VpcEndpointForSES`,
       {
@@ -120,9 +120,21 @@ export class NetworkStack extends Stack {
         securityGroups: [sgForSes],
         subnets: {
           subnetType: ec2.SubnetType.PUBLIC
-        }
+        },
       }
     )
+    Tags.of(endpoint).add('Project', 'Decidim')
+    Tags.of(endpoint).add('Repository', 'decidim-cfj-cdk')
+    Tags.of(endpoint).add('GovernmentName', 'code4japan')
+    Tags.of(endpoint).add('Env', props.stage)
+    Tags.of(endpoint).add('ManagedBy', 'cdk')
+    Tags.of(endpoint).add('AppManagerCFNStackKey', `${ props.stage }${ props.serviceName }Resources`)
+    Tags.of(this.ecSubnetGroup).add('Project', 'Decidim')
+    Tags.of(this.ecSubnetGroup).add('Repository', 'decidim-cfj-cdk')
+    Tags.of(this.ecSubnetGroup).add('GovernmentName', 'code4japan')
+    Tags.of(this.ecSubnetGroup).add('Env', props.stage)
+    Tags.of(this.ecSubnetGroup).add('ManagedBy', 'cdk')
+    Tags.of(this.ecSubnetGroup).add('AppManagerCFNStackKey', `${ props.stage }${ props.serviceName }Resources`)
   }
 
   /**
