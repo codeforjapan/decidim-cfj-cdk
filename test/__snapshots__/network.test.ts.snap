@@ -196,6 +196,32 @@ exports[`NetworkStack Created 1`] = `
             "Ref": "VpcpublicSubnet3SubnetDFEF064A",
           },
         ],
+        "Tags": [
+          {
+            "Key": "AppManagerCFNStackKey",
+            "Value": "stagingdecidimResources",
+          },
+          {
+            "Key": "Env",
+            "Value": "staging",
+          },
+          {
+            "Key": "GovernmentName",
+            "Value": "code4japan",
+          },
+          {
+            "Key": "ManagedBy",
+            "Value": "cdk",
+          },
+          {
+            "Key": "Project",
+            "Value": "Decidim",
+          },
+          {
+            "Key": "Repository",
+            "Value": "decidim-cfj-cdk",
+          },
+        ],
       },
       "Type": "AWS::ElastiCache::SubnetGroup",
     },
