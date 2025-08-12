@@ -3,14 +3,18 @@ import { Construct } from "constructs";
 import { BaseStackProps } from "./props";
 import { HttpMethods } from "aws-cdk-lib/aws-s3";
 
+export interface S3StackProps extends BaseStackProps {
+  bucketName: string
+}
+
 export class S3Stack extends Stack {
   public readonly bucket: aws_s3.Bucket
 
-  constructor(scope: Construct, id: string, props: BaseStackProps) {
+  constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
 
     const bucket = new aws_s3.Bucket(this, 'createBucket', {
-      bucketName: `${ props.stage }-${ props.serviceName }-bucket`,
+      bucketName: `${ props.bucketName }-bucket`,
       versioned: props.stage === 'prd-v0292',
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,

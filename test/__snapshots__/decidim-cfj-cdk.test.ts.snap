@@ -197,7 +197,7 @@ exports[`DecidimStack Created 1`] = `
             {
               "Action": "s3:*",
               "Effect": "Allow",
-              "Resource": "arn:aws:s3:::staging-decidim-bucket*",
+              "Resource": "arn:aws:s3:::staging-decidim*",
               "Sid": "allowS3access",
             },
             {

@@ -47,6 +47,8 @@ export interface Config {
     region: string;
   };
 
+  s3Bucket: string
+
   // rds
   rds: RdsConfig
 

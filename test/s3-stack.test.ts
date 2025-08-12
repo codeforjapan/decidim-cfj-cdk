@@ -20,7 +20,8 @@ test('S3Stack Created', () => {
     const s3stack = new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
         stage,
         env,
-        serviceName
+        serviceName,
+        bucketName: config.s3Bucket,
     })
 
     const template = Template.fromStack(s3stack);

@@ -30,7 +30,8 @@ test('DecidimStack Created', () => {
     new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
         stage,
         env,
-        serviceName
+        serviceName,
+        bucketName: config.s3Bucket
     })
 
     const network = new NetworkStack(app, `${ stage }${ serviceName }NetworkStack`, {
@@ -76,7 +77,8 @@ test('DecidimStack Created', () => {
         securityGroupForAlb: network.sgForAlb,
         domain: config.domain,
         rds: rds.rds.dbInstanceEndpointAddress,
-        cache: elastiCache.redis.attrReaderEndPointAddress
+        cache: elastiCache.redis.attrReaderEndPointAddress,
+        bucketName: config.s3Bucket
     };
     const stack = new DecidimStack(app, 'DecidimStack', props);
 
