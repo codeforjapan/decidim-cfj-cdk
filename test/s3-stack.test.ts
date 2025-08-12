@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 
 import { Config, getConfig } from "../lib/config";
-import { NetworkStack } from "../lib/network";
 import { S3Stack } from "../lib/s3-stack";
 
 test('S3Stack Created', () => {

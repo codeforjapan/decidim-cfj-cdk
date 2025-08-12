@@ -22,11 +22,6 @@ test('DecidimStack Created', () => {
         region: config.aws.region
     }
 
-    const cloudfrontEnv = {
-        account: config.aws.accountId,
-        region: 'us-east-1'
-    }
-
     new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
         stage,
         env,
