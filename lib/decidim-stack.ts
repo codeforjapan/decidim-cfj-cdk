@@ -21,7 +21,7 @@ import { ApplicationTargetGroup, ListenerCertificate } from "aws-cdk-lib/aws-ela
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
-import { capacityProviderStrategy } from "../lib/config";
+import { capacityProviderStrategy } from "./config";
 import path = require('path');
 import { EcsTask } from "aws-cdk-lib/aws-events-targets";
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
@@ -44,7 +44,8 @@ export interface DecidimStackProps extends BaseStackProps {
     certificates: string[]
     fargateCapacityProvider: capacityProviderStrategy
     fargateSpotCapacityProvider: capacityProviderStrategy
-  }
+  },
+  bucketName: string,
 }
 
 export class DecidimStack extends cdk.Stack {
@@ -60,7 +61,7 @@ export class DecidimStack extends cdk.Stack {
 
     const ECSExecPolicyStatement = new aws_iam.PolicyStatement({
       sid: 'allowS3access',
-      resources: [`arn:aws:s3:::${ props.stage }-${ props.serviceName }-bucket*`],
+      resources: [`arn:aws:s3:::${ props.bucketName }*`],
       actions: ['s3:*'],
     });
 
@@ -128,7 +129,7 @@ export class DecidimStack extends cdk.Stack {
       SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_USERNAME`),
       SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SMTP_PASSWORD`),
       SMTP_DOMAIN: props.ecs.smtpDomain,
-      AWS_BUCKET_NAME: `${ props.stage }-${ props.serviceName }-bucket`,
+      AWS_BUCKET_NAME: `${ props.bucketName }-bucket`,
       DECIDIM_COMMENTS_LIMIT: "30",
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/SLACK_API_TOKEN`),
       AWS_XRAY_TRACING_NAME: `decidim-app${ props.stage }`,
@@ -314,7 +315,7 @@ export class DecidimStack extends cdk.Stack {
 
     // ALB Log
     const logBucket = new aws_s3.Bucket(this, `${ props.stage }AlbLogBucket`, {
-      bucketName: `${ props.stage }-${ props.serviceName }-alb-logs`,
+      bucketName: `${ props.bucketName }-alb-logs`,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     })

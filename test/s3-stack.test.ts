@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 
 import { Config, getConfig } from "../lib/config";
-import { NetworkStack } from "../lib/network";
 import { S3Stack } from "../lib/s3-stack";
 
 test('S3Stack Created', () => {
@@ -20,7 +19,8 @@ test('S3Stack Created', () => {
     const s3stack = new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
         stage,
         env,
-        serviceName
+        serviceName,
+        bucketName: config.s3Bucket,
     })
 
     const template = Template.fromStack(s3stack);
