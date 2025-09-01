@@ -1,4 +1,4 @@
-import { aws_cloudfront as cloudfront, aws_iam as iam, aws_s3, RemovalPolicy, Stack } from "aws-cdk-lib";
+import {aws_cloudfront as cloudfront, aws_iam as iam, aws_s3, CfnOutput, RemovalPolicy, Stack} from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { BaseStackProps } from "./props";
 import { HttpMethods } from "aws-cdk-lib/aws-s3";
@@ -9,6 +9,7 @@ export interface S3StackProps extends BaseStackProps {
 
 export class S3Stack extends Stack {
   public readonly bucket: aws_s3.Bucket
+  public readonly originAccessIdentity: cloudfront.OriginAccessIdentity
 
   constructor(scope: Construct, id: string, props: S3StackProps) {
     super(scope, id, props);
@@ -45,6 +46,8 @@ export class S3Stack extends Stack {
       }
     )
 
+    this.originAccessIdentity = oai
+
     bucket.addToResourcePolicy(
       new iam.PolicyStatement({
         actions: ["s3:GetObject"],
@@ -57,5 +60,9 @@ export class S3Stack extends Stack {
         resources: [`${ bucket.bucketArn }/*`],
       })
     )
+
+      new CfnOutput(this, 'OaiCanonicalUserId', {
+        value: oai.cloudFrontOriginAccessIdentityS3CanonicalUserId,
+      });
   }
 }

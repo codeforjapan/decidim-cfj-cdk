@@ -12,7 +12,7 @@ import { Tags } from 'aws-cdk-lib';
 
 const app = new cdk.App();
 
-const stages = ['dev', 'staging', 'prd-v0292']
+const stages = ['dev', 'staging', 'prd-v0292', 'dev2']
 const stage = app.node.tryGetContext('stage')
 const tag = app.node.tryGetContext('tag')
 if (!stages.includes(stage)) {
@@ -32,7 +32,7 @@ const cloudfrontEnv = {
   region: 'us-east-1'
 }
 
-new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
+const s3Stack = new S3Stack(app, `${ stage }${ serviceName }S3Stack`, {
   stage,
   env,
   serviceName,
@@ -92,9 +92,11 @@ const distribution = new CloudFrontStack(app, `${ stage }${ serviceName }CloudFr
   serviceName,
   env: cloudfrontEnv,
   domain: config.domain,
-  certificateArn: config.cloudfrontCertificate
+  certificateArn: config.cloudfrontCertificate,
+  s3BucketName: `${config.s3Bucket}-bucket`
 })
 distribution.addDependency(service)
+distribution.addDependency(s3Stack)
 
 Tags.of(app).add('Project', 'Decidim')
 Tags.of(app).add('Repository', 'decidim-cfj-cdk')
