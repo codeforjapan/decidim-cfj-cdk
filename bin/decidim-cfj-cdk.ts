@@ -9,6 +9,7 @@ import { ElasticacheStack } from "../lib/elasticache-stack";
 import { DecidimStack } from "../lib/decidim-stack";
 import { CloudFrontStack } from "../lib/cloudfront";
 import { Tags } from 'aws-cdk-lib';
+import {S3PolicyStack} from "../lib/s3-policy";
 
 const app = new cdk.App();
 
@@ -97,6 +98,13 @@ const distribution = new CloudFrontStack(app, `${ stage }${ serviceName }CloudFr
 })
 distribution.addDependency(service)
 distribution.addDependency(s3Stack)
+
+new S3PolicyStack(app, `${ stage }${ serviceName }S3PolicyStack`, {
+    stage,
+    serviceName,
+    env,
+    bucket: s3Stack.bucket
+})
 
 Tags.of(app).add('Project', 'Decidim')
 Tags.of(app).add('Repository', 'decidim-cfj-cdk')

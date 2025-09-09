@@ -10,6 +10,7 @@ import {
 import {Construct} from "constructs";
 import {BaseStackProps} from "./props";
 import {AllowedMethods, CachePolicy, OriginRequestPolicy, ViewerProtocolPolicy} from "aws-cdk-lib/aws-cloudfront";
+import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from "aws-cdk-lib/custom-resources";
 
 export interface CloudFrontProps extends BaseStackProps {
     certificateArn: string
@@ -19,6 +20,7 @@ export interface CloudFrontProps extends BaseStackProps {
 
 export class CloudFrontStack extends Stack {
     public readonly cloudfrontEndpoint: string;
+    public readonly cloudfrontOacId: string;
 
     constructor(scope: Construct, id: string, props: CloudFrontProps) {
         super(scope, id, props);
@@ -26,26 +28,27 @@ export class CloudFrontStack extends Stack {
         const albOrigin = new aws_cloudfront_origins.HttpOrigin(endpoint)
         albOrigin.bind(this, {originId: "defaultEndPoint"})
 
-        // CloudFrontでOAIを作成（同じリージョン）
-        const originAccessIdentity = new cloudfront.OriginAccessIdentity(
+        // CloudFrontでOACを作成
+        const originAccessControl = new cloudfront.S3OriginAccessControl(
             this,
-            `${props.stage}-${props.serviceName}-OriginAccessIdentity`,
+            `${props.stage}-${props.serviceName}-OriginAccessControl`,
             {
-                comment: `${props.stage}-${props.serviceName}-OriginAccessIdentity`
+                description: `${props.stage}-${props.serviceName}-OriginAccessControl`
             }
         )
 
         const s3Bucket = aws_s3.Bucket.fromBucketAttributes(this, `${props.stage}-${props.serviceName}-S3Bucket`, {
             bucketName: props.s3BucketName,
-            // 任意だが推奨（明示しておくと後で参照しやすい）
             bucketArn: `arn:aws:s3:::${props.s3BucketName}`,
-            // ★ リージョン固有ドメインを必ず指定
+            region: 'ap-northeast-1',
             bucketRegionalDomainName: `${props.s3BucketName}.s3.ap-northeast-1.amazonaws.com`,
         });
 
+        this.cloudfrontOacId = originAccessControl.originAccessControlId
+
         // S3オリジンの追加
-        const s3Origin = new aws_cloudfront_origins.S3Origin(s3Bucket, {
-            originAccessIdentity: originAccessIdentity
+        const s3Origin = aws_cloudfront_origins.S3BucketOrigin.withOriginAccessControl(s3Bucket, {
+            originAccessControl
         })
 
         const rules: any[] = [
@@ -329,7 +332,7 @@ export class CloudFrontStack extends Stack {
                   if (!req || !req.uri) return req;
                   if (req.uri.startsWith('/s3/')) {
                     var rest = req.uri.substring(4); // "/s3/"
-                    req.uri = ('/' + rest).replace(/\\/+/g, '/'); // // を 1本に
+                    req.uri = ('/' + rest).replace(/\/+/g, '/'); // // を 1本に
                   }
                   return req;
                 }
@@ -374,7 +377,7 @@ export class CloudFrontStack extends Stack {
             // S3画像アクセス用のビヘイビア
             distribution.addBehavior('/s3/*', s3Origin, {
                 allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
                 cachePolicy: CachePolicy.CACHING_OPTIMIZED,
                 originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
                 functionAssociations: [{
@@ -411,7 +414,7 @@ export class CloudFrontStack extends Stack {
             // S3画像アクセス用のビヘイビア
             distribution.addBehavior('/s3/*', s3Origin, {
                 allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
                 cachePolicy: CachePolicy.CACHING_OPTIMIZED,
                 originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
                 functionAssociations: [{
@@ -430,11 +433,40 @@ export class CloudFrontStack extends Stack {
 
         this.cloudfrontEndpoint = distribution.distributionDomainName;
 
-        // OAI IDを出力（S3バケットポリシー設定用）
-        new CfnOutput(this, 'OriginAccessIdentityId', {
-            value: originAccessIdentity.originAccessIdentityId,
-            description: 'CloudFront Origin Access Identity ID',
-            exportName: `${props.stage}-${props.serviceName}-OAI-ID`
+        // OAC IDを出力（S3バケットポリシー設定用）
+        new CfnOutput(this, 'OriginAccessControlId', {
+            value: originAccessControl.originAccessControlId,
+            description: 'CloudFront Origin Access Control ID',
+            exportName: `${props.stage}-${props.serviceName}-OAC-ID`
         });
+
+
+        const ssmRegion = "ap-northeast-1";
+        const prj = `/decidim-cfj/${props.stage}`;
+
+        const putParam = (idSuffix: string, name: string, value: string) =>
+            new AwsCustomResource(this, `Write${idSuffix}ToSsmApne1`, {
+                onCreate: {
+                    service: "SSM",
+                    action: "putParameter",
+                    region: ssmRegion,
+                    parameters: { Name: name, Value: value, Type: "String", Overwrite: true },
+                    physicalResourceId: PhysicalResourceId.of(`${name}-${distribution.distributionId}`),
+                },
+                onUpdate: {
+                    service: "SSM",
+                    action: "putParameter",
+                    region: ssmRegion,
+                    parameters: { Name: name, Value: value, Type: "String", Overwrite: true },
+                    physicalResourceId: PhysicalResourceId.of(`${name}-${distribution.distributionId}`),
+                },
+                policy: AwsCustomResourcePolicy.fromSdkCalls({ resources: AwsCustomResourcePolicy.ANY_RESOURCE }),
+            });
+
+        putParam("CfEndpoint", `${prj}/AWS_CLOUD_FRONT_END_POINT`, `${distribution.distributionDomainName}/s3`);
+        putParam("CfId",       `${prj}/CLOUDFRONT_DISTRIBUTION_ID`, distribution.distributionId);
+        putParam("CfArn",      `${prj}/CLOUDFRONT_DISTRIBUTION_ARN`,
+            `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`
+        );
     }
 }
