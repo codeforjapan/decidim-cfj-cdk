@@ -2,6 +2,32 @@
 
 exports[`Cloudfront Stack Created 1`] = `
 {
+  "Outputs": {
+    "CloudFrontDomainName": {
+      "Description": "CloudFront Distribution Domain Name",
+      "Export": {
+        "Name": "staging-decidim-CloudFrontDomainName",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "Distribution830FAC52",
+          "DomainName",
+        ],
+      },
+    },
+    "OriginAccessControlId": {
+      "Description": "CloudFront Origin Access Control ID",
+      "Export": {
+        "Name": "staging-decidim-OAC-ID",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "stagingdecidimOriginAccessControlBE6C8187",
+          "Id",
+        ],
+      },
+    },
+  },
   "Parameters": {
     "BootstrapVersion": {
       "Default": "/cdk-bootstrap/hnb659fds/version",
@@ -10,6 +36,58 @@ exports[`Cloudfront Stack Created 1`] = `
     },
   },
   "Resources": {
+    "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
+      "DependsOn": [
+        "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-887442827229-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 120,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "CfnWebACL": {
       "Properties": {
         "CustomResponseBodies": {
@@ -248,6 +326,62 @@ exports[`Cloudfront Stack Created 1`] = `
       },
       "Type": "AWS::WAFv2::WebACL",
     },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+      "DependsOn": [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-887442827229-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Lambda function for auto-deleting objects in ",
+              {
+                "Ref": "stagingAlbLogBucket03414E90",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "index.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "Distribution830FAC52": {
       "Properties": {
         "DistributionConfig": {
@@ -266,6 +400,30 @@ exports[`Cloudfront Stack Created 1`] = `
               "PathPattern": "decidim-packs/*",
               "TargetOriginId": "stagingdecidimCloudFrontStackDistributionOrigin1E886134A",
               "ViewerProtocolPolicy": "redirect-to-https",
+            },
+            {
+              "AllowedMethods": [
+                "GET",
+                "HEAD",
+                "OPTIONS",
+              ],
+              "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+              "Compress": true,
+              "FunctionAssociations": [
+                {
+                  "EventType": "viewer-request",
+                  "FunctionARN": {
+                    "Fn::GetAtt": [
+                      "StripS3PrefixFnC8BFE398",
+                      "FunctionARN",
+                    ],
+                  },
+                },
+              ],
+              "OriginRequestPolicyId": "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf",
+              "PathPattern": "/s3/*",
+              "TargetOriginId": "stagingdecidimCloudFrontStackDistributionOrigin214C736E4",
+              "ViewerProtocolPolicy": "https-only",
             },
           ],
           "Comment": "staging-decidim-cloudfront",
@@ -288,6 +446,15 @@ exports[`Cloudfront Stack Created 1`] = `
           "Enabled": true,
           "HttpVersion": "http2",
           "IPV6Enabled": true,
+          "Logging": {
+            "Bucket": {
+              "Fn::GetAtt": [
+                "stagingAlbLogBucket03414E90",
+                "RegionalDomainName",
+              ],
+            },
+            "Prefix": "cloudfront-logs/",
+          },
           "Origins": [
             {
               "CustomOriginConfig": {
@@ -298,6 +465,19 @@ exports[`Cloudfront Stack Created 1`] = `
               },
               "DomainName": "staging-decidim-alb-origin.diycities.jp",
               "Id": "stagingdecidimCloudFrontStackDistributionOrigin1E886134A",
+            },
+            {
+              "DomainName": "staging-decidim-bucket.s3.ap-northeast-1.amazonaws.com",
+              "Id": "stagingdecidimCloudFrontStackDistributionOrigin214C736E4",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "stagingdecidimOriginAccessControlBE6C8187",
+                  "Id",
+                ],
+              },
+              "S3OriginConfig": {
+                "OriginAccessIdentity": "",
+              },
             },
           ],
           "PriceClass": "PriceClass_All",
@@ -315,6 +495,356 @@ exports[`Cloudfront Stack Created 1`] = `
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "StripS3PrefixFnC8BFE398": {
+      "Properties": {
+        "AutoPublish": true,
+        "FunctionCode": "
+                function handler(event) {
+                  var req = event.request;
+                  req.headers['x-cf-uri-rewrite'] = { value: 'strip-s3-prefix' };
+                  req.headers['x-cf-func'] = { value: 'strip-s3-prefix' };
+                  if (!req || !req.uri) return req;
+                  if (req.uri.startsWith('/s3/')) {
+                    var rest = req.uri.substring(4); // "/s3/"
+                    req.uri = ('/' + rest).replace(/\\/+/g, '/'); // // を 1本に
+                  }
+                  return req;
+                }
+                  ",
+        "FunctionConfig": {
+          "Comment": "us-east-1stagingdecidimClkStripS3PrefixFn01DDC41F",
+          "Runtime": "cloudfront-js-1.0",
+        },
+        "Name": "us-east-1stagingdecidimClkStripS3PrefixFn01DDC41F",
+      },
+      "Type": "AWS::CloudFront::Function",
+    },
+    "WriteCfArnToSsmApne11F8D7C89": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "WriteCfArnToSsmApne1CustomResourcePolicy1FC9F03C",
+      ],
+      "Properties": {
+        "Create": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"SSM","action":"putParameter","region":"ap-northeast-1","parameters":{"Name":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ARN","Value":"arn:aws:cloudfront::887442827229:distribution/",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              "","Type":"String","Overwrite":true},"physicalResourceId":{"id":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ARN-",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              ""}}",
+            ],
+          ],
+        },
+        "InstallLatestAwsSdk": true,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn",
+          ],
+        },
+        "Update": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"SSM","action":"putParameter","region":"ap-northeast-1","parameters":{"Name":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ARN","Value":"arn:aws:cloudfront::887442827229:distribution/",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              "","Type":"String","Overwrite":true},"physicalResourceId":{"id":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ARN-",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              ""}}",
+            ],
+          ],
+        },
+      },
+      "Type": "Custom::AWS",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "WriteCfArnToSsmApne1CustomResourcePolicy1FC9F03C": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ssm:PutParameter",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "WriteCfArnToSsmApne1CustomResourcePolicy1FC9F03C",
+        "Roles": [
+          {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "WriteCfEndpointToSsmApne19DFF47D3": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "WriteCfEndpointToSsmApne1CustomResourcePolicy62CF269B",
+      ],
+      "Properties": {
+        "Create": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"SSM","action":"putParameter","region":"ap-northeast-1","parameters":{"Name":"/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT","Value":"",
+              {
+                "Fn::GetAtt": [
+                  "Distribution830FAC52",
+                  "DomainName",
+                ],
+              },
+              "/s3","Type":"String","Overwrite":true},"physicalResourceId":{"id":"/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT-",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              ""}}",
+            ],
+          ],
+        },
+        "InstallLatestAwsSdk": true,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn",
+          ],
+        },
+        "Update": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"SSM","action":"putParameter","region":"ap-northeast-1","parameters":{"Name":"/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT","Value":"",
+              {
+                "Fn::GetAtt": [
+                  "Distribution830FAC52",
+                  "DomainName",
+                ],
+              },
+              "/s3","Type":"String","Overwrite":true},"physicalResourceId":{"id":"/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT-",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              ""}}",
+            ],
+          ],
+        },
+      },
+      "Type": "Custom::AWS",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "WriteCfEndpointToSsmApne1CustomResourcePolicy62CF269B": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ssm:PutParameter",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "WriteCfEndpointToSsmApne1CustomResourcePolicy62CF269B",
+        "Roles": [
+          {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "WriteCfIdToSsmApne10EEBF9A1": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "WriteCfIdToSsmApne1CustomResourcePolicyF54E0B0C",
+      ],
+      "Properties": {
+        "Create": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"SSM","action":"putParameter","region":"ap-northeast-1","parameters":{"Name":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ID","Value":"",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              "","Type":"String","Overwrite":true},"physicalResourceId":{"id":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ID-",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              ""}}",
+            ],
+          ],
+        },
+        "InstallLatestAwsSdk": true,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn",
+          ],
+        },
+        "Update": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"SSM","action":"putParameter","region":"ap-northeast-1","parameters":{"Name":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ID","Value":"",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              "","Type":"String","Overwrite":true},"physicalResourceId":{"id":"/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ID-",
+              {
+                "Ref": "Distribution830FAC52",
+              },
+              ""}}",
+            ],
+          ],
+        },
+      },
+      "Type": "Custom::AWS",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "WriteCfIdToSsmApne1CustomResourcePolicyF54E0B0C": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ssm:PutParameter",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "WriteCfIdToSsmApne1CustomResourcePolicyF54E0B0C",
+        "Roles": [
+          {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "stagingAlbLogBucket03414E90": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "BucketName": "staging-decidim-bucket-cloudfront-logs",
+        "OwnershipControls": {
+          "Rules": [
+            {
+              "ObjectOwnership": "ObjectWriter",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "stagingAlbLogBucketAutoDeleteObjectsCustomResource17C48E5F": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "stagingAlbLogBucketPolicyCFEC4BC9",
+      ],
+      "Properties": {
+        "BucketName": {
+          "Ref": "stagingAlbLogBucket03414E90",
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "stagingAlbLogBucketPolicyCFEC4BC9": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "stagingAlbLogBucket03414E90",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutBucketPolicy",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "stagingAlbLogBucket03414E90",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "stagingAlbLogBucket03414E90",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "stagingdecidimOriginAccessControlBE6C8187": {
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Description": "staging-decidim-OriginAccessControl",
+          "Name": "stagingdecidimCloudFrontStacngdecidimOriginAccessControl960C9DFD",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
   },
   "Rules": {

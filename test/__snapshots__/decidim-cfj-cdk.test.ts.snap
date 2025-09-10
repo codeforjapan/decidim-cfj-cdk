@@ -16,10 +16,6 @@ exports[`DecidimStack Created 1`] = `
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
-    "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/AWS_CLOUD_FRONT_END_POINT",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
     "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/decidim-cfj/staging/RDS_DB_NAME",
       "Type": "AWS::SSM::Parameter::Value<String>",
@@ -1286,12 +1282,6 @@ exports[`DecidimStack Created 1`] = `
           {
             "Environment": [
               {
-                "Name": "AWS_CLOUD_FRONT_END_POINT",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
-              {
                 "Name": "REDIS_URL",
                 "Value": {
                   "Fn::Join": [
@@ -1501,12 +1491,6 @@ exports[`DecidimStack Created 1`] = `
               "bundle exec rails db:create; bundle exec rake db:migrate && rails s -b 0.0.0.0",
             ],
             "Environment": [
-              {
-                "Name": "AWS_CLOUD_FRONT_END_POINT",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
               {
                 "Name": "REDIS_URL",
                 "Value": {
@@ -1953,12 +1937,6 @@ exports[`DecidimStack Created 1`] = `
               "/app/config/sidekiq.yml",
             ],
             "Environment": [
-              {
-                "Name": "AWS_CLOUD_FRONT_END_POINT",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingAWSCLOUDFRONTENDPOINTC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
-              },
               {
                 "Name": "REDIS_URL",
                 "Value": {
