@@ -117,7 +117,6 @@ export class DecidimStack extends cdk.Stack {
     })
 
     const DecidimContainerEnvironment: { [key: string]: string } = {
-      STORAGE_CDN_HOST: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/AWS_CLOUD_FRONT_END_POINT`),
       REDIS_URL: `redis://${ props.cache }:6379`,
       REDIS_CACHE_URL: `redis://${ props.cache }:6379`,
       RDS_DB_NAME: ssm.StringParameter.valueForTypedStringParameterV2(this, `/decidim-cfj/${ props.stage }/RDS_DB_NAME`),

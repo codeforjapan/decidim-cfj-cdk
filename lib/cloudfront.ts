@@ -332,7 +332,7 @@ export class CloudFrontStack extends Stack {
                   if (!req || !req.uri) return req;
                   if (req.uri.startsWith('/s3/')) {
                     var rest = req.uri.substring(4); // "/s3/"
-                    req.uri = ('/' + rest).replace(/\/+/g, '/'); // // を 1本に
+                    req.uri = ('/' + rest).replace(/\\/+/g, '/'); // // を 1本に
                   }
                   return req;
                 }
@@ -340,10 +340,10 @@ export class CloudFrontStack extends Stack {
         });
 
         // ALB Log
-        const logBucket = new aws_s3.Bucket(this, `${ props.stage }AlbLogBucket`, {
+        const logBucket = new aws_s3.Bucket(this, `${props.stage}AlbLogBucket`, {
             objectOwnership: aws_s3.ObjectOwnership.OBJECT_WRITER,
             blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
-            bucketName: `${ props.s3BucketName }-cloudfront-logs`,
+            bucketName: `${props.s3BucketName}-cloudfront-logs`,
             removalPolicy: RemovalPolicy.DESTROY,
             autoDeleteObjects: true,
         })
@@ -450,22 +450,22 @@ export class CloudFrontStack extends Stack {
                     service: "SSM",
                     action: "putParameter",
                     region: ssmRegion,
-                    parameters: { Name: name, Value: value, Type: "String", Overwrite: true },
+                    parameters: {Name: name, Value: value, Type: "String", Overwrite: true},
                     physicalResourceId: PhysicalResourceId.of(`${name}-${distribution.distributionId}`),
                 },
                 onUpdate: {
                     service: "SSM",
                     action: "putParameter",
                     region: ssmRegion,
-                    parameters: { Name: name, Value: value, Type: "String", Overwrite: true },
+                    parameters: {Name: name, Value: value, Type: "String", Overwrite: true},
                     physicalResourceId: PhysicalResourceId.of(`${name}-${distribution.distributionId}`),
                 },
-                policy: AwsCustomResourcePolicy.fromSdkCalls({ resources: AwsCustomResourcePolicy.ANY_RESOURCE }),
+                policy: AwsCustomResourcePolicy.fromSdkCalls({resources: AwsCustomResourcePolicy.ANY_RESOURCE}),
             });
 
         putParam("CfEndpoint", `${prj}/AWS_CLOUD_FRONT_END_POINT`, `${distribution.distributionDomainName}/s3`);
-        putParam("CfId",       `${prj}/CLOUDFRONT_DISTRIBUTION_ID`, distribution.distributionId);
-        putParam("CfArn",      `${prj}/CLOUDFRONT_DISTRIBUTION_ARN`,
+        putParam("CfId", `${prj}/CLOUDFRONT_DISTRIBUTION_ID`, distribution.distributionId);
+        putParam("CfArn", `${prj}/CLOUDFRONT_DISTRIBUTION_ARN`,
             `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`
         );
     }
