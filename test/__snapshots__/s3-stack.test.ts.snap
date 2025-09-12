@@ -8,6 +8,10 @@ exports[`S3Stack Created 1`] = `
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
+    "SsmParameterValuedecidimcfjstagingCLOUDFRONTDISTRIBUTIONARNC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ARN",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
   },
   "Resources": {
     "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
@@ -174,6 +178,35 @@ exports[`S3Stack Created 1`] = `
                   ],
                 },
               ],
+            },
+            {
+              "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Ref": "SsmParameterValuedecidimcfjstagingCLOUDFRONTDISTRIBUTIONARNC96584B6F00A464EAD1953AFF4B05118Parameter",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudfront.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "createBucketC28D3C56",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+              "Sid": "AllowCloudFrontOACRead",
             },
           ],
           "Version": "2012-10-17",
