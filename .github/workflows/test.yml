@@ -18,9 +18,9 @@ jobs:
         node: [ '22' ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - name: Setup NodeJs
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
       - name: Install Dependencies

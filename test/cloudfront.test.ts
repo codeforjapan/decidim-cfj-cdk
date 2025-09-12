@@ -21,7 +21,8 @@ test('Cloudfront Stack Created', () => {
         serviceName,
         env: cloudfrontEnv,
         domain: config.domain,
-        certificateArn: config.cloudfrontCertificate
+        certificateArn: config.cloudfrontCertificate,
+        s3BucketName: `${config.s3Bucket}-bucket`
     })
 
     const template = Template.fromStack(cloudfront);

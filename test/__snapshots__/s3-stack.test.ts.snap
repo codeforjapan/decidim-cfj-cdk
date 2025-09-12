@@ -8,6 +8,10 @@ exports[`S3Stack Created 1`] = `
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
+    "SsmParameterValuedecidimcfjstagingCLOUDFRONTDISTRIBUTIONARNC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/CLOUDFRONT_DISTRIBUTION_ARN",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
   },
   "Resources": {
     "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
@@ -177,14 +181,16 @@ exports[`S3Stack Created 1`] = `
             },
             {
               "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Ref": "SsmParameterValuedecidimcfjstagingCLOUDFRONTDISTRIBUTIONARNC96584B6F00A464EAD1953AFF4B05118Parameter",
+                  },
+                },
+              },
               "Effect": "Allow",
               "Principal": {
-                "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "stagingdecidimOriginAccessIdentity601BDE4E",
-                    "S3CanonicalUserId",
-                  ],
-                },
+                "Service": "cloudfront.amazonaws.com",
               },
               "Resource": {
                 "Fn::Join": [
@@ -200,20 +206,13 @@ exports[`S3Stack Created 1`] = `
                   ],
                 ],
               },
+              "Sid": "AllowCloudFrontOACRead",
             },
           ],
           "Version": "2012-10-17",
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "stagingdecidimOriginAccessIdentity601BDE4E": {
-      "Properties": {
-        "CloudFrontOriginAccessIdentityConfig": {
-          "Comment": "staging-decidim-OriginAccessIdentity",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
   },
   "Rules": {
