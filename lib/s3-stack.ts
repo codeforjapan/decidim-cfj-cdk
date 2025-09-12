@@ -1,4 +1,4 @@
-import {aws_s3, RemovalPolicy, Stack} from "aws-cdk-lib";
+import {aws_iam as iam, aws_s3, aws_ssm as ssm, RemovalPolicy, Stack} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {BaseStackProps} from "./props";
 import {HttpMethods} from "aws-cdk-lib/aws-s3";
@@ -34,5 +34,18 @@ export class S3Stack extends Stack {
                 }
             ]
         });
+
+        const distArn = ssm.StringParameter.valueForStringParameter(
+            this, `/decidim-cfj/${props.stage}/CLOUDFRONT_DISTRIBUTION_ARN`
+        );
+
+        this.bucket.addToResourcePolicy(new iam.PolicyStatement({
+            sid: "AllowCloudFrontOACRead",
+            effect: iam.Effect.ALLOW,
+            principals: [ new iam.ServicePrincipal("cloudfront.amazonaws.com") ],
+            actions: ["s3:GetObject"],
+            resources: [ `${this.bucket.bucketArn}/*` ],
+            conditions: { StringEquals: { "AWS:SourceArn": distArn } },
+        }));
     }
 }
