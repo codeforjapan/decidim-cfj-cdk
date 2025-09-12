@@ -8,12 +8,10 @@ export interface S3StackProps extends BaseStackProps {
 }
 
 export class S3Stack extends Stack {
-    public readonly bucket: aws_s3.Bucket
-
     constructor(scope: Construct, id: string, props: S3StackProps) {
         super(scope, id, props);
 
-        this.bucket = new aws_s3.Bucket(this, 'createBucket', {
+        const bucket = new aws_s3.Bucket(this, 'createBucket', {
             bucketName: `${props.bucketName}-bucket`,
             versioned: props.stage === 'prd-v0292',
             removalPolicy: RemovalPolicy.DESTROY,
@@ -39,12 +37,12 @@ export class S3Stack extends Stack {
             this, `/decidim-cfj/${props.stage}/CLOUDFRONT_DISTRIBUTION_ARN`
         );
 
-        this.bucket.addToResourcePolicy(new iam.PolicyStatement({
+        bucket.addToResourcePolicy(new iam.PolicyStatement({
             sid: "AllowCloudFrontOACRead",
             effect: iam.Effect.ALLOW,
             principals: [ new iam.ServicePrincipal("cloudfront.amazonaws.com") ],
             actions: ["s3:GetObject"],
-            resources: [ `${this.bucket.bucketArn}/*` ],
+            resources: [ `${bucket.bucketArn}/*` ],
             conditions: { StringEquals: { "AWS:SourceArn": distArn } },
         }));
     }
