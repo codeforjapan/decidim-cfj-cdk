@@ -14,11 +14,13 @@ $ npx cdk --context stage=dev --profile decidim diff
 ## Useful commands
 
 ### Build & Test
+
 - `npm run build` compile typescript to js
 - `npm run watch` watch for changes and compile
 - `npm run test` perform the jest unit tests
 
 ### Code Quality
+
 - `npm run lint` check code with ESLint
 - `npm run lint:fix` auto-fix ESLint issues
 - `npm run format` format code with Prettier
@@ -26,6 +28,7 @@ $ npx cdk --context stage=dev --profile decidim diff
 - `npm run check` run both format check and lint
 
 ### CDK Commands
+
 - `cdk deploy` deploy this stack to your default AWS account/region
 - `cdk diff` compare deployed stack with current state
 - `cdk synth` emits the synthesized CloudFormation template
@@ -59,6 +62,7 @@ npm run check
 ### IDE統合（VS Code推奨）
 
 以下の拡張機能をインストールすることを推奨します：
+
 - ESLint (`dbaeumer.vscode-eslint`)
 - Prettier - Code formatter (`esbenp.prettier-vscode`)
 

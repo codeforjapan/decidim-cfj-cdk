@@ -10,8 +10,8 @@
 
 [設定ファイルと認証情報ファイルの設定](https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-files.html)を参考に、credentialsファイルを作成する。
 
-
 今回は、`~/.aws/credentials`に以下のようprofileが`decidim`になるよう作成。（違う名前にした場合、以下読み変えが必要です。）
+
 ```
 [decidim]
 aws_access_key_id=YOUR_ACCESS_KEY
@@ -19,15 +19,17 @@ aws_secret_access_key=YOUR_SECRET_ACCESS_KEY
 ```
 
 # 2. SESの設定
+
 [Amazon Simple Email Service を設定する](https://docs.aws.amazon.com/ja_jp/ses/latest/dg/setting-up.html)や、[Setup email](https://docs.aws.amazon.com/ja_jp/ses/latest/dg/setting-up.html)を参考に、AWS SESの準備を行う。
 
 # 2-1. [dev.json](../config/dev.json) を編集する
-[dev.json](../config/dev.json)の’smtpDomain’を用意したドメインに書き換える。
 
+[dev.json](../config/dev.json)の’smtpDomain’を用意したドメインに書き換える。
 
 # 3. パラメータストアに環境変数を登録する
 
 # 3-1 シークレットの作成
+
 AWS Systems Manager のパラメータストアで以下のようなパラメータを手動で作成する。
 
 ```
@@ -47,9 +49,11 @@ AWS Systems Manager のパラメータストアで以下のようなパラメー
 # 4. ECRの準備
 
 # 4-1 プライベートリポジトリを作成する
+
 [プライベートリポジトリを作成する](https://docs.aws.amazon.com/ja_jp/AmazonECR/latest/userguide/repository-create.html) を参考に AWS ECRのリポジトリを用意する。
 
 # 4-2 用意したリポジトリにdecidim の docker imageをpushする
+
 デフォルトのままだと接続されるドメインを拒否してしまうため、Decidim の [config/environments/development.rb](https://github.com/codeforjapan/decidim-cfj/blob/main/config/environments/development.rb) に該当のドメイン（ホスト名）、もしくは全てのホスト名をconfigに追記する。
 
 <details>
@@ -87,7 +91,9 @@ To allow requests to local.example.com make sure it is a valid hostname (contain
 [Docker イメージをプッシュする](https://docs.aws.amazon.com/ja_jp/AmazonECR/latest/userguide/docker-push-ecr-image.html)を参考にbuildしたdocker imageを用意したリポジトリにpushする。
 
 # 4-3 tagをexportする
+
 4-2でpushしたdockerイメージのタグをexportする
+
 ```console
 $ export IMAGE_TAG=先ほどpushしたimage tag
 ```
@@ -95,9 +101,11 @@ $ export IMAGE_TAG=先ほどpushしたimage tag
 # 5. 証明書の準備
 
 # 5-1 任意のドメインをroute53に用意し、aws certificate managerで証明書を発行する
+
 [証明書を発行して管理する](https://docs.aws.amazon.com/ja_jp/acm/latest/userguide/gs.html)を参考に証明書を発行、Arnをメモする
 
 # 5-2 [dev.json](../config/dev.json) を編集する
+
 [dev.json](../config/dev.json)の’certificates’部分にメモしたArnに書き換える。
 
 # 6. デプロイ
@@ -115,7 +123,7 @@ $ npx cdk --context stage=dev --context tag=${IMAGE_TAG} --profile decidim boots
 どんなリソースが作成されるのかを確認できる。
 
 ```console
-$ npx cdk --context stage=dev --context tag=${IMAGE_TAG} --profile decidim diff  
+$ npx cdk --context stage=dev --context tag=${IMAGE_TAG} --profile decidim diff
 ```
 
 ## 6-3. デプロイ実行
@@ -132,32 +140,38 @@ $ npx cdk --context stage=dev --context tag=${IMAGE_TAG} --profile decidim deplo
 
 <img src="images/dev/cloudformation.png">
 
-# 7. 初回デプロイ 
+# 7. 初回デプロイ
 
 ## 7.1 環境へのアクセス
+
 ```console
 $ aws ecs execute-command --region ap-northeast-1 --cluster devDecidimCluster --task ${タスク名} --container appContainer --interactive --command "/bin/bash" --profile decidim
 ```
 
 ## 7.2 migrateとseedの実行
+
 ```console
 $ ./bin/rails db:migrate
 $ ./bin/rails db:seed SEED=true
 ```
 
 ## 7.3 環境へのアクセス
-``dev-decidim-alb-origin.${指定したドメイン}``で管理画面にアクセス
+
+`dev-decidim-alb-origin.${指定したドメイン}`で管理画面にアクセス
 
 ### 8. 別のドメインを追加する場合
 
 ## cloudfrontの代替ドメイン名に対象のドメインを追加
+
 cloudfrontの管理画面に行き作成したcloudfrontの管理画面で代替ドメインに追加したいドメインを加えて保存する
 
 ## decidimの管理画面にアクセスし、対象の組織にドメインを設定する
+
 設定したい組織にドメインを設定して、対象のドメインいアクセスする
 
 手順を変えるとエラーでアクセスに失敗します。
 
 ### seedの実行について
+
 decidimではproduction環境のseedは以下のenvをつけて実行する必要があります
 SEED=true bundle exec rake db:seed
