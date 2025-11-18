@@ -1,4 +1,4 @@
-import { InstanceType } from "aws-cdk-lib/aws-ec2";
+import { InstanceType } from 'aws-cdk-lib/aws-ec2';
 
 export interface SubnetConfig {
   subnetId: string;
@@ -15,22 +15,22 @@ export interface VpcConfig {
 }
 
 export interface RdsConfig {
-  snapshot: boolean
-  snapshotIdentifier: string
-  instanceType: InstanceType
-  deletionProtection: boolean
-  allocatedStorage: number
-  maxAllocatedStorage: number
-  multiAz: boolean
-  enablePerformanceInsights: boolean
+  snapshot: boolean;
+  snapshotIdentifier: string;
+  instanceType: InstanceType;
+  deletionProtection: boolean;
+  allocatedStorage: number;
+  maxAllocatedStorage: number;
+  multiAz: boolean;
+  enablePerformanceInsights: boolean;
 }
 
 export interface EcsConfig {
-  smtpDomain: string,
-  repository: string
-  certificates: string[]
-  fargateCapacityProvider: capacityProviderStrategy
-  fargateSpotCapacityProvider: capacityProviderStrategy
+  smtpDomain: string;
+  repository: string;
+  certificates: string[];
+  fargateCapacityProvider: capacityProviderStrategy;
+  fargateSpotCapacityProvider: capacityProviderStrategy;
 }
 
 export interface capacityProviderStrategy {
@@ -39,7 +39,7 @@ export interface capacityProviderStrategy {
 }
 
 export interface Config {
-  stage: string
+  stage: string;
 
   vpc?: VpcConfig;
   aws: {
@@ -47,24 +47,25 @@ export interface Config {
     region: string;
   };
 
-  s3Bucket: string
+  s3Bucket: string;
 
   // rds
-  rds: RdsConfig
+  rds: RdsConfig;
 
   // elastiCache
-  cacheNodeType: string
-  engineVersion: string
-  numCacheNodes: number
-  automaticFailoverEnabled: boolean
+  cacheNodeType: string;
+  engineVersion: string;
+  numCacheNodes: number;
+  automaticFailoverEnabled: boolean;
 
-  ecs: EcsConfig
+  ecs: EcsConfig;
 
   // service
-  domain: string,
-  cloudfrontCertificate: string
+  domain: string;
+  cloudfrontCertificate: string;
 }
 
-export function getConfig (stage: string): Config {
-  return require(`../config/${ stage }.json`)
+export function getConfig(stage: string): Config {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-var-requires
+  return require(`../config/${stage}.json`) as Config;
 }
