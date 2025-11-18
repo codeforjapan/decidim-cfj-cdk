@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# CDK output
+cdk.out/
+
+# Build output
+*.js
+*.d.ts
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Package manager
+package-lock.json
+yarn.lock
+
+# Test snapshots
+test/__snapshots__/
