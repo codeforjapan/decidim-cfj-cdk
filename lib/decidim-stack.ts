@@ -358,7 +358,8 @@ export class DecidimStack extends cdk.Stack {
       protocol: elbv2.ApplicationProtocol.HTTPS,
       port: 443,
       defaultTargetGroups: [targetGroup],
-      certificates: certificates
+      certificates: certificates,
+      sslPolicy: elbv2.SslPolicy.RECOMMENDED_TLS
     })
 
     loadBalancer.logAccessLogs(logBucket)
