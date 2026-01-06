@@ -1313,6 +1313,36 @@ exports[`DecidimStack Created 1`] = `
                 },
               },
               {
+                "Name": "DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DECIDIM_SPAM_DETECTION_BACKEND_RESOURCE_REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
                 "Name": "RDS_DB_NAME",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
@@ -1489,7 +1519,7 @@ exports[`DecidimStack Created 1`] = `
             "Command": [
               "sh",
               "-c",
-              "bundle exec rails db:create; bundle exec rake db:migrate && rails s -b 0.0.0.0",
+              "bundle exec rails db:create; rails s -b 0.0.0.0",
             ],
             "Environment": [
               {
@@ -1509,6 +1539,36 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "REDIS_CACHE_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DECIDIM_SPAM_DETECTION_BACKEND_RESOURCE_REDIS_URL",
                 "Value": {
                   "Fn::Join": [
                     "",
@@ -1955,6 +2015,36 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "REDIS_CACHE_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL",
+                "Value": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "redis://",
+                      {
+                        "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
+                      },
+                      ":6379",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DECIDIM_SPAM_DETECTION_BACKEND_RESOURCE_REDIS_URL",
                 "Value": {
                   "Fn::Join": [
                     "",

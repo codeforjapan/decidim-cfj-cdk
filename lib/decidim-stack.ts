@@ -117,6 +117,8 @@ export class DecidimStack extends cdk.Stack {
     const DecidimContainerEnvironment: { [key: string]: string } = {
       REDIS_URL: `redis://${props.cache}:6379`,
       REDIS_CACHE_URL: `redis://${props.cache}:6379`,
+      DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL: `redis://${props.cache}:6379`,
+      DECIDIM_SPAM_DETECTION_BACKEND_RESOURCE_REDIS_URL: `redis://${props.cache}:6379`,
       RDS_DB_NAME: ssm.StringParameter.valueForTypedStringParameterV2(
         this,
         `/decidim-cfj/${props.stage}/RDS_DB_NAME`
@@ -222,7 +224,7 @@ export class DecidimStack extends cdk.Stack {
       command: [
         'sh',
         '-c',
-        'bundle exec rails db:create; bundle exec rake db:migrate && rails s -b 0.0.0.0',
+        'bundle exec rails db:create; rails s -b 0.0.0.0',
       ],
       healthCheck: {
         command: ['CMD-SHELL', `curl --fail -s http://localhost:3000 || exit 1`],

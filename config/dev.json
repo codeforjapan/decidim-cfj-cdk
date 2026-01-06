@@ -1,7 +1,7 @@
 {
   "rds": {
     "snapshot": true,
-    "snapshotIdentifier": "decidim-master-2025-08-11",
+    "snapshotIdentifier": "decidim-master-2025-12-25",
     "instanceType": "t3.micro",
     "deletionProtection": false,
     "allocatedStorage": 20,
