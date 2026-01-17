@@ -2,7 +2,7 @@
   "rds": {
     "snapshot": false,
     "snapshotIdentifier": "",
-    "instanceType": "t2.micro",
+    "instanceType": "t4g.micro",
     "deletionProtection": false,
     "allocatedStorage": 20,
     "maxAllocatedStorage": 20,
