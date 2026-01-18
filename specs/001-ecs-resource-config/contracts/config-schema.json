@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Decidim CFJ CDK Configuration Schema",
+  "description": "環境別ECSリソース設定を含むDecidim CFJ CDK設定ファイルのスキーマ",
+  "type": "object",
+  "properties": {
+    "ecs": {
+      "type": "object",
+      "description": "ECS関連の設定",
+      "properties": {
+        "smtpDomain": {
+          "type": "string",
+          "description": "SMTPドメイン"
+        },
+        "repository": {
+          "type": "string",
+          "description": "ECRリポジトリ名"
+        },
+        "certificates": {
+          "type": "array",
+          "description": "ACM証明書のARNリスト",
+          "items": {
+            "type": "string",
+            "pattern": "^arn:aws:acm:[a-z0-9-]+:[0-9]+:certificate/[a-f0-9-]+$"
+          }
+        },
+        "fargateSpotCapacityProvider": {
+          "type": "object",
+          "description": "Fargate Spotキャパシティプロバイダー設定",
+          "properties": {
+            "base": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "weight": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": ["weight"]
+        },
+        "fargateCapacityProvider": {
+          "type": "object",
+          "description": "Fargateキャパシティプロバイダー設定",
+          "properties": {
+            "base": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "weight": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": ["weight"]
+        },
+        "mainApp": {
+          "$ref": "#/definitions/EcsTaskResourceConfig",
+          "description": "メインDecidimアプリケーションタスクのリソース設定（オプショナル）"
+        },
+        "sidekiq": {
+          "$ref": "#/definitions/EcsTaskResourceConfig",
+          "description": "Sidekiqワーカータスクのリソース設定（オプショナル）"
+        },
+        "scheduledTasks": {
+          "$ref": "#/definitions/EcsTaskResourceConfig",
+          "description": "スケジュールタスクのリソース設定（将来の使用のために予約、現在は使用されない）"
+        }
+      },
+      "required": [
+        "smtpDomain",
+        "repository",
+        "certificates",
+        "fargateSpotCapacityProvider",
+        "fargateCapacityProvider"
+      ]
+    }
+  },
+  "definitions": {
+    "EcsTaskResourceConfig": {
+      "type": "object",
+      "description": "ECSタスクのCPU/メモリリソース設定",
+      "properties": {
+        "cpu": {
+          "type": "integer",
+          "description": "CPU割り当て（CPU単位: 1024単位 = 1 vCPU）",
+          "enum": [256, 512, 1024, 2048, 4096, 8192, 16384],
+          "examples": [1024, 2048, 4096]
+        },
+        "memory": {
+          "type": "integer",
+          "description": "メモリ割り当て（MiB）。CPUとメモリの組み合わせはAWS Fargateの制限に従う必要がある",
+          "minimum": 512,
+          "maximum": 122880,
+          "examples": [2048, 4096, 8192]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
