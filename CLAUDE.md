@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## よく使用するコマンド
 
 ### ビルドと開発
+
 ```bash
 npm run build              # TypeScriptをJavaScriptにコンパイル
 npm run watch             # 変更を監視して自動コンパイル
@@ -16,6 +17,7 @@ npm run test              # Jestユニットテストを実行
 ```
 
 ### コード品質
+
 ```bash
 npm run lint              # ESLintでコードをチェック
 npm run lint:fix          # ESLintの問題を自動修正
@@ -25,6 +27,7 @@ npm run check             # format:checkとlintの両方を実行
 ```
 
 ### CDK操作
+
 すべてのCDKコマンドには`--context stage=<stage>`が必要です。stageは`dev`、`staging`、`prd-v0292`、`dev2`のいずれかです。
 
 ```bash
@@ -45,6 +48,7 @@ npx cdk --context stage=dev --context tag=<image-tag> --profile decidim bootstra
 ```
 
 ### ECSタスクへのアクセス
+
 ```bash
 # appコンテナに接続
 aws ecs execute-command --region ap-northeast-1 \
@@ -104,6 +108,7 @@ SEED=true ./bin/rails db:seed
 #### DecidimStack ECSアーキテクチャ
 
 メインアプリケーションはマルチコンテナタスク定義を使用：
+
 - **nginxContainer**: リバースプロキシ（ポート80）、`lib/nginx`ディレクトリからビルド
 - **appContainer**: Decidim Railsアプリケーション（ポート3000）
   - コマンド: `bundle exec rails db:create; rails s -b 0.0.0.0`
@@ -111,12 +116,14 @@ SEED=true ./bin/rails db:seed
   - イメージバージョンに`tag`コンテキストパラメータが必要
 
 バックグラウンドジョブ処理用の独立したSidekiqサービス：
+
 - **sidekiqContainer**: バックグラウンドジョブワーカー
   - コマンド: `bundle exec sidekiq -C /app/config/sidekiq.yml`
 
 #### スケジュール実行タスク
 
 EventBridgeルールがメインタスク定義を使用してrakeタスクをスケジュール実行：
+
 - データクリーンアップ（毎日0:00 UTC）
 - メトリクス計算（毎日0:10 UTC）
 - オープンデータエクスポート（毎日0:20 UTC）
@@ -129,6 +136,7 @@ EventBridgeルールがメインタスク定義を使用してrakeタスクを�
 #### 設定システム
 
 `config/*.json`ファイル内のステージ固有の設定を`lib/config.ts`が読み込み：
+
 - AWSアカウントとリージョン
 - VPC設定（既存VPCのインポートまたは新規作成）
 - RDS設定（インスタンスタイプ、スナップショット設定、ストレージ）
@@ -141,10 +149,12 @@ EventBridgeルールがメインタスク定義を使用してrakeタスクを�
 #### 環境変数
 
 アプリケーション環境変数のソース：
+
 1. `DecidimContainerEnvironment`内のハードコード値（lib/decidim-stack.ts:117-163）
 2. AWS Systems Manager Parameter Store（パス: `/decidim-cfj/${stage}/*`）
 
 必要なSSMパラメータ：
+
 - `/decidim-cfj/${stage}/RDS_DB_NAME`
 - `/decidim-cfj/${stage}/RDS_USERNAME`
 - `/decidim-cfj/${stage}/RDS_PASSWORD`
@@ -158,29 +168,36 @@ EventBridgeルールがメインタスク定義を使用してrakeタスクを�
 #### キャパシティプロバイダー
 
 ECSサービスはステージごとに設定されたFargate/Fargate Spotの混合戦略を使用：
+
 - メインアプリとSidekiqサービスの両方が同じキャパシティプロバイダー設定を使用
 - 例: `fargateSpotCapacityProvider.weight: 1`、`fargateCapacityProvider.base: 1, weight: 2`
 
 #### オートスケーリング
 
 メインECSサービスは1〜5タスクの間でオートスケール：
+
 - CPU目標: 50%
 - メモリ目標: 70%
 
 ## 重要な注意事項
 
 ### ステージ設定
+
 - すべてのCDKコマンドには`--context stage=<stage>`パラメータが必要
 - 有効なステージ: `dev`、`staging`、`prd-v0292`、`dev2`
 - `tag`コンテキストパラメータはデプロイ時に必要で、ECRのDecidim Dockerイメージタグを指定
 
 ### リソース命名規則
+
 リソースは以下のパターンに従います: `${stage}${serviceName}<ResourceType>`
+
 - サービス名は常に「decidim」
 - 例: `devdecidimStack`、`stagingDecidimCluster`
 
 ### セキュリティグループ
+
 NetworkStackは分離されたセキュリティグループを作成：
+
 - ALBはどこからでもポート80、443の受信を許可
 - ECSサービスはALBからのみポート80の受信を許可
 - RDSはECSサービスからのみポート5432の受信を許可
@@ -188,14 +205,18 @@ NetworkStackは分離されたセキュリティグループを作成：
 - SES VPCエンドポイントは専用のセキュリティグループを使用
 
 ### VPC設定
+
 プロジェクトは2つのモードをサポート：
+
 1. **既存VPCのインポート**: configに`vpc`が定義されている場合、VPC IDでインポート
 2. **新規VPC作成**: CIDR 10.0.0.0/16、NATゲートウェイなし、パブリック/プライベートサブネットでVPCを作成
 
 両方のECSサービスはパブリックIPを割り当ててパブリックサブネットで実行されます。
 
 ### Redis URL
+
 4つの異なるRedis URL環境変数がすべて同じElastiCacheインスタンスを指します：
+
 - `REDIS_URL`
 - `REDIS_CACHE_URL`
 - `DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL`（v0.30で追加）
@@ -204,6 +225,7 @@ NetworkStackは分離されたセキュリティグループを作成：
 ### デプロイ前の要件
 
 デプロイ前に以下を確認：
+
 1. AWSクレデンシャルがプロファイル名で設定されている（通常は`decidim`）
 2. DecidimのDockerイメージを持つECRリポジトリが存在
 3. ドメインのRoute53ホストゾーンが存在
@@ -212,10 +234,12 @@ NetworkStackは分離されたセキュリティグループを作成：
 6. DockerイメージがタグとともにECRにプッシュ済み
 
 ### TypeScript設定
+
 - ターゲット: ES2018
 - Strictモード有効
 - Node.js >= 22.0.0が必要
 - デバッグ用にソースマップをインライン化
 
 ### テスト
+
 Jestテストは`test/`ディレクトリにあり、スナップショットテストをサポート。テストは生成されたCloudFormationテンプレートを検証します。
