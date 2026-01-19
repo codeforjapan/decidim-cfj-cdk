@@ -25,30 +25,41 @@ import {
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
-import { capacityProviderStrategy } from './config';
+import { EcsConfig } from './config';
 import path = require('path');
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
+
+/**
+ * メインDecidimアプリケーションタスクのデフォルトCPU（CPU単位）
+ * - 1024単位 = 1 vCPU
+ */
+const DEFAULT_MAIN_APP_CPU = 2048;
+
+/**
+ * メインDecidimアプリケーションタスクのデフォルトメモリ（MiB）
+ */
+const DEFAULT_MAIN_APP_MEMORY = 4096;
+
+/**
+ * SidekiqワーカータスクのデフォルトCPU（CPU単位）
+ */
+const DEFAULT_SIDEKIQ_CPU = 512;
+
+/**
+ * Sidekiqワーカータスクのデフォルトメモリ（MiB）
+ */
+const DEFAULT_SIDEKIQ_MEMORY = 2048;
 
 export interface DecidimStackProps extends BaseStackProps {
   vpc: aws_ec2.IVpc;
   securityGroup: aws_ec2.SecurityGroup;
   securityGroupForAlb: aws_ec2.SecurityGroup;
-  containerSpec?: {
-    cpu: number;
-    memoryLimitMiB: number;
-  };
+  ecs: EcsConfig;
   domain: string;
   tag: string;
   rds: string;
   cache: string;
-  ecs: {
-    smtpDomain: string;
-    repository: string;
-    certificates: string[];
-    fargateCapacityProvider: capacityProviderStrategy;
-    fargateSpotCapacityProvider: capacityProviderStrategy;
-  };
   bucketName: string;
 }
 
@@ -83,8 +94,8 @@ export class DecidimStack extends cdk.Stack {
 
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'decidimTaskDefinition', {
-      cpu: props.containerSpec ? props.containerSpec.cpu : 2048,
-      memoryLimitMiB: props.containerSpec ? props.containerSpec?.memoryLimitMiB : 4096,
+      cpu: props.ecs.mainApp?.cpu ?? DEFAULT_MAIN_APP_CPU,
+      memoryLimitMiB: props.ecs.mainApp?.memory ?? DEFAULT_MAIN_APP_MEMORY,
       family: `${props.stage}DecidimTaskDefinition`,
       taskRole: backendTaskRole,
       executionRole: backendTaskRole,
@@ -92,8 +103,8 @@ export class DecidimStack extends cdk.Stack {
 
     // Task Definition
     const sidekiqTaskDefinition = new ecs.FargateTaskDefinition(this, 'sidekiqTaskDefinition', {
-      cpu: 512,
-      memoryLimitMiB: 2048,
+      cpu: props.ecs.sidekiq?.cpu ?? DEFAULT_SIDEKIQ_CPU,
+      memoryLimitMiB: props.ecs.sidekiq?.memory ?? DEFAULT_SIDEKIQ_MEMORY,
       family: `${props.stage}SidekiqTaskDefinition`,
       taskRole: backendTaskRole,
       executionRole: backendTaskRole,

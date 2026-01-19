@@ -2201,7 +2201,7 @@ exports[`DecidimStack Created 1`] = `
           ],
         },
         "Family": "stagingSidekiqTaskDefinition",
-        "Memory": "2048",
+        "Memory": "1024",
         "NetworkMode": "awsvpc",
         "RequiresCompatibilities": [
           "FARGATE",
