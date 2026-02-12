@@ -10,9 +10,9 @@ import {
 import { Construct } from 'constructs';
 import { BaseStackProps } from './props';
 import {
-  DatabaseInstance,
   DatabaseInstanceEngine,
   DatabaseInstanceSourceProps,
+  IDatabaseInstance,
   StorageType,
 } from 'aws-cdk-lib/aws-rds';
 import { RdsConfig } from './config';
@@ -24,7 +24,7 @@ export interface RdsStackProps extends BaseStackProps {
 }
 
 export class RdsStack extends Stack {
-  public readonly rds: DatabaseInstance;
+  public readonly rds: IDatabaseInstance;
 
   constructor(scope: Construct, id: string, props: RdsStackProps) {
     super(scope, id, props);

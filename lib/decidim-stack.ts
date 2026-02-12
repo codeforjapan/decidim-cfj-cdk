@@ -26,7 +26,7 @@ import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
 import { EcsConfig } from './config';
-import path = require('path');
+import * as path from 'path';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 

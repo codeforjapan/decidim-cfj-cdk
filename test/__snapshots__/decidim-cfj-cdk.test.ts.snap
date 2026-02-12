@@ -313,7 +313,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "ComputeMetrics08CB6F17": {
       "Properties": {
-        "ScheduleExpression": "cron(10 0 * * ? *)",
+        "ScheduleExpression": "cron(10 15 * * ? *)",
         "State": "ENABLED",
         "Targets": [
           {
@@ -366,7 +366,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "ComputeOpenData54A963CE": {
       "Properties": {
-        "ScheduleExpression": "cron(20 0 * * ? *)",
+        "ScheduleExpression": "cron(20 15 * * ? *)",
         "State": "ENABLED",
         "Targets": [
           {
@@ -856,7 +856,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "DeleteOldRegistrationsForms62ED6A14": {
       "Properties": {
-        "ScheduleExpression": "cron(30 0 * * ? *)",
+        "ScheduleExpression": "cron(30 15 * * ? *)",
         "State": "ENABLED",
         "Targets": [
           {
@@ -983,7 +983,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "GenerateReminders42374D94": {
       "Properties": {
-        "ScheduleExpression": "cron(40 0 * * ? *)",
+        "ScheduleExpression": "cron(40 15 * * ? *)",
         "State": "ENABLED",
         "Targets": [
           {
@@ -1036,7 +1036,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "MailDigestDaily53F04B93": {
       "Properties": {
-        "ScheduleExpression": "cron(0 18 * * ? *)",
+        "ScheduleExpression": "cron(0 9 * * ? *)",
         "State": "ENABLED",
         "Targets": [
           {
@@ -1089,7 +1089,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "MailDigestWeekly21AC9F1D": {
       "Properties": {
-        "ScheduleExpression": "cron(0 19 ? * 6 *)",
+        "ScheduleExpression": "cron(0 10 ? * 7 *)",
         "State": "ENABLED",
         "Targets": [
           {
@@ -1797,7 +1797,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "removeDownloadDataFilesC5602772": {
       "Properties": {
-        "ScheduleExpression": "cron(0 0 * * ? *)",
+        "ScheduleExpression": "cron(0 15 * * ? *)",
         "State": "ENABLED",
         "Targets": [
           {
