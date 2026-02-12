@@ -120,7 +120,7 @@ export class DecidimStack extends cdk.Stack {
       platform: Platform.LINUX_AMD64,
     });
 
-    new ECRDeployment(this, 'DeployDockerImage', {
+    new ECRDeployment(this, 'DeployDockerImageV2', {
       src: new DockerImageName(image.imageUri),
       dest: new DockerImageName(`${repo.repositoryUri}:latest`),
     });

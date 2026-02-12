@@ -908,7 +908,7 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::Events::Rule",
     },
-    "DeployDockerImageCustomResource1798FC60": {
+    "DeployDockerImageV2CustomResourceCFE3992A": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "DestImage": {
