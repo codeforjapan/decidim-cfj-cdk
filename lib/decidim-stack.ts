@@ -26,7 +26,7 @@ import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
 import { EcsConfig } from './config';
-import path = require('path');
+import * as path from 'path';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 
@@ -120,7 +120,7 @@ export class DecidimStack extends cdk.Stack {
       platform: Platform.LINUX_AMD64,
     });
 
-    new ECRDeployment(this, 'DeployDockerImage', {
+    new ECRDeployment(this, 'DeployDockerImageV2', {
       src: new DockerImageName(image.imageUri),
       dest: new DockerImageName(`${repo.repositoryUri}:latest`),
     });
@@ -428,39 +428,46 @@ export class DecidimStack extends cdk.Stack {
       scheduleExpression: string;
     }[] = [
       {
+        // JST 0:00 daily
         id: 'removeDownloadDataFiles',
         command: ['bundle', 'exec', 'rake', 'decidim:delete_download_your_data_files'],
-        scheduleExpression: 'cron(0 0 * * ? *)',
+        scheduleExpression: 'cron(0 15 * * ? *)',
       },
       {
+        // JST 0:10 daily
         id: 'ComputeMetrics',
         command: ['bundle', 'exec', 'rake', 'decidim:metrics:all'],
-        scheduleExpression: 'cron(10 0 * * ? *)',
+        scheduleExpression: 'cron(10 15 * * ? *)',
       },
       {
+        // JST 0:20 daily
         id: 'ComputeOpenData',
         command: ['bundle', 'exec', 'rake', 'decidim:open_data:export'],
-        scheduleExpression: 'cron(20 0 * * ? *)',
+        scheduleExpression: 'cron(20 15 * * ? *)',
       },
       {
+        // JST 0:30 daily
         id: 'DeleteOldRegistrationsForms',
         command: ['bundle', 'exec', 'rake', 'decidim_meetings:clean_registration_forms'],
-        scheduleExpression: 'cron(30 0 * * ? *)',
+        scheduleExpression: 'cron(30 15 * * ? *)',
       },
       {
+        // JST 0:40 daily
         id: 'GenerateReminders',
         command: ['bundle', 'exec', 'rake', 'decidim:reminders:all'],
-        scheduleExpression: 'cron(40 0 * * ? *)',
+        scheduleExpression: 'cron(40 15 * * ? *)',
       },
       {
+        // JST 18:00 daily
         id: 'MailDigestDaily',
         command: ['bundle', 'exec', 'rake', 'decidim:mailers:notifications_digest_daily'],
-        scheduleExpression: 'cron(0 18 * * ? *)',
+        scheduleExpression: 'cron(0 9 * * ? *)',
       },
       {
+        // JST 19:00 every Saturday
         id: 'MailDigestWeekly',
         command: ['bundle', 'exec', 'rake', 'decidim:mailers:notifications_digest_weekly'],
-        scheduleExpression: 'cron(0 19 ? * 6 *)',
+        scheduleExpression: 'cron(0 10 ? * 7 *)',
       },
       {
         id: 'UpdateActiveStep',
