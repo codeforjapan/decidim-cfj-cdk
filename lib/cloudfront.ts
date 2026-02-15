@@ -5,6 +5,7 @@ import {
   aws_s3,
   aws_wafv2,
   CfnOutput,
+  Duration,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
@@ -347,6 +348,22 @@ export class CloudFrontStack extends Stack {
       },
     });
 
+    // WAF Log（本番環境のみ）
+    if (props.stage === 'prd-v0292') {
+      const wafLogBucket = new aws_s3.Bucket(this, `${props.stage}WafLogBucket`, {
+        bucketName: `aws-waf-logs-${props.s3BucketName}`,
+        blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+        lifecycleRules: [{ expiration: Duration.days(180) }],
+      });
+
+      new aws_wafv2.CfnLoggingConfiguration(this, 'WafLoggingConfig', {
+        resourceArn: waf.attrArn,
+        logDestinationConfigs: [wafLogBucket.bucketArn],
+      });
+    }
+
     let distribution: cloudfront.Distribution;
 
     const stripS3PrefixFn = new cloudfront.Function(this, 'StripS3PrefixFn', {
@@ -365,13 +382,14 @@ export class CloudFrontStack extends Stack {
                   `),
     });
 
-    // ALB Log
+    // CloudFront Log
     const logBucket = new aws_s3.Bucket(this, `${props.stage}AlbLogBucket`, {
       objectOwnership: aws_s3.ObjectOwnership.OBJECT_WRITER,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `${props.s3BucketName}-cloudfront-logs`,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      lifecycleRules: [{ expiration: Duration.days(180) }],
     });
 
     if (props.stage === 'prd-v0292') {
