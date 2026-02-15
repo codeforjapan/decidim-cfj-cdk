@@ -740,6 +740,14 @@ exports[`Cloudfront Stack Created 1`] = `
       "DeletionPolicy": "Delete",
       "Properties": {
         "BucketName": "staging-decidim-bucket-cloudfront-logs",
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "ExpirationInDays": 180,
+              "Status": "Enabled",
+            },
+          ],
+        },
         "OwnershipControls": {
           "Rules": [
             {

@@ -382,13 +382,14 @@ export class CloudFrontStack extends Stack {
                   `),
     });
 
-    // ALB Log
+    // CloudFront Log
     const logBucket = new aws_s3.Bucket(this, `${props.stage}AlbLogBucket`, {
       objectOwnership: aws_s3.ObjectOwnership.OBJECT_WRITER,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
       bucketName: `${props.s3BucketName}-cloudfront-logs`,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      lifecycleRules: [{ expiration: Duration.days(180) }],
     });
 
     if (props.stage === 'prd-v0292') {
