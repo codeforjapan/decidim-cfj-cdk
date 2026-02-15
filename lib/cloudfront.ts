@@ -5,6 +5,7 @@ import {
   aws_s3,
   aws_wafv2,
   CfnOutput,
+  Duration,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib';
@@ -346,6 +347,22 @@ export class CloudFrontStack extends Stack {
         },
       },
     });
+
+    // WAF Log（本番環境のみ）
+    if (props.stage === 'prd-v0292') {
+      const wafLogBucket = new aws_s3.Bucket(this, `${props.stage}WafLogBucket`, {
+        bucketName: `aws-waf-logs-${props.s3BucketName}`,
+        blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+        lifecycleRules: [{ expiration: Duration.days(180) }],
+      });
+
+      new aws_wafv2.CfnLoggingConfiguration(this, 'WafLoggingConfig', {
+        resourceArn: waf.attrArn,
+        logDestinationConfigs: [wafLogBucket.bucketArn],
+      });
+    }
 
     let distribution: cloudfront.Distribution;
 
