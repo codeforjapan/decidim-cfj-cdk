@@ -186,7 +186,7 @@ export class DecidimStack extends cdk.Stack {
         logGroup: new logs.LogGroup(this, 'NginxLogGroup', {
           logGroupName: `${props.stage}-${props.serviceName}-nginxLogGroup`,
           removalPolicy: RemovalPolicy.DESTROY,
-          retention: RetentionDays.TWO_MONTHS,
+          retention: RetentionDays.SIX_MONTHS,
         }),
         streamPrefix: 'nginx',
       }),
@@ -226,7 +226,7 @@ export class DecidimStack extends cdk.Stack {
         logGroup: new logs.LogGroup(this, 'DecidimLogGroup', {
           logGroupName: `${props.stage}-${props.serviceName}-serviceLogGroup`,
           removalPolicy: RemovalPolicy.DESTROY,
-          retention: RetentionDays.TWO_MONTHS,
+          retention: RetentionDays.SIX_MONTHS,
         }),
         streamPrefix: 'app',
       }),
@@ -271,7 +271,7 @@ export class DecidimStack extends cdk.Stack {
         logGroup: new logs.LogGroup(this, 'sidekiqLogGroup', {
           logGroupName: `${props.stage}-${props.serviceName}-sidekiqLogGroup`,
           removalPolicy: RemovalPolicy.DESTROY,
-          retention: RetentionDays.TWO_MONTHS,
+          retention: RetentionDays.SIX_MONTHS,
         }),
         streamPrefix: 'sidekiq',
       }),
@@ -358,6 +358,7 @@ export class DecidimStack extends cdk.Stack {
       bucketName: `${props.bucketName}-alb-logs`,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      lifecycleRules: [{ expiration: Duration.days(180) }],
     });
 
     // ALB Definition
