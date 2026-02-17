@@ -19,6 +19,14 @@ export class ElasticacheStack extends Stack {
   constructor(scope: Construct, id: string, props: ElastiCacheStackProps) {
     super(scope, id, props);
 
+    const parameterGroup = new elasticache.CfnParameterGroup(this, 'RedisParameterGroup', {
+      cacheParameterGroupFamily: 'redis6.x',
+      description: `${props.stage}-${props.serviceName} Redis parameter group`,
+      properties: {
+        'maxmemory-policy': 'volatile-lru',
+      },
+    });
+
     const elastiCacheProps: CfnReplicationGroupProps = {
       replicationGroupDescription: `${props.stage}-${props.serviceName}-cache`,
       engine: 'redis',
@@ -29,6 +37,7 @@ export class ElasticacheStack extends Stack {
       automaticFailoverEnabled: props.automaticFailoverEnabled,
       securityGroupIds: [props.securityGroup],
       cacheSubnetGroupName: props.ecSubnetGroup.cacheSubnetGroupName,
+      cacheParameterGroupName: parameterGroup.ref,
     };
 
     if (props.stage === 'prd-v0292') {
