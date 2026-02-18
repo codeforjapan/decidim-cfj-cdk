@@ -2,7 +2,7 @@
   "rds": {
     "snapshot": true,
     "snapshotIdentifier": "decidim-master-2025-07-14",
-    "instanceType": "t3.medium",
+    "instanceType": "t4g.medium",
     "deletionProtection": true,
     "allocatedStorage": 20,
     "maxAllocatedStorage": 40,
@@ -19,7 +19,7 @@
 
   "cacheNodeType": "cache.t3.medium",
   "engineVersion": "6.x",
-  "numCacheNodes": 3,
+  "numCacheNodes": 2,
   "automaticFailoverEnabled": true,
 
   "ecs": {
@@ -35,6 +35,14 @@
     "fargateCapacityProvider": {
       "base": 1,
       "weight": 2
+    },
+    "mainApp": {
+      "cpu": 2048,
+      "memory": 4096
+    },
+    "sidekiq": {
+      "cpu": 512,
+      "memory": 2048
     }
   },
 
