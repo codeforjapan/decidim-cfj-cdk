@@ -40,7 +40,7 @@ exports[`RdsStack Created 1`] = `
         "DeletionProtection": false,
         "EnablePerformanceInsights": false,
         "Engine": "postgres",
-        "EngineVersion": "14.17",
+        "EngineVersion": "16.11",
         "MasterUserPassword": {
           "Ref": "SsmParameterValuedecidimcfjstagingRDSPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
         },
@@ -49,7 +49,7 @@ exports[`RdsStack Created 1`] = `
         },
         "MaxAllocatedStorage": 20,
         "MultiAZ": false,
-        "StorageType": "gp2",
+        "StorageType": "gp3",
         "VPCSecurityGroups": [
           {
             "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForRDS9D249C02GroupIdC5588EA5",

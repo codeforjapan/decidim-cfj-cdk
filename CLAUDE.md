@@ -28,7 +28,7 @@ npm run check             # format:checkとlintの両方を実行
 
 ### CDK操作
 
-すべてのCDKコマンドには`--context stage=<stage>`が必要です。stageは`dev`、`staging`、`prd-v0292`、`dev2`のいずれかです。
+すべてのCDKコマンドには`--context stage=<stage>`が必要です。stageは`dev`、`staging`、`prd-v0292`のいずれかです。
 
 ```bash
 # デプロイ前の差分を確認
@@ -184,7 +184,7 @@ ECSサービスはステージごとに設定されたFargate/Fargate Spotの混
 ### ステージ設定
 
 - すべてのCDKコマンドには`--context stage=<stage>`パラメータが必要
-- 有効なステージ: `dev`、`staging`、`prd-v0292`、`dev2`
+- 有効なステージ: `dev`、`staging`、`prd-v0292`
 - `tag`コンテキストパラメータはデプロイ時に必要で、ECRのDecidim Dockerイメージタグを指定
 
 ### リソース命名規則

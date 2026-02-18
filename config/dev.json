@@ -17,7 +17,7 @@
 
   "s3Bucket": "dev-v300-decidim",
 
-  "cacheNodeType": "cache.t3.medium",
+  "cacheNodeType": "cache.t3.micro",
   "engineVersion": "6.x",
   "numCacheNodes": 1,
   "automaticFailoverEnabled": false,

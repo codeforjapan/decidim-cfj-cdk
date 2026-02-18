@@ -480,7 +480,7 @@ exports[`Cloudfront Stack Created 1`] = `
               },
             },
           ],
-          "PriceClass": "PriceClass_All",
+          "PriceClass": "PriceClass_200",
           "ViewerCertificate": {
             "AcmCertificateArn": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de",
             "MinimumProtocolVersion": "TLSv1.2_2021",
