@@ -35,6 +35,14 @@
     "fargateCapacityProvider": {
       "base": 1,
       "weight": 2
+    },
+    "mainApp": {
+      "cpu": 2048,
+      "memory": 4096
+    },
+    "sidekiq": {
+      "cpu": 512,
+      "memory": 1024
     }
   },
 
