@@ -29,7 +29,7 @@ exports[`Elasticache Stack Created 1`] = `
         },
         "CacheSubnetGroupName": "staging-decidim-SubnetGroup",
         "Engine": "redis",
-        "EngineVersion": "7.x",
+        "EngineVersion": "6.x",
         "NumCacheClusters": 1,
         "ReplicationGroupDescription": "staging-decidim-cache",
         "ReplicationGroupId": "staging-decidim-cache",
