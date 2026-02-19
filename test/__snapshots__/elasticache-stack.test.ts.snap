@@ -10,10 +10,23 @@ exports[`Elasticache Stack Created 1`] = `
     },
   },
   "Resources": {
+    "RedisParameterGroup": {
+      "Properties": {
+        "CacheParameterGroupFamily": "redis6.x",
+        "Description": "staging-decidim Redis parameter group",
+        "Properties": {
+          "maxmemory-policy": "volatile-lru",
+        },
+      },
+      "Type": "AWS::ElastiCache::ParameterGroup",
+    },
     "elasticache": {
       "Properties": {
         "AutomaticFailoverEnabled": false,
-        "CacheNodeType": "cache.t2.micro",
+        "CacheNodeType": "cache.t3.micro",
+        "CacheParameterGroupName": {
+          "Ref": "RedisParameterGroup",
+        },
         "CacheSubnetGroupName": "staging-decidim-SubnetGroup",
         "Engine": "redis",
         "EngineVersion": "6.x",

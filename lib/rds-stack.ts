@@ -32,7 +32,7 @@ export class RdsStack extends Stack {
     const config = props.rds;
 
     const rdsProps: DatabaseInstanceSourceProps = {
-      engine: DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_14_17 }),
+      engine: DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_16_11 }),
       instanceType: config.instanceType,
       instanceIdentifier: `${props.stage}-${props.serviceName}-postgresql`,
       vpc: props.vpc,
@@ -40,7 +40,7 @@ export class RdsStack extends Stack {
       multiAz: config.multiAz,
       removalPolicy: RemovalPolicy.DESTROY,
       deletionProtection: config.deletionProtection,
-      storageType: StorageType.GP2,
+      storageType: StorageType.GP3,
       allocatedStorage: config.allocatedStorage,
       maxAllocatedStorage: config.maxAllocatedStorage,
       autoMinorVersionUpgrade: true,
@@ -69,6 +69,7 @@ export class RdsStack extends Stack {
               this,
               `/decidim-cfj/${props.stage}/RDS_USERNAME`
             ),
+            // TODO: AWS Secrets Managerへの移行を検討（自動ローテーション対応）
             password: SecretValue.unsafePlainText(
               ssm.StringParameter.valueForTypedStringParameterV2(
                 this,

@@ -87,10 +87,12 @@ export class CloudFrontStack extends Stack {
           managedRuleGroupStatement: {
             vendorName: 'AWS',
             name: 'AWSManagedRulesCommonRuleSet',
+            // Decidimはリッチテキストエディタ（Quill）でHTMLボディを送信するため、
+            // 以下のルールが正規リクエストを誤検知でブロックする
             excludedRules: [
-              { name: 'CrossSiteScripting_BODY' },
-              { name: 'SizeRestrictions_BODY' },
-              { name: 'GenericRFI_BODY' },
+              { name: 'CrossSiteScripting_BODY' }, // リッチテキストのHTML投稿が誤検知される
+              { name: 'SizeRestrictions_BODY' }, // 大きなフォーム投稿（画像添付等）がブロックされる
+              { name: 'GenericRFI_BODY' }, // リッチテキスト内のURL記述が誤検知される
             ],
           },
         },
@@ -156,6 +158,7 @@ export class CloudFrontStack extends Stack {
           managedRuleGroupStatement: {
             vendorName: 'AWS',
             name: 'AWSManagedRulesSQLiRuleSet',
+            // リッチテキストのHTML投稿がSQLインジェクションとして誤検知される
             excludedRules: [{ name: 'SQLi_BODY' }],
           },
         },
@@ -364,7 +367,7 @@ export class CloudFrontStack extends Stack {
       });
     }
 
-    let distribution: cloudfront.Distribution;
+    const isPrd = props.stage === 'prd-v0292';
 
     const stripS3PrefixFn = new cloudfront.Function(this, 'StripS3PrefixFn', {
       code: cloudfront.FunctionCode.fromInline(`
@@ -392,93 +395,48 @@ export class CloudFrontStack extends Stack {
       lifecycleRules: [{ expiration: Duration.days(180) }],
     });
 
-    if (props.stage === 'prd-v0292') {
-      distribution = new cloudfront.Distribution(this, 'Distribution', {
-        priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
-        defaultBehavior: {
-          origin: albOrigin,
-          allowedMethods: AllowedMethods.ALLOW_ALL,
-          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          cachePolicy: CachePolicy.CACHING_DISABLED,
-          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
-        },
-        comment: `${props.stage}-${props.serviceName}-cloudfront`,
-        domainNames: [endpoint, `*.${props.domain}`],
-        certificate: aws_certificatemanager.Certificate.fromCertificateArn(
-          this,
-          'cloudFrontCertificate',
-          props.certificateArn
-        ),
-        webAclId: waf.attrArn,
-        enableLogging: true,
-        logBucket: logBucket,
-        logFilePrefix: 'cloudfront-logs/',
-      });
-
-      // 既存のビヘイビア
-      distribution.addBehavior('decidim-packs/*', albOrigin, {
-        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+    const distribution = new cloudfront.Distribution(this, 'Distribution', {
+      priceClass: isPrd
+        ? cloudfront.PriceClass.PRICE_CLASS_ALL
+        : cloudfront.PriceClass.PRICE_CLASS_200,
+      defaultBehavior: {
+        origin: albOrigin,
+        allowedMethods: AllowedMethods.ALLOW_ALL,
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-      });
+        cachePolicy: CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+      },
+      comment: `${props.stage}-${props.serviceName}-cloudfront`,
+      domainNames: isPrd ? [endpoint, `*.${props.domain}`] : [endpoint],
+      certificate: aws_certificatemanager.Certificate.fromCertificateArn(
+        this,
+        'cloudFrontCertificate',
+        props.certificateArn
+      ),
+      webAclId: waf.attrArn,
+      enableLogging: true,
+      logBucket: logBucket,
+      logFilePrefix: 'cloudfront-logs/',
+    });
 
-      // S3画像アクセス用のビヘイビア
-      distribution.addBehavior('/s3/*', s3Origin, {
-        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-        originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
-        functionAssociations: [
-          {
-            function: stripS3PrefixFn,
-            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-          },
-        ],
-      });
-    } else {
-      distribution = new cloudfront.Distribution(this, 'Distribution', {
-        priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
-        defaultBehavior: {
-          origin: albOrigin,
-          allowedMethods: AllowedMethods.ALLOW_ALL,
-          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          cachePolicy: CachePolicy.CACHING_DISABLED,
-          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+    distribution.addBehavior('decidim-packs/*', albOrigin, {
+      allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+    });
+
+    distribution.addBehavior('/s3/*', s3Origin, {
+      allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+      viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
+      cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+      originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
+      functionAssociations: [
+        {
+          function: stripS3PrefixFn,
+          eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
         },
-        comment: `${props.stage}-${props.serviceName}-cloudfront`,
-        domainNames: [endpoint],
-        certificate: aws_certificatemanager.Certificate.fromCertificateArn(
-          this,
-          'cloudFrontCertificate',
-          props.certificateArn
-        ),
-        webAclId: waf.attrArn,
-        enableLogging: true,
-        logBucket: logBucket,
-        logFilePrefix: 'cloudfront-logs/',
-      });
-
-      // 既存のビヘイビア
-      distribution.addBehavior('decidim-packs/*', albOrigin, {
-        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-      });
-
-      // S3画像アクセス用のビヘイビア
-      distribution.addBehavior('/s3/*', s3Origin, {
-        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-        originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
-        functionAssociations: [
-          {
-            function: stripS3PrefixFn,
-            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-          },
-        ],
-      });
-    }
+      ],
+    });
 
     // CloudFrontディストリビューションのドメイン名を出力
     new CfnOutput(this, 'CloudFrontDomainName', {

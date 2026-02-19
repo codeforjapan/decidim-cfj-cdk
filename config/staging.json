@@ -2,7 +2,7 @@
   "rds": {
     "snapshot": false,
     "snapshotIdentifier": "",
-    "instanceType": "t2.micro",
+    "instanceType": "t4g.micro",
     "deletionProtection": false,
     "allocatedStorage": 20,
     "maxAllocatedStorage": 20,
@@ -17,7 +17,7 @@
 
   "s3Bucket": "staging-decidim",
 
-  "cacheNodeType": "cache.t2.micro",
+  "cacheNodeType": "cache.t3.micro",
   "engineVersion": "6.x",
   "numCacheNodes": 1,
   "automaticFailoverEnabled": false,

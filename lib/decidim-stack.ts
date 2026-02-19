@@ -233,7 +233,7 @@ export class DecidimStack extends cdk.Stack {
       command: [
         'sh',
         '-c',
-        'bundle exec rails db:create; bundle exec rake db:migrate && rails s -b 0.0.0.0',
+        'bundle exec rails db:create && bundle exec rake db:migrate && bundle exec rails s -b 0.0.0.0',
       ],
       healthCheck: {
         command: ['CMD-SHELL', `curl --fail -s http://localhost:3000 || exit 1`],

@@ -1,8 +1,8 @@
 {
   "rds": {
     "snapshot": true,
-    "snapshotIdentifier": "decidim-master-2025-08-11",
-    "instanceType": "t3.micro",
+    "snapshotIdentifier": "decidim-master-2025-12-25",
+    "instanceType": "t4g.micro",
     "deletionProtection": false,
     "allocatedStorage": 20,
     "maxAllocatedStorage": 40,
@@ -17,7 +17,7 @@
 
   "s3Bucket": "dev-v300-decidim",
 
-  "cacheNodeType": "cache.t3.medium",
+  "cacheNodeType": "cache.t3.micro",
   "engineVersion": "6.x",
   "numCacheNodes": 1,
   "automaticFailoverEnabled": false,
