@@ -36,18 +36,6 @@ exports[`DecidimStack Created 1`] = `
       "Default": "/decidim-cfj/staging/SLACK_API_TOKEN",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
-    "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/SMTP_ADDRESS",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
-    "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/SMTP_PASSWORD",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
-    "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/decidim-cfj/staging/SMTP_USERNAME",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
   },
   "Resources": {
     "Alb16C2F182": {
@@ -155,6 +143,33 @@ exports[`DecidimStack Created 1`] = `
         },
       },
       "Type": "AWS::ElasticLoadBalancingV2::ListenerCertificate",
+    },
+    "AlbhttpsListenerMailpitListenerRuleRuleDBD26559": {
+      "Properties": {
+        "Actions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "MailpitTargetGroupFAB41B5D",
+            },
+            "Type": "forward",
+          },
+        ],
+        "Conditions": [
+          {
+            "Field": "path-pattern",
+            "PathPatternConfig": {
+              "Values": [
+                "/mailpit*",
+              ],
+            },
+          },
+        ],
+        "ListenerArn": {
+          "Ref": "AlbhttpsListenerB49E5778",
+        },
+        "Priority": 10,
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
     },
     "BackendTaskRole65DD5890": {
       "Properties": {
@@ -702,6 +717,7 @@ exports[`DecidimStack Created 1`] = `
       "DependsOn": [
         "AlbhttpListener75E510B4",
         "AlbhttpsListenerDefaultCertificates1CE6DF251",
+        "AlbhttpsListenerMailpitListenerRuleRuleDBD26559",
         "AlbhttpsListenerB49E5778",
         "BackendTaskRoleDefaultPolicyD82ED08E",
         "BackendTaskRole65DD5890",
@@ -1141,6 +1157,330 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::Events::Rule",
     },
+    "MailNamespaceE66B5F73": {
+      "Properties": {
+        "Name": "staging-decidim.local",
+        "Vpc": {
+          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::ServiceDiscovery::PrivateDnsNamespace",
+    },
+    "MailpitLogGroupA2B6F46C": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "staging-mailpit-logs",
+        "RetentionInDays": 7,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "MailpitService009D8D50": {
+      "DependsOn": [
+        "AlbhttpsListenerMailpitListenerRuleRuleDBD26559",
+        "MailpitTaskDefTaskRoleF66C0EE4",
+      ],
+      "Properties": {
+        "Cluster": {
+          "Ref": "DecidimCluster7E0E2A4C",
+        },
+        "DeploymentConfiguration": {
+          "Alarms": {
+            "AlarmNames": [],
+            "Enable": false,
+            "Rollback": false,
+          },
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 50,
+        },
+        "DesiredCount": 1,
+        "EnableECSManagedTags": false,
+        "HealthCheckGracePeriodSeconds": 60,
+        "LaunchType": "FARGATE",
+        "LoadBalancers": [
+          {
+            "ContainerName": "mailpitContainer",
+            "ContainerPort": 8025,
+            "TargetGroupArn": {
+              "Ref": "MailpitTargetGroupFAB41B5D",
+            },
+          },
+        ],
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Fn::GetAtt": [
+                  "MailpitSg0F17663E",
+                  "GroupId",
+                ],
+              },
+            ],
+            "Subnets": [
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
+              },
+              {
+                "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
+              },
+            ],
+          },
+        },
+        "ServiceName": "stagingMailpitService",
+        "ServiceRegistries": [
+          {
+            "RegistryArn": {
+              "Fn::GetAtt": [
+                "MailpitServiceCloudmapService0759452E",
+                "Arn",
+              ],
+            },
+          },
+        ],
+        "TaskDefinition": {
+          "Ref": "MailpitTaskDefD1E1A907",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "MailpitServiceCloudmapService0759452E": {
+      "DependsOn": [
+        "MailpitTaskDefTaskRoleF66C0EE4",
+      ],
+      "Properties": {
+        "DnsConfig": {
+          "DnsRecords": [
+            {
+              "TTL": 60,
+              "Type": "A",
+            },
+          ],
+          "NamespaceId": {
+            "Fn::GetAtt": [
+              "MailNamespaceE66B5F73",
+              "Id",
+            ],
+          },
+          "RoutingPolicy": "MULTIVALUE",
+        },
+        "HealthCheckCustomConfig": {
+          "FailureThreshold": 1,
+        },
+        "Name": "mailpit",
+        "NamespaceId": {
+          "Fn::GetAtt": [
+            "MailNamespaceE66B5F73",
+            "Id",
+          ],
+        },
+      },
+      "Type": "AWS::ServiceDiscovery::Service",
+    },
+    "MailpitSg0F17663E": {
+      "Properties": {
+        "GroupDescription": "DecidimStack/MailpitSg",
+        "GroupName": "staging-mailpit",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "MailpitSgfromstagingdecidimNetworkStackstagingSecurityGroupForAlbB83738338025B3E8743C": {
+      "Properties": {
+        "Description": "from stagingdecidimNetworkStackstagingSecurityGroupForAlbB8373833:8025",
+        "FromPort": 8025,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "MailpitSg0F17663E",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForAlbE9A4D6A4GroupIdF0683917",
+        },
+        "ToPort": 8025,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "MailpitSgfromstagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E5010253D641EC6": {
+      "Properties": {
+        "Description": "from stagingdecidimNetworkStackstagingSecurityGroupForDecidimService30F11E50:1025",
+        "FromPort": 1025,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "MailpitSg0F17663E",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
+        },
+        "ToPort": 1025,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "MailpitTargetGroupFAB41B5D": {
+      "Properties": {
+        "HealthCheckPath": "/mailpit/",
+        "HealthCheckPort": "8025",
+        "Name": "staging-mailpit-tg",
+        "Port": 8025,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": {
+          "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "MailpitTaskDefD1E1A907": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Environment": [
+              {
+                "Name": "MP_WEBROOT",
+                "Value": "/mailpit",
+              },
+              {
+                "Name": "MP_SMTP_AUTH_ACCEPT_ANY",
+                "Value": "1",
+              },
+              {
+                "Name": "MP_SMTP_AUTH_ALLOW_INSECURE",
+                "Value": "1",
+              },
+            ],
+            "Essential": true,
+            "Image": "axllent/mailpit:latest",
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "MailpitLogGroupA2B6F46C",
+                },
+                "awslogs-region": "ap-northeast-1",
+                "awslogs-stream-prefix": "mailpit",
+              },
+            },
+            "Name": "mailpitContainer",
+            "PortMappings": [
+              {
+                "ContainerPort": 1025,
+                "Protocol": "tcp",
+              },
+              {
+                "ContainerPort": 8025,
+                "Protocol": "tcp",
+              },
+            ],
+          },
+        ],
+        "Cpu": "256",
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "MailpitTaskDefExecutionRoleBC599C93",
+            "Arn",
+          ],
+        },
+        "Family": "stagingMailpitTaskDefinition",
+        "Memory": "512",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE",
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "MailpitTaskDefTaskRoleF66C0EE4",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "MailpitTaskDefExecutionRoleBC599C93": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "MailpitTaskDefExecutionRoleDefaultPolicy4A180ED3": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "MailpitLogGroupA2B6F46C",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "MailpitTaskDefExecutionRoleDefaultPolicy4A180ED3",
+        "Roles": [
+          {
+            "Ref": "MailpitTaskDefExecutionRoleBC599C93",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "MailpitTaskDefTaskRoleF66C0EE4": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "NginxLogGroupBC063F96": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -1375,25 +1715,27 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "SMTP_ADDRESS",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit.staging-decidim.local",
               },
               {
                 "Name": "SMTP_USERNAME",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit",
               },
               {
                 "Name": "SMTP_PASSWORD",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit",
               },
               {
                 "Name": "SMTP_DOMAIN",
-                "Value": "diycities.jp",
+                "Value": "mailpit.staging-decidim.local",
+              },
+              {
+                "Name": "SMTP_PORT",
+                "Value": "1025",
+              },
+              {
+                "Name": "SMTP_STARTTLS_AUTO",
+                "Value": "false",
               },
               {
                 "Name": "AWS_BUCKET_NAME",
@@ -1615,25 +1957,27 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "SMTP_ADDRESS",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit.staging-decidim.local",
               },
               {
                 "Name": "SMTP_USERNAME",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit",
               },
               {
                 "Name": "SMTP_PASSWORD",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit",
               },
               {
                 "Name": "SMTP_DOMAIN",
-                "Value": "diycities.jp",
+                "Value": "mailpit.staging-decidim.local",
+              },
+              {
+                "Name": "SMTP_PORT",
+                "Value": "1025",
+              },
+              {
+                "Name": "SMTP_STARTTLS_AUTO",
+                "Value": "false",
               },
               {
                 "Name": "AWS_BUCKET_NAME",
@@ -2091,25 +2435,27 @@ exports[`DecidimStack Created 1`] = `
               },
               {
                 "Name": "SMTP_ADDRESS",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPADDRESSC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit.staging-decidim.local",
               },
               {
                 "Name": "SMTP_USERNAME",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPUSERNAMEC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit",
               },
               {
                 "Name": "SMTP_PASSWORD",
-                "Value": {
-                  "Ref": "SsmParameterValuedecidimcfjstagingSMTPPASSWORDC96584B6F00A464EAD1953AFF4B05118Parameter",
-                },
+                "Value": "mailpit",
               },
               {
                 "Name": "SMTP_DOMAIN",
-                "Value": "diycities.jp",
+                "Value": "mailpit.staging-decidim.local",
+              },
+              {
+                "Name": "SMTP_PORT",
+                "Value": "1025",
+              },
+              {
+                "Name": "SMTP_STARTTLS_AUTO",
+                "Value": "false",
               },
               {
                 "Name": "AWS_BUCKET_NAME",
