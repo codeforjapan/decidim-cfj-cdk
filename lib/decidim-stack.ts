@@ -29,6 +29,7 @@ import { EcsConfig } from './config';
 import * as path from 'path';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
+import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
 
 /**
  * メインDecidimアプリケーションタスクのデフォルトCPU（CPU単位）
@@ -72,6 +73,7 @@ export class DecidimStack extends cdk.Stack {
       vpc: props.vpc,
       clusterName: `${props.stage}DecidimCluster`,
       enableFargateCapacityProviders: true,
+      containerInsightsV2: ecs.ContainerInsights.ENABLED,
     });
 
     const ECSExecPolicyStatement = new aws_iam.PolicyStatement({
@@ -128,6 +130,8 @@ export class DecidimStack extends cdk.Stack {
     const DecidimContainerEnvironment: { [key: string]: string } = {
       REDIS_URL: `redis://${props.cache}:6379`,
       REDIS_CACHE_URL: `redis://${props.cache}:6379`,
+      DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL: `redis://${props.cache}:6379`,
+      DECIDIM_SPAM_DETECTION_BACKEND_RESOURCE_REDIS_URL: `redis://${props.cache}:6379`,
       RDS_DB_NAME: ssm.StringParameter.valueForTypedStringParameterV2(
         this,
         `/decidim-cfj/${props.stage}/RDS_DB_NAME`
@@ -145,19 +149,29 @@ export class DecidimStack extends cdk.Stack {
         this,
         `/decidim-cfj/${props.stage}/SECRET_KEY_BASE`
       ),
-      SMTP_ADDRESS: ssm.StringParameter.valueForTypedStringParameterV2(
-        this,
-        `/decidim-cfj/${props.stage}/SMTP_ADDRESS`
-      ),
-      SMTP_USERNAME: ssm.StringParameter.valueForTypedStringParameterV2(
-        this,
-        `/decidim-cfj/${props.stage}/SMTP_USERNAME`
-      ),
-      SMTP_PASSWORD: ssm.StringParameter.valueForTypedStringParameterV2(
-        this,
-        `/decidim-cfj/${props.stage}/SMTP_PASSWORD`
-      ),
-      SMTP_DOMAIN: props.ecs.smtpDomain,
+      SMTP_ADDRESS: ['dev', 'staging'].includes(props.stage)
+        ? `mailpit.${props.stage}-decidim.local`
+        : ssm.StringParameter.valueForTypedStringParameterV2(
+            this,
+            `/decidim-cfj/${props.stage}/SMTP_ADDRESS`
+          ),
+      SMTP_USERNAME: ['dev', 'staging'].includes(props.stage)
+        ? 'mailpit'
+        : ssm.StringParameter.valueForTypedStringParameterV2(
+            this,
+            `/decidim-cfj/${props.stage}/SMTP_USERNAME`
+          ),
+      SMTP_PASSWORD: ['dev', 'staging'].includes(props.stage)
+        ? 'mailpit'
+        : ssm.StringParameter.valueForTypedStringParameterV2(
+            this,
+            `/decidim-cfj/${props.stage}/SMTP_PASSWORD`
+          ),
+      SMTP_DOMAIN: ['dev', 'staging'].includes(props.stage)
+        ? `mailpit.${props.stage}-decidim.local`
+        : props.ecs.smtpDomain,
+      SMTP_PORT: ['dev', 'staging'].includes(props.stage) ? '1025' : '587',
+      SMTP_STARTTLS_AUTO: ['dev', 'staging'].includes(props.stage) ? 'false' : 'true',
       AWS_BUCKET_NAME: `${props.bucketName}-bucket`,
       DECIDIM_COMMENTS_LIMIT: '30',
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(
@@ -230,11 +244,7 @@ export class DecidimStack extends cdk.Stack {
         }),
         streamPrefix: 'app',
       }),
-      command: [
-        'sh',
-        '-c',
-        'bundle exec rails db:create && bundle exec rake db:migrate && bundle exec rails s -b 0.0.0.0',
-      ],
+      command: ['sh', '-c', 'bundle exec rails db:create; rails s -b 0.0.0.0'],
       healthCheck: {
         command: ['CMD-SHELL', `curl --fail -s http://localhost:3000 || exit 1`],
         retries: 3,
@@ -398,7 +408,7 @@ export class DecidimStack extends cdk.Stack {
       );
     });
 
-    loadBalancer.addListener('httpsListener', {
+    const httpsListener = loadBalancer.addListener('httpsListener', {
       protocol: elbv2.ApplicationProtocol.HTTPS,
       port: 443,
       defaultTargetGroups: [targetGroup],
@@ -422,6 +432,83 @@ export class DecidimStack extends cdk.Stack {
       value: `${props.stage}-${props.serviceName}-alb-origin.${props.domain}`,
       exportName: `${props.stage}${props.serviceName}accessDomain`,
     });
+
+    // === Mailpit（dev/staging環境専用メールキャプチャ） ===
+    if (['dev', 'staging'].includes(props.stage)) {
+      const mailNamespace = new servicediscovery.PrivateDnsNamespace(this, 'MailNamespace', {
+        name: `${props.stage}-decidim.local`,
+        vpc: props.vpc,
+      });
+
+      const sgForMailpit = new aws_ec2.SecurityGroup(this, 'MailpitSg', {
+        vpc: props.vpc,
+        securityGroupName: `${props.stage}-mailpit`,
+      });
+      sgForMailpit.addIngressRule(props.securityGroup, aws_ec2.Port.tcp(1025));
+      sgForMailpit.addIngressRule(props.securityGroupForAlb, aws_ec2.Port.tcp(8025));
+
+      const mailpitTaskDef = new ecs.FargateTaskDefinition(this, 'MailpitTaskDef', {
+        cpu: 256,
+        memoryLimitMiB: 512,
+        family: `${props.stage}MailpitTaskDefinition`,
+      });
+
+      mailpitTaskDef.addContainer('mailpitContainer', {
+        image: ecs.ContainerImage.fromRegistry('axllent/mailpit:latest'),
+        portMappings: [{ containerPort: 1025 }, { containerPort: 8025 }],
+        environment: {
+          MP_WEBROOT: '/mailpit',
+          MP_SMTP_AUTH_ACCEPT_ANY: '1',
+          MP_SMTP_AUTH_ALLOW_INSECURE: '1',
+        },
+        logging: ecs.LogDriver.awsLogs({
+          logGroup: new logs.LogGroup(this, 'MailpitLogGroup', {
+            logGroupName: `${props.stage}-mailpit-logs`,
+            removalPolicy: RemovalPolicy.DESTROY,
+            retention: RetentionDays.ONE_WEEK,
+          }),
+          streamPrefix: 'mailpit',
+        }),
+      });
+
+      const mailpitService = new ecs.FargateService(this, 'MailpitService', {
+        cluster,
+        taskDefinition: mailpitTaskDef,
+        serviceName: `${props.stage}MailpitService`,
+        desiredCount: 1,
+        assignPublicIp: true,
+        vpcSubnets: { subnets: props.vpc.publicSubnets },
+        securityGroups: [sgForMailpit],
+        cloudMapOptions: {
+          name: 'mailpit',
+          cloudMapNamespace: mailNamespace,
+          dnsRecordType: servicediscovery.DnsRecordType.A,
+        },
+      });
+
+      const mailpitTg = new ApplicationTargetGroup(this, 'MailpitTargetGroup', {
+        protocol: elbv2.ApplicationProtocol.HTTP,
+        port: 8025,
+        targets: [
+          mailpitService.loadBalancerTarget({
+            containerName: 'mailpitContainer',
+            containerPort: 8025,
+          }),
+        ],
+        targetGroupName: `${props.stage}-mailpit-tg`,
+        vpc: props.vpc,
+        healthCheck: {
+          path: '/mailpit/',
+          port: '8025',
+        },
+      });
+
+      httpsListener.addTargetGroups('MailpitListenerRule', {
+        targetGroups: [mailpitTg],
+        conditions: [elbv2.ListenerCondition.pathPatterns(['/mailpit*'])],
+        priority: 10,
+      });
+    }
 
     const eventTasks: {
       id: string;
