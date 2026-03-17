@@ -673,6 +673,12 @@ exports[`DecidimStack Created 1`] = `
     "DecidimCluster7E0E2A4C": {
       "Properties": {
         "ClusterName": "stagingDecidimCluster",
+        "ClusterSettings": [
+            {
+                "Name": "containerInsights",
+                "Value": "enabled",
+            }
+        ],
       },
       "Type": "AWS::ECS::Cluster",
     },
