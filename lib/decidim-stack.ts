@@ -174,6 +174,7 @@ export class DecidimStack extends cdk.Stack {
       DECIDIM_CACHE_EXPIRATION_TIME: '60',
       WEB_CONCURRENCY: '4',
       MALLOC_ARENA_MAX: '2',
+      DECIDIM_THROTTLING_MAX_REQUESTS: '1000',
     };
 
     const decidimRepository = aws_ecr.Repository.fromRepositoryName(
