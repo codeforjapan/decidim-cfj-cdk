@@ -172,6 +172,8 @@ export class DecidimStack extends cdk.Stack {
       DECIDIM_ADMIN_PASSWORD_MIN_LENGTH: '8',
       DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true',
       DECIDIM_CACHE_EXPIRATION_TIME: '60',
+      WEB_CONCURRENCY: '4',
+      MALLOC_ARENA_MAX: '2',
     };
 
     const decidimRepository = aws_ecr.Repository.fromRepositoryName(
