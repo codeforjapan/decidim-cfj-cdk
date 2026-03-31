@@ -1421,10 +1421,6 @@ exports[`DecidimStack Created 1`] = `
                 "Name": "MALLOC_ARENA_MAX",
                 "Value": "2",
               },
-              {
-                "Name": "DECIDIM_THROTTLING_MAX_REQUESTS",
-                "Value": "1000",
-              },
             ],
             "Essential": true,
             "HealthCheck": {
@@ -1642,10 +1638,6 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "MALLOC_ARENA_MAX",
                 "Value": "2",
-              },
-              {
-                "Name": "DECIDIM_THROTTLING_MAX_REQUESTS",
-                "Value": "1000",
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
@@ -2100,10 +2092,6 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "MALLOC_ARENA_MAX",
                 "Value": "2",
-              },
-              {
-                "Name": "DECIDIM_THROTTLING_MAX_REQUESTS",
-                "Value": "1000",
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
