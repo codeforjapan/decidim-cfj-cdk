@@ -673,6 +673,12 @@ exports[`DecidimStack Created 1`] = `
     "DecidimCluster7E0E2A4C": {
       "Properties": {
         "ClusterName": "stagingDecidimCluster",
+        "ClusterSettings": [
+          {
+            "Name": "containerInsights",
+            "Value": "disabled",
+          },
+        ],
       },
       "Type": "AWS::ECS::Cluster",
     },
@@ -1407,6 +1413,14 @@ exports[`DecidimStack Created 1`] = `
                 "Name": "DECIDIM_CACHE_EXPIRATION_TIME",
                 "Value": "60",
               },
+              {
+                "Name": "WEB_CONCURRENCY",
+                "Value": "4",
+              },
+              {
+                "Name": "MALLOC_ARENA_MAX",
+                "Value": "2",
+              },
             ],
             "Essential": true,
             "HealthCheck": {
@@ -1616,6 +1630,14 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "DECIDIM_CACHE_EXPIRATION_TIME",
                 "Value": "60",
+              },
+              {
+                "Name": "WEB_CONCURRENCY",
+                "Value": "4",
+              },
+              {
+                "Name": "MALLOC_ARENA_MAX",
+                "Value": "2",
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
@@ -2062,6 +2084,14 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "DECIDIM_CACHE_EXPIRATION_TIME",
                 "Value": "60",
+              },
+              {
+                "Name": "WEB_CONCURRENCY",
+                "Value": "4",
+              },
+              {
+                "Name": "MALLOC_ARENA_MAX",
+                "Value": "2",
               },
               {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
