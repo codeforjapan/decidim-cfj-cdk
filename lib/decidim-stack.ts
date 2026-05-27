@@ -229,7 +229,7 @@ export class DecidimStack extends cdk.Stack {
           MAPS_PROVIDER: 'osm',
           MAPS_STATIC_PROVIDER: 'cfj_osm',
           MAPS_STATIC_URL: 'https://www.openstreetmap.org/',
-          MAPS_DYNAMIC_URL: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          MAPS_DYNAMIC_URL: 'https://tile.openstreetmap.jp/styles/osm-bright-ja/{z}/{x}/{y}.png',
           MAPS_ATTRIBUTION:
             '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap</a> contributors',
           MAPS_DYNAMIC_API_KEY: 'true',
