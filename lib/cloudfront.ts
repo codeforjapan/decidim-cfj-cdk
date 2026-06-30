@@ -349,9 +349,7 @@ export class CloudFrontStack extends Stack {
     const noIndexResponseHeadersPolicy = !isPrd
       ? new ResponseHeadersPolicy(this, 'NoIndexResponseHeadersPolicy', {
           customHeadersBehavior: {
-            customHeaders: [
-              { header: 'X-Robots-Tag', value: 'noindex, nofollow', override: true },
-            ],
+            customHeaders: [{ header: 'X-Robots-Tag', value: 'noindex, nofollow', override: true }],
           },
         })
       : undefined;
