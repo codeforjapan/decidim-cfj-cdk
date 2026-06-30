@@ -52,7 +52,7 @@ exports[`Cloudfront Stack Created 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 120,
       },
       "Type": "AWS::Lambda::Function",
@@ -355,7 +355,7 @@ exports[`Cloudfront Stack Created 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -427,6 +427,12 @@ exports[`Cloudfront Stack Created 1`] = `
             },
           ],
           "Comment": "staging-decidim-cloudfront",
+          "CustomErrorResponses": [
+            {
+              "ErrorCachingMinTTL": 60,
+              "ErrorCode": 404,
+            },
+          ],
           "DefaultCacheBehavior": {
             "AllowedMethods": [
               "GET",
