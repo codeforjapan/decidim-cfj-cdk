@@ -406,6 +406,14 @@ export class CloudFrontStack extends Stack {
         cachePolicy: CachePolicy.CACHING_DISABLED,
         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
       },
+      // Botによる無効URLへの連続アクセスがRailsまで到達するのを防ぐ。
+      // 新規ページ追加時に一時的に404が返る可能性があるため、TTLは短く設定する。
+      errorResponses: [
+        {
+          httpStatus: 404,
+          ttl: Duration.seconds(60),
+        },
+      ],
       comment: `${props.stage}-${props.serviceName}-cloudfront`,
       domainNames: isPrd ? [endpoint, `*.${props.domain}`] : [endpoint],
       certificate: aws_certificatemanager.Certificate.fromCertificateArn(

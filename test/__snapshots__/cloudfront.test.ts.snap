@@ -427,6 +427,12 @@ exports[`Cloudfront Stack Created 1`] = `
             },
           ],
           "Comment": "staging-decidim-cloudfront",
+          "CustomErrorResponses": [
+            {
+              "ErrorCachingMinTTL": 60,
+              "ErrorCode": 404,
+            },
+          ],
           "DefaultCacheBehavior": {
             "AllowedMethods": [
               "GET",
