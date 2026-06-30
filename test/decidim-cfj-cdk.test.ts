@@ -81,11 +81,11 @@ test('DecidimStack Created', () => {
   const template = Template.fromStack(stack);
   // console.dir(template);
 
-  template.resourceCountIs('AWS::IAM::Role', 5);
+  template.resourceCountIs('AWS::IAM::Role', 7);
   template.hasResourceProperties('AWS::S3::Bucket', {
     BucketName: 'staging-decidim-alb-logs',
   });
-  template.resourceCountIs('AWS::ECS::Service', 2);
+  template.resourceCountIs('AWS::ECS::Service', 3);
 
   // Assert the template matches the snapshot.
   expect(template.toJSON()).toMatchSnapshot();
