@@ -15,6 +15,7 @@ import {
   AllowedMethods,
   CachePolicy,
   OriginRequestPolicy,
+  ResponseHeadersPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import {
@@ -272,31 +273,6 @@ export class CloudFrontStack extends Stack {
           metricName: `production-AllowSystemLogin`,
         },
       });
-    } else {
-      rules.push({
-        name: `${props.stage}-${props.serviceName}-BlockAllBots`,
-        priority: 7,
-        statement: {
-          managedRuleGroupStatement: {
-            vendorName: 'AWS',
-            name: 'AWSManagedRulesBotControlRuleSet',
-            managedRuleGroupConfigs: [
-              {
-                awsManagedRulesBotControlRuleSet: {
-                  inspectionLevel: 'TARGETED',
-                  enableMachineLearning: true,
-                },
-              },
-            ],
-          },
-        },
-        overrideAction: { none: {} },
-        visibilityConfig: {
-          cloudWatchMetricsEnabled: true,
-          sampledRequestsEnabled: true,
-          metricName: `${props.stage}-${props.serviceName}-BlockAllBots`,
-        },
-      });
     }
 
     rules.push({
@@ -369,6 +345,15 @@ export class CloudFrontStack extends Stack {
 
     const isPrd = props.stage === 'prd-v0292';
 
+    // dev/staging は検索エンジンにインデックスさせない
+    const noIndexResponseHeadersPolicy = !isPrd
+      ? new ResponseHeadersPolicy(this, 'NoIndexResponseHeadersPolicy', {
+          customHeadersBehavior: {
+            customHeaders: [{ header: 'X-Robots-Tag', value: 'noindex, nofollow', override: true }],
+          },
+        })
+      : undefined;
+
     const stripS3PrefixFn = new cloudfront.Function(this, 'StripS3PrefixFn', {
       code: cloudfront.FunctionCode.fromInline(`
                 function handler(event) {
@@ -405,6 +390,7 @@ export class CloudFrontStack extends Stack {
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: CachePolicy.CACHING_DISABLED,
         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+        responseHeadersPolicy: noIndexResponseHeadersPolicy,
       },
       // Botによる無効URLへの連続アクセスがRailsまで到達するのを防ぐ。
       // 新規ページ追加時に一時的に404が返る可能性があるため、TTLは短く設定する。
