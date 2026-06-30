@@ -259,32 +259,6 @@ exports[`Cloudfront Stack Created 1`] = `
             },
           },
           {
-            "Name": "staging-decidim-BlockAllBots",
-            "OverrideAction": {
-              "None": {},
-            },
-            "Priority": 7,
-            "Statement": {
-              "ManagedRuleGroupStatement": {
-                "ManagedRuleGroupConfigs": [
-                  {
-                    "AWSManagedRulesBotControlRuleSet": {
-                      "EnableMachineLearning": true,
-                      "InspectionLevel": "TARGETED",
-                    },
-                  },
-                ],
-                "Name": "AWSManagedRulesBotControlRuleSet",
-                "VendorName": "AWS",
-              },
-            },
-            "VisibilityConfig": {
-              "CloudWatchMetricsEnabled": true,
-              "MetricName": "staging-decidim-BlockAllBots",
-              "SampledRequestsEnabled": true,
-            },
-          },
-          {
             "Action": {
               "Block": {
                 "CustomResponse": {
@@ -446,6 +420,9 @@ exports[`Cloudfront Stack Created 1`] = `
             "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
             "Compress": true,
             "OriginRequestPolicyId": "216adef6-5c7f-47e4-b989-5492eafa07d3",
+            "ResponseHeadersPolicyId": {
+              "Ref": "NoIndexResponseHeadersPolicy95873CF2",
+            },
             "TargetOriginId": "stagingdecidimCloudFrontStackDistributionOrigin1E886134A",
             "ViewerProtocolPolicy": "redirect-to-https",
           },
@@ -501,6 +478,23 @@ exports[`Cloudfront Stack Created 1`] = `
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "NoIndexResponseHeadersPolicy95873CF2": {
+      "Properties": {
+        "ResponseHeadersPolicyConfig": {
+          "CustomHeadersConfig": {
+            "Items": [
+              {
+                "Header": "X-Robots-Tag",
+                "Override": true,
+                "Value": "noindex, nofollow",
+              },
+            ],
+          },
+          "Name": "stagingdecidimCloudFrontStackNoIndexResponseHeadersPolicy13E62266",
+        },
+      },
+      "Type": "AWS::CloudFront::ResponseHeadersPolicy",
     },
     "StripS3PrefixFnC8BFE398": {
       "Properties": {
