@@ -273,9 +273,7 @@ const scheduledTaskDefinition = new ecs.FargateTaskDefinition(this, 'scheduledTa
 });
 
 // 同じコンテナ設定を追加（メインアプリと同じ）
-scheduledTaskDefinition.addContainer('appContainer', {
-  /* ... */
-});
+scheduledTaskDefinition.addContainer('appContainer', {/* ... */});
 
 // EventBridgeルールで使用
 new EcsTask({
