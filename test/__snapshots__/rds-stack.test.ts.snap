@@ -106,3 +106,203 @@ exports[`RdsStack Created 1`] = `
   },
 }
 `;
+
+exports[`RdsStack creates 4 CloudWatch alarms on production 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "PrdRdsHighCpu3EAF3AA2": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番RDS CPU使用率が80%を15分継続で超過",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "DBInstanceIdentifier",
+            "Value": {
+              "Ref": "restoreRdsBCCFEF28",
+            },
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/RDS",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 80,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdRdsHighDbLoad1F31FB92": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番RDS DBLoadがvCPU数(2)を15分継続で超過",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "DBInstanceIdentifier",
+            "Value": {
+              "Ref": "restoreRdsBCCFEF28",
+            },
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "DBLoad",
+        "Namespace": "AWS/RDS",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 2,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdRdsLowFreeStorageB70517E3": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番RDS 空きストレージが約4GBを下回る",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "DBInstanceIdentifier",
+            "Value": {
+              "Ref": "restoreRdsBCCFEF28",
+            },
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "FreeStorageSpace",
+        "Namespace": "AWS/RDS",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 4294967296,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdRdsLowFreeableMemoryA16A7702": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番RDS 空きメモリが約400MBを下回る",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "DBInstanceIdentifier",
+            "Value": {
+              "Ref": "restoreRdsBCCFEF28",
+            },
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "FreeableMemory",
+        "Namespace": "AWS/RDS",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Average",
+        "Threshold": 419430400,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "restoreRdsBCCFEF28": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AllocatedStorage": "20",
+        "AutoMinorVersionUpgrade": true,
+        "CopyTagsToSnapshot": true,
+        "DBInstanceClass": "db.t4g.medium",
+        "DBInstanceIdentifier": "prd-v0292-decidim-postgresql",
+        "DBSnapshotIdentifier": "decidim-master-2025-07-14",
+        "DBSubnetGroupName": {
+          "Ref": "restoreRdsSubnetGroupF4B61397",
+        },
+        "DeleteAutomatedBackups": false,
+        "DeletionProtection": true,
+        "EnablePerformanceInsights": true,
+        "Engine": "postgres",
+        "EngineVersion": "16.11",
+        "MaxAllocatedStorage": 40,
+        "MultiAZ": true,
+        "PerformanceInsightsRetentionPeriod": 7,
+        "StorageType": "gp3",
+        "VPCSecurityGroups": [
+          {
+            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputFnGetAttprdv0292SecurityGroupForRDS91D76D64GroupId5947D5B6",
+          },
+        ],
+      },
+      "Type": "AWS::RDS::DBInstance",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "restoreRdsSubnetGroupF4B61397": {
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet group for restoreRds database",
+        "SubnetIds": [
+          {
+            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+          },
+          {
+            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+          },
+          {
+            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+          },
+        ],
+      },
+      "Type": "AWS::RDS::DBSubnetGroup",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
