@@ -35,6 +35,75 @@ test('RdsStack Created', () => {
 
   const template = Template.fromStack(rds);
 
+  // staging にはアラームを生成しない（本番のみ）
+  template.resourceCountIs('AWS::CloudWatch::Alarm', 0);
+
+  // Assert the template matches the snapshot.
+  expect(template.toJSON()).toMatchSnapshot();
+});
+
+test('RdsStack creates 4 CloudWatch alarms on production', () => {
+  const app = new cdk.App();
+
+  const stage = 'prd-v0292';
+  const config: Config = getConfig(stage);
+  const serviceName = `decidim`;
+
+  const env = {
+    account: config.aws.accountId,
+    region: config.aws.region,
+  };
+
+  const network = new NetworkStack(app, `${stage}${serviceName}NetworkStack`, {
+    stage,
+    env,
+    serviceName,
+    vpc: config.vpc,
+  });
+
+  const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
+    stage,
+    env,
+    serviceName,
+    vpc: network.vpc,
+    securityGroup: network.sgForRds,
+    rds: config.rds,
+  });
+
+  const template = Template.fromStack(rds);
+
+  // 4種のアラーム（CPU / FreeableMemory / FreeStorageSpace / DBLoad）
+  template.resourceCountIs('AWS::CloudWatch::Alarm', 4);
+
+  // 各アラームに既存SNSトピックへの ALARM/OK アクションが設定されている
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    AlarmActions: ['arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address'],
+    OKActions: ['arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address'],
+  });
+
+  // 個々のアラームのメトリクス・しきい値・比較演算子を明示検証
+  // （スナップショット更新で誤った値が素通りするのを防ぐ）
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'CPUUtilization',
+    Threshold: 80,
+    ComparisonOperator: 'GreaterThanThreshold',
+  });
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'FreeableMemory',
+    Threshold: 400 * 1024 * 1024,
+    ComparisonOperator: 'LessThanThreshold',
+  });
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'FreeStorageSpace',
+    Threshold: 4 * 1024 * 1024 * 1024,
+    ComparisonOperator: 'LessThanThreshold',
+  });
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'DBLoad',
+    Threshold: 2,
+    ComparisonOperator: 'GreaterThanThreshold',
+  });
+
   // Assert the template matches the snapshot.
   expect(template.toJSON()).toMatchSnapshot();
 });
