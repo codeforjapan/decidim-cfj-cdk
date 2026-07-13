@@ -81,6 +81,29 @@ test('RdsStack creates 4 CloudWatch alarms on production', () => {
     OKActions: ['arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address'],
   });
 
+  // 個々のアラームのメトリクス・しきい値・比較演算子を明示検証
+  // （スナップショット更新で誤った値が素通りするのを防ぐ）
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'CPUUtilization',
+    Threshold: 80,
+    ComparisonOperator: 'GreaterThanThreshold',
+  });
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'FreeableMemory',
+    Threshold: 400 * 1024 * 1024,
+    ComparisonOperator: 'LessThanThreshold',
+  });
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'FreeStorageSpace',
+    Threshold: 4 * 1024 * 1024 * 1024,
+    ComparisonOperator: 'LessThanThreshold',
+  });
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    MetricName: 'DBLoad',
+    Threshold: 2,
+    ComparisonOperator: 'GreaterThanThreshold',
+  });
+
   // Assert the template matches the snapshot.
   expect(template.toJSON()).toMatchSnapshot();
 });

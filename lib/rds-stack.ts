@@ -100,11 +100,11 @@ export class RdsStack extends Stack {
     const period = Duration.minutes(5);
     const evaluationPeriods = 3; // 5分×3回=15分継続で発報
 
-    // 既存のチーム通知トピックを参照
+    // 既存のチーム通知トピックを参照（アカウント/リージョンはstack由来でconfig駆動に揃える）
     const teamTopic = sns.Topic.fromTopicArn(
       this,
       'DecidimTeamTopic',
-      'arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address'
+      `arn:aws:sns:${this.region}:${this.account}:decidim-team-address`
     );
     const snsAction = new cw_actions.SnsAction(teamTopic);
 
@@ -127,7 +127,7 @@ export class RdsStack extends Stack {
       }),
       new cloudwatch.Alarm(this, 'PrdRdsLowFreeStorage', {
         metric: dbInstance.metricFreeStorageSpace({ period }),
-        threshold: 4 * 1024 * 1024 * 1024, // 約4GB（autoscale下限20GBの約20%）
+        threshold: 4 * 1024 * 1024 * 1024, // 約4GB（自動拡張上限40GBに対する空き容量の低下を検知）
         evaluationPeriods,
         comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
         treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
