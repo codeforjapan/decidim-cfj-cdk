@@ -222,7 +222,7 @@ export class CloudFrontStack extends Stack {
       },
     ];
 
-    if (props.stage === 'prd-v0292') {
+    if (props.stage === 'prd-v0292' || props.stage === 'prd-v030') {
       rules.push({
         name: 'production-AllowSystemLogin',
         priority: 7,
@@ -328,12 +328,15 @@ export class CloudFrontStack extends Stack {
     });
 
     // WAF Log（本番環境のみ）
-    if (props.stage === 'prd-v0292') {
+    if (props.stage === 'prd-v0292' || props.stage === 'prd-v030') {
+      // autoDeleteObjects は付けない。付けると CDK が AWS::S3::BucketPolicy を生成するが、
+      // 後続の WafLoggingConfig 作成時に AWS のログ配信サービスが AWSLogDeliveryWrite ポリシーを
+      // 同一バケットへ自動付与するため「bucket policy already exists」で CREATE_FAILED となる。
+      // WAF ログ用途はこの自動付与ポリシーのみで足りる。破棄時は手動で空にする運用とする。
       const wafLogBucket = new aws_s3.Bucket(this, `${props.stage}WafLogBucket`, {
         bucketName: `aws-waf-logs-${props.s3BucketName}`,
         blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
         removalPolicy: RemovalPolicy.DESTROY,
-        autoDeleteObjects: true,
         lifecycleRules: [{ expiration: Duration.days(180) }],
       });
 
@@ -343,7 +346,12 @@ export class CloudFrontStack extends Stack {
       });
     }
 
-    const isPrd = props.stage === 'prd-v0292';
+    const isPrd = props.stage === 'prd-v0292' || props.stage === 'prd-v030';
+
+    // 初回デプロイ時など、既存ディストリビューションとの CNAME 衝突（CNAMEAlreadyExists）を
+    // 避けるため、`-c claimWildcard=false` でワイルドカード(*.domain)エイリアスの付与をスキップできる。
+    // 既定は true。切替後に associate-alias でワイルドカードを移動したら、フラグ無し（true）で再デプロイして整合させる。
+    const claimWildcard = this.node.tryGetContext('claimWildcard') !== 'false';
 
     // dev/staging は検索エンジンにインデックスさせない
     const noIndexResponseHeadersPolicy = !isPrd
@@ -401,7 +409,7 @@ export class CloudFrontStack extends Stack {
         },
       ],
       comment: `${props.stage}-${props.serviceName}-cloudfront`,
-      domainNames: isPrd ? [endpoint, `*.${props.domain}`] : [endpoint],
+      domainNames: isPrd && claimWildcard ? [endpoint, `*.${props.domain}`] : [endpoint],
       certificate: aws_certificatemanager.Certificate.fromCertificateArn(
         this,
         'cloudFrontCertificate',

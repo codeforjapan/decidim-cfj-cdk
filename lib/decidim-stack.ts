@@ -221,9 +221,9 @@ export class DecidimStack extends cdk.Stack {
       environment: {
         ...DecidimContainerEnvironment,
         ...{
-          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0292' ? 'true' : 'false',
+          NEW_RELIC_AGENT_ENABLED: props.stage === 'prd-v0292' || props.stage === 'prd-v030' ? 'true' : 'false',
           NEW_RELIC_LICENSE_KEY:
-            props.stage === 'prd-v0292'
+            props.stage === 'prd-v0292' || props.stage === 'prd-v030'
               ? ssm.StringParameter.valueForTypedStringParameterV2(
                   this,
                   `/decidim-cfj/${props.stage}/NEW_RELIC_LICENSE_KEY`

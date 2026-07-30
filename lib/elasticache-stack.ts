@@ -40,7 +40,7 @@ export class ElasticacheStack extends Stack {
       cacheParameterGroupName: parameterGroup.ref,
     };
 
-    if (props.stage === 'prd-v0292') {
+    if (props.stage === 'prd-v0292' || props.stage === 'prd-v030') {
       this.redis = new elasticache.CfnReplicationGroup(this, 'prdElasticache', {
         ...elastiCacheProps,
         ...{
