@@ -1,7 +1,7 @@
 {
   "rds": {
     "snapshot": true,
-    "snapshotIdentifier": "decidim-master-2025-12-25",
+    "snapshotIdentifier": "decidim-master-2026-06-15",
     "instanceType": "t4g.micro",
     "deletionProtection": false,
     "allocatedStorage": 20,
@@ -35,6 +35,14 @@
     "fargateCapacityProvider": {
       "base": 1,
       "weight": 2
+    },
+    "mainApp": {
+      "cpu": 2048,
+      "memory": 4096
+    },
+    "sidekiq": {
+      "cpu": 512,
+      "memory": 1024
     }
   },
 
