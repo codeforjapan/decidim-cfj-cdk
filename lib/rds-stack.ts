@@ -86,7 +86,7 @@ export class RdsStack extends Stack {
     }
 
     // 本番のみRDS監視アラームを作成（DevOps Guru無効化の代替、Issue #95）
-    if (props.stage === 'prd-v0292') {
+    if (props.stage === 'prd-v0292' || props.stage === 'prd-v030') {
       this.addProductionAlarms(this.rds);
     }
   }
