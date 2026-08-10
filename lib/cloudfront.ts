@@ -480,11 +480,6 @@ export class CloudFrontStack extends Stack {
         }),
       });
 
-    putParam(
-      'CfEndpoint',
-      `${prj}/AWS_CLOUD_FRONT_END_POINT`,
-      `${distribution.distributionDomainName}/s3`
-    );
     putParam('CfId', `${prj}/CLOUDFRONT_DISTRIBUTION_ID`, distribution.distributionId);
     putParam(
       'CfArn',

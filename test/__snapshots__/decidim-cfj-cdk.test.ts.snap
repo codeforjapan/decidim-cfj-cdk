@@ -326,59 +326,6 @@ exports[`DecidimStack Created 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "ComputeMetrics08CB6F17": {
-      "Properties": {
-        "ScheduleExpression": "cron(10 15 * * ? *)",
-        "State": "ENABLED",
-        "Targets": [
-          {
-            "Arn": {
-              "Fn::GetAtt": [
-                "DecidimCluster7E0E2A4C",
-                "Arn",
-              ],
-            },
-            "EcsParameters": {
-              "LaunchType": "FARGATE",
-              "NetworkConfiguration": {
-                "AwsVpcConfiguration": {
-                  "AssignPublicIp": "ENABLED",
-                  "SecurityGroups": [
-                    {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputFnGetAttstagingSecurityGroupForDecidimService688CA6B9GroupIdC07514B6",
-                    },
-                  ],
-                  "Subnets": [
-                    {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC",
-                    },
-                    {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet2SubnetE34B022AC8BB6627",
-                    },
-                    {
-                      "Fn::ImportValue": "stagingdecidimNetworkStack:ExportsOutputRefVpcpublicSubnet3SubnetDFEF064A56C3647E",
-                    },
-                  ],
-                },
-              },
-              "TaskCount": 1,
-              "TaskDefinitionArn": {
-                "Ref": "decidimTaskDefinition2308FB5B",
-              },
-            },
-            "Id": "Target0",
-            "Input": "{"containerOverrides":[{"name":"appContainer","command":["bundle","exec","rake","decidim:metrics:all"]}]}",
-            "RoleArn": {
-              "Fn::GetAtt": [
-                "decidimTaskDefinitionEventsRole6CB2B894",
-                "Arn",
-              ],
-            },
-          },
-        ],
-      },
-      "Type": "AWS::Events::Rule",
-    },
     "ComputeOpenData54A963CE": {
       "Properties": {
         "ScheduleExpression": "cron(20 15 * * ? *)",
@@ -1748,10 +1695,6 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "staging-decidim-bucket",
               },
               {
-                "Name": "DECIDIM_COMMENTS_LIMIT",
-                "Value": "30",
-              },
-              {
                 "Name": "SLACK_API_TOKEN",
                 "Value": {
                   "Ref": "SsmParameterValuedecidimcfjstagingSLACKAPITOKENC96584B6F00A464EAD1953AFF4B05118Parameter",
@@ -1996,10 +1939,6 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "AWS_BUCKET_NAME",
                 "Value": "staging-decidim-bucket",
-              },
-              {
-                "Name": "DECIDIM_COMMENTS_LIMIT",
-                "Value": "30",
               },
               {
                 "Name": "SLACK_API_TOKEN",
@@ -2482,10 +2421,6 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "AWS_BUCKET_NAME",
                 "Value": "staging-decidim-bucket",
-              },
-              {
-                "Name": "DECIDIM_COMMENTS_LIMIT",
-                "Value": "30",
               },
               {
                 "Name": "SLACK_API_TOKEN",
