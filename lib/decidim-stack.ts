@@ -25,7 +25,7 @@ import {
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
-import { EcsConfig } from './config';
+import { EcsConfig, isPrd } from './config';
 import * as path from 'path';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
@@ -73,7 +73,7 @@ export class DecidimStack extends cdk.Stack {
       vpc: props.vpc,
       clusterName: `${props.stage}DecidimCluster`,
       enableFargateCapacityProviders: true,
-      containerInsightsV2: props.stage.startsWith('prd')
+      containerInsightsV2: isPrd(props.stage)
         ? ecs.ContainerInsights.ENABLED
         : ecs.ContainerInsights.DISABLED,
     });
@@ -221,15 +221,13 @@ export class DecidimStack extends cdk.Stack {
       environment: {
         ...DecidimContainerEnvironment,
         ...{
-          NEW_RELIC_AGENT_ENABLED:
-            props.stage === 'prd-v0292' || props.stage === 'prd-v030' ? 'true' : 'false',
-          NEW_RELIC_LICENSE_KEY:
-            props.stage === 'prd-v0292' || props.stage === 'prd-v030'
-              ? ssm.StringParameter.valueForTypedStringParameterV2(
-                  this,
-                  `/decidim-cfj/${props.stage}/NEW_RELIC_LICENSE_KEY`
-                )
-              : '',
+          NEW_RELIC_AGENT_ENABLED: isPrd(props.stage) ? 'true' : 'false',
+          NEW_RELIC_LICENSE_KEY: isPrd(props.stage)
+            ? ssm.StringParameter.valueForTypedStringParameterV2(
+                this,
+                `/decidim-cfj/${props.stage}/NEW_RELIC_LICENSE_KEY`
+              )
+            : '',
           NEW_RELIC_APP_NAME: `decidim-app${props.stage}`,
           MAPS_PROVIDER: 'osm',
           MAPS_STATIC_PROVIDER: 'cfj_osm',
