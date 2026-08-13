@@ -45,7 +45,7 @@ test('RdsStack Created', () => {
 test('RdsStack creates 4 CloudWatch alarms on production', () => {
   const app = new cdk.App();
 
-  const stage = 'prd-v0292';
+  const stage = 'prd-v030';
   const config: Config = getConfig(stage);
   const serviceName = `decidim`;
 

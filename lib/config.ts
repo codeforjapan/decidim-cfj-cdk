@@ -109,3 +109,11 @@ export function getConfig(stage: string): Config {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(`../config/${stage}.json`) as Config;
 }
+
+// 本番ステージ一覧。ブルーグリーン移行中など本番が一時的に複数になる場合はここに併記する。
+const PRD_STAGES: readonly string[] = ['prd-v030'];
+
+// 本番ステージ判定。バージョニング/削除保護/監視アラーム等、本番のみ有効化する分岐で使う。
+export function isPrd(stage: string): boolean {
+  return PRD_STAGES.includes(stage);
+}
