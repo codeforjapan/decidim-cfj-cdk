@@ -73,7 +73,7 @@ export class DecidimStack extends cdk.Stack {
       vpc: props.vpc,
       clusterName: `${props.stage}DecidimCluster`,
       enableFargateCapacityProviders: true,
-      containerInsightsV2: props.stage.startsWith('prd')
+      containerInsightsV2: isPrd(props.stage)
         ? ecs.ContainerInsights.ENABLED
         : ecs.ContainerInsights.DISABLED,
     });
