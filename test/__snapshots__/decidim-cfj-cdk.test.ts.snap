@@ -2044,6 +2044,14 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "2",
               },
               {
+                "Name": "PUMA_WORKER_KILLER_RAM_MB",
+                "Value": "4096",
+              },
+              {
+                "Name": "PUMA_WORKER_KILLER_PERCENT_USAGE",
+                "Value": "0.8",
+              },
+              {
                 "Name": "NEW_RELIC_AGENT_ENABLED",
                 "Value": "false",
               },
