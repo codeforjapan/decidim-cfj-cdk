@@ -53,6 +53,10 @@ exports[`DecidimStack Created 1`] = `
             "Value": "true",
           },
           {
+            "Key": "idle_timeout.timeout_seconds",
+            "Value": "120",
+          },
+          {
             "Key": "access_logs.s3.enabled",
             "Value": "true",
           },
