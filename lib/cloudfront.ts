@@ -23,6 +23,7 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources';
+import { isPrd } from './config';
 
 export interface CloudFrontProps extends BaseStackProps {
   certificateArn: string;
@@ -222,7 +223,7 @@ export class CloudFrontStack extends Stack {
       },
     ];
 
-    if (props.stage === 'prd-v0292' || props.stage === 'prd-v030') {
+    if (isPrd(props.stage)) {
       rules.push({
         name: 'production-AllowSystemLogin',
         priority: 7,
@@ -328,7 +329,7 @@ export class CloudFrontStack extends Stack {
     });
 
     // WAF Log（本番環境のみ）
-    if (props.stage === 'prd-v0292' || props.stage === 'prd-v030') {
+    if (isPrd(props.stage)) {
       // autoDeleteObjects は付けない。付けると CDK が AWS::S3::BucketPolicy を生成するが、
       // 後続の WafLoggingConfig 作成時に AWS のログ配信サービスが AWSLogDeliveryWrite ポリシーを
       // 同一バケットへ自動付与するため「bucket policy already exists」で CREATE_FAILED となる。
@@ -346,15 +347,13 @@ export class CloudFrontStack extends Stack {
       });
     }
 
-    const isPrd = props.stage === 'prd-v0292' || props.stage === 'prd-v030';
-
     // 初回デプロイ時など、既存ディストリビューションとの CNAME 衝突（CNAMEAlreadyExists）を
     // 避けるため、`-c claimWildcard=false` でワイルドカード(*.domain)エイリアスの付与をスキップできる。
     // 既定は true。切替後に associate-alias でワイルドカードを移動したら、フラグ無し（true）で再デプロイして整合させる。
     const claimWildcard = this.node.tryGetContext('claimWildcard') !== 'false';
 
     // dev/staging は検索エンジンにインデックスさせない
-    const noIndexResponseHeadersPolicy = !isPrd
+    const noIndexResponseHeadersPolicy = !isPrd(props.stage)
       ? new ResponseHeadersPolicy(this, 'NoIndexResponseHeadersPolicy', {
           customHeadersBehavior: {
             customHeaders: [{ header: 'X-Robots-Tag', value: 'noindex, nofollow', override: true }],
@@ -389,7 +388,7 @@ export class CloudFrontStack extends Stack {
     });
 
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
-      priceClass: isPrd
+      priceClass: isPrd(props.stage)
         ? cloudfront.PriceClass.PRICE_CLASS_ALL
         : cloudfront.PriceClass.PRICE_CLASS_200,
       defaultBehavior: {
@@ -409,7 +408,8 @@ export class CloudFrontStack extends Stack {
         },
       ],
       comment: `${props.stage}-${props.serviceName}-cloudfront`,
-      domainNames: isPrd && claimWildcard ? [endpoint, `*.${props.domain}`] : [endpoint],
+      domainNames:
+        isPrd(props.stage) && claimWildcard ? [endpoint, `*.${props.domain}`] : [endpoint],
       certificate: aws_certificatemanager.Certificate.fromCertificateArn(
         this,
         'cloudFrontCertificate',

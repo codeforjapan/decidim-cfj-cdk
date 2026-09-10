@@ -25,7 +25,7 @@ import {
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
-import { EcsConfig } from './config';
+import { EcsConfig, isPrd } from './config';
 import * as path from 'path';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
@@ -73,7 +73,7 @@ export class DecidimStack extends cdk.Stack {
       vpc: props.vpc,
       clusterName: `${props.stage}DecidimCluster`,
       enableFargateCapacityProviders: true,
-      containerInsightsV2: props.stage.startsWith('prd')
+      containerInsightsV2: isPrd(props.stage)
         ? ecs.ContainerInsights.ENABLED
         : ecs.ContainerInsights.DISABLED,
     });
@@ -96,10 +96,12 @@ export class DecidimStack extends cdk.Stack {
     );
     // backendTaskRole.addManagedPolicy(aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXrayWriteOnlyAccess'))
 
+    const mainAppMemory = props.ecs.mainApp?.memory ?? DEFAULT_MAIN_APP_MEMORY;
+
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'decidimTaskDefinition', {
       cpu: props.ecs.mainApp?.cpu ?? DEFAULT_MAIN_APP_CPU,
-      memoryLimitMiB: props.ecs.mainApp?.memory ?? DEFAULT_MAIN_APP_MEMORY,
+      memoryLimitMiB: mainAppMemory,
       family: `${props.stage}DecidimTaskDefinition`,
       taskRole: backendTaskRole,
       executionRole: backendTaskRole,
@@ -220,15 +222,18 @@ export class DecidimStack extends cdk.Stack {
       environment: {
         ...DecidimContainerEnvironment,
         ...{
-          NEW_RELIC_AGENT_ENABLED:
-            props.stage === 'prd-v0292' || props.stage === 'prd-v030' ? 'true' : 'false',
-          NEW_RELIC_LICENSE_KEY:
-            props.stage === 'prd-v0292' || props.stage === 'prd-v030'
-              ? ssm.StringParameter.valueForTypedStringParameterV2(
-                  this,
-                  `/decidim-cfj/${props.stage}/NEW_RELIC_LICENSE_KEY`
-                )
-              : '',
+          // PumaWorkerKiller にコンテナの実メモリ量を渡す。
+          // アプリ側の config/puma.rb がハードコードしていると実態と乖離するため、
+          // タスク定義と同じ値を単一の情報源としてここから注入する。
+          PUMA_WORKER_KILLER_RAM_MB: String(mainAppMemory),
+          PUMA_WORKER_KILLER_PERCENT_USAGE: '0.8',
+          NEW_RELIC_AGENT_ENABLED: isPrd(props.stage) ? 'true' : 'false',
+          NEW_RELIC_LICENSE_KEY: isPrd(props.stage)
+            ? ssm.StringParameter.valueForTypedStringParameterV2(
+                this,
+                `/decidim-cfj/${props.stage}/NEW_RELIC_LICENSE_KEY`
+              )
+            : '',
           NEW_RELIC_APP_NAME: `decidim-app${props.stage}`,
           MAPS_PROVIDER: 'osm',
           MAPS_STATIC_PROVIDER: 'cfj_osm',

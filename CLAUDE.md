@@ -28,7 +28,7 @@ npm run check             # format:checkとlintの両方を実行
 
 ### CDK操作
 
-すべてのCDKコマンドには`--context stage=<stage>`が必要です。stageは`dev`、`staging`、`prd-v0292`のいずれかです。
+すべてのCDKコマンドには`--context stage=<stage>`が必要です。stageは`dev`、`staging`、`prd-v030`のいずれかです。
 
 ```bash
 # デプロイ前の差分を確認
@@ -163,7 +163,7 @@ EventBridgeルールがメインタスク定義を使用してrakeタスクを�
 - `/decidim-cfj/${stage}/SMTP_USERNAME`
 - `/decidim-cfj/${stage}/SMTP_PASSWORD`
 - `/decidim-cfj/${stage}/SLACK_API_TOKEN`
-- `/decidim-cfj/${stage}/NEW_RELIC_LICENSE_KEY`（prd-v0292のみ）
+- `/decidim-cfj/${stage}/NEW_RELIC_LICENSE_KEY`（本番のみ: prd-v030）
 
 #### キャパシティプロバイダー
 
@@ -184,7 +184,7 @@ ECSサービスはステージごとに設定されたFargate/Fargate Spotの混
 ### ステージ設定
 
 - すべてのCDKコマンドには`--context stage=<stage>`パラメータが必要
-- 有効なステージ: `dev`、`staging`、`prd-v0292`
+- 有効なステージ: `dev`、`staging`、`prd-v030`
 - `tag`コンテキストパラメータはデプロイ時に必要で、ECRのDecidim Dockerイメージタグを指定
 
 ### リソース命名規則

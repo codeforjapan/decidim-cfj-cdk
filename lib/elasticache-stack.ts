@@ -3,6 +3,7 @@ import { aws_elasticache as elasticache, Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { BaseStackProps } from './props';
 import { CfnReplicationGroup, CfnReplicationGroupProps } from 'aws-cdk-lib/aws-elasticache';
+import { isPrd } from './config';
 
 export interface ElastiCacheStackProps extends BaseStackProps {
   cacheNodeType: string;
@@ -40,7 +41,7 @@ export class ElasticacheStack extends Stack {
       cacheParameterGroupName: parameterGroup.ref,
     };
 
-    if (props.stage === 'prd-v0292' || props.stage === 'prd-v030') {
+    if (isPrd(props.stage)) {
       this.redis = new elasticache.CfnReplicationGroup(this, 'prdElasticache', {
         ...elastiCacheProps,
         ...{

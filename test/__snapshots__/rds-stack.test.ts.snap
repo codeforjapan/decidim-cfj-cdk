@@ -236,8 +236,8 @@ exports[`RdsStack creates 4 CloudWatch alarms on production 1`] = `
         "AutoMinorVersionUpgrade": true,
         "CopyTagsToSnapshot": true,
         "DBInstanceClass": "db.t4g.medium",
-        "DBInstanceIdentifier": "prd-v0292-decidim-postgresql",
-        "DBSnapshotIdentifier": "decidim-master-2025-07-14",
+        "DBInstanceIdentifier": "prd-v030-decidim-postgresql",
+        "DBSnapshotIdentifier": "decidim-master-2026-07-31",
         "DBSubnetGroupName": {
           "Ref": "restoreRdsSubnetGroupF4B61397",
         },
@@ -252,7 +252,7 @@ exports[`RdsStack creates 4 CloudWatch alarms on production 1`] = `
         "StorageType": "gp3",
         "VPCSecurityGroups": [
           {
-            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputFnGetAttprdv0292SecurityGroupForRDS91D76D64GroupId5947D5B6",
+            "Fn::ImportValue": "prd-v030decidimNetworkStack:ExportsOutputFnGetAttprdv030SecurityGroupForRDS78288838GroupId0B7BE213",
           },
         ],
       },
@@ -264,13 +264,13 @@ exports[`RdsStack creates 4 CloudWatch alarms on production 1`] = `
         "DBSubnetGroupDescription": "Subnet group for restoreRds database",
         "SubnetIds": [
           {
-            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
+            "Fn::ImportValue": "prd-v030decidimNetworkStack:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373",
           },
           {
-            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
+            "Fn::ImportValue": "prd-v030decidimNetworkStack:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D",
           },
           {
-            "Fn::ImportValue": "prd-v0292decidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
+            "Fn::ImportValue": "prd-v030decidimNetworkStack:ExportsOutputRefVpcprivateSubnet3SubnetA5AC68D907737EDC",
           },
         ],
       },
