@@ -177,7 +177,6 @@ export class DecidimStack extends cdk.Stack {
       SMTP_PORT: ['dev', 'staging'].includes(props.stage) ? '1025' : '587',
       SMTP_STARTTLS_AUTO: ['dev', 'staging'].includes(props.stage) ? 'false' : 'true',
       AWS_BUCKET_NAME: `${props.bucketName}-bucket`,
-      DECIDIM_COMMENTS_LIMIT: '30',
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(
         this,
         `/decidim-cfj/${props.stage}/SLACK_API_TOKEN`
@@ -530,12 +529,6 @@ export class DecidimStack extends cdk.Stack {
         id: 'removeDownloadDataFiles',
         command: ['bundle', 'exec', 'rake', 'decidim:delete_download_your_data_files'],
         scheduleExpression: 'cron(0 15 * * ? *)',
-      },
-      {
-        // JST 0:10 daily
-        id: 'ComputeMetrics',
-        command: ['bundle', 'exec', 'rake', 'decidim:metrics:all'],
-        scheduleExpression: 'cron(10 15 * * ? *)',
       },
       {
         // JST 0:20 daily
