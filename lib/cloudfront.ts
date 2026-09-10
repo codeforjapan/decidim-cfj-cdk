@@ -38,7 +38,11 @@ export class CloudFrontStack extends Stack {
   constructor(scope: Construct, id: string, props: CloudFrontProps) {
     super(scope, id, props);
     const endpoint = `${props.stage}-${props.serviceName}-alb-origin.${props.domain}`;
-    const albOrigin = new aws_cloudfront_origins.HttpOrigin(endpoint);
+    // アカウント一括発行など時間のかかる管理画面の処理が既定の 30 秒で切れるため延長する。
+    // 60 秒を超える値はオリジンレスポンスタイムアウトのクォータ緩和申請が必要。
+    const albOrigin = new aws_cloudfront_origins.HttpOrigin(endpoint, {
+      readTimeout: Duration.seconds(60),
+    });
     albOrigin.bind(this, { originId: 'defaultEndPoint' });
 
     // CloudFrontでOACを作成

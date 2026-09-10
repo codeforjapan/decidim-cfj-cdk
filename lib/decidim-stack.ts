@@ -386,6 +386,9 @@ export class DecidimStack extends cdk.Stack {
       vpc: props.vpc,
       internetFacing: true,
       http2Enabled: true,
+      // CloudFront の readTimeout(60秒) より長くする。逆順だと ALB が先に接続を切り
+      // CloudFront が 502 を返すため、原因が追いにくくなる。
+      idleTimeout: Duration.seconds(120),
       loadBalancerName: `${props.stage}-Decidim-Alb`,
       securityGroup: props.securityGroupForAlb,
     });

@@ -442,6 +442,7 @@ exports[`Cloudfront Stack Created 1`] = `
             {
               "CustomOriginConfig": {
                 "OriginProtocolPolicy": "https-only",
+                "OriginReadTimeout": 60,
                 "OriginSSLProtocols": [
                   "TLSv1.2",
                 ],
