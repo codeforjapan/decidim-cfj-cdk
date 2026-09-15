@@ -2337,8 +2337,15 @@ exports[`DecidimStack Created 1`] = `
             "Enable": false,
             "Rollback": false,
           },
+          "DeploymentCircuitBreaker": {
+            "Enable": true,
+            "Rollback": true,
+          },
           "MaximumPercent": 200,
           "MinimumHealthyPercent": 50,
+        },
+        "DeploymentController": {
+          "Type": "ECS",
         },
         "DesiredCount": 1,
         "EnableECSManagedTags": false,

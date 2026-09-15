@@ -367,6 +367,12 @@ export class DecidimStack extends cdk.Stack {
       enableExecuteCommand: true, // For Debug
       minHealthyPercent: 50,
       maxHealthyPercent: 200,
+      // DecidimService と同じくデプロイ失敗時にスタックを固着させないため。
+      // ALB 配下ではないので健全性の判定はコンテナヘルスチェック
+      // (ps aux | grep sidekiq / startPeriod 2 分) に依る。既定の
+      // resetOnHealthyTask により、タスクが一度正常になれば失敗カウントは
+      // リセットされるので、定常運用中の単発 OOM で誤発火することはない。
+      circuitBreaker: { enable: true, rollback: true },
       capacityProviderStrategies: [
         {
           capacityProvider: 'FARGATE_SPOT',
