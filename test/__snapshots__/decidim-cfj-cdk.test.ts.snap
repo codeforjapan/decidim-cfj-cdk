@@ -753,13 +753,20 @@ exports[`DecidimStack Created 1`] = `
             "Enable": false,
             "Rollback": false,
           },
+          "DeploymentCircuitBreaker": {
+            "Enable": true,
+            "Rollback": true,
+          },
           "MaximumPercent": 200,
           "MinimumHealthyPercent": 100,
+        },
+        "DeploymentController": {
+          "Type": "ECS",
         },
         "DesiredCount": 1,
         "EnableECSManagedTags": false,
         "EnableExecuteCommand": true,
-        "HealthCheckGracePeriodSeconds": 60,
+        "HealthCheckGracePeriodSeconds": 300,
         "LoadBalancers": [
           {
             "ContainerName": "nginxContainer",
