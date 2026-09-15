@@ -319,6 +319,15 @@ export class DecidimStack extends cdk.Stack {
       enableExecuteCommand: true, // For Debug
       minHealthyPercent: 100,
       maxHealthyPercent: 200,
+      // タスクが安定しないまま放置されると CloudFormation が 3 時間待ってから失敗し、
+      // ロールバックでも同じだけ待って UPDATE_ROLLBACK_FAILED でスタックが固着する。
+      // そうなると以降のデプロイが全て即失敗するため、ECS 側で早期に打ち切って
+      // 直前のタスク定義へ自動で戻す。
+      circuitBreaker: { enable: true, rollback: true },
+      // Decidim の起動は 60 秒（既定値）では足りないことがある。猶予中の ALB ヘルス
+      // チェック失敗は circuitBreaker の失敗回数に数えられないため、起動が遅いだけの
+      // デプロイを誤って打ち切らないよう合わせて延ばしておく。
+      healthCheckGracePeriod: Duration.minutes(5),
       capacityProviderStrategies: [
         {
           capacityProvider: 'FARGATE_SPOT',
@@ -358,6 +367,12 @@ export class DecidimStack extends cdk.Stack {
       enableExecuteCommand: true, // For Debug
       minHealthyPercent: 50,
       maxHealthyPercent: 200,
+      // DecidimService と同じくデプロイ失敗時にスタックを固着させないため。
+      // ALB 配下ではないので健全性の判定はコンテナヘルスチェック
+      // (ps aux | grep sidekiq / startPeriod 2 分) に依る。既定の
+      // resetOnHealthyTask により、タスクが一度正常になれば失敗カウントは
+      // リセットされるので、定常運用中の単発 OOM で誤発火することはない。
+      circuitBreaker: { enable: true, rollback: true },
       capacityProviderStrategies: [
         {
           capacityProvider: 'FARGATE_SPOT',
