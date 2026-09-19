@@ -16,7 +16,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,json,md}\"",
-    "check": "npm run format:check && npm run lint"
+    "check": "npm run format:check && npm run lint",
+    "ecr:policy:diff": "node scripts/ecr-lifecycle.mjs diff",
+    "ecr:policy:apply": "node scripts/ecr-lifecycle.mjs apply"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
