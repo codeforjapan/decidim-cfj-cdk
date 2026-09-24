@@ -1,0 +1,56 @@
+{
+  "rules": [
+    {
+      "rulePriority": 1,
+      "description": "productionイメージの削除",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["prd-"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 10
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 2,
+      "description": "Delete image without tag after 5 days",
+      "selection": {
+        "tagStatus": "untagged",
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 5
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 3,
+      "description": "stagingイメージの削除",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["staging-"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 5
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 4,
+      "description": "test imageの削除",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["test"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 3
+      },
+      "action": {
+        "type": "expire"
+      }
+    }
+  ]
+}

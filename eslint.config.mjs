@@ -4,7 +4,9 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: ['node_modules/', 'cdk.out/', '**/*.js', '**/*.d.ts', 'test/__snapshots__/', 'jest.config.js', 'eslint.config.mjs'],
+    // scripts/ は CDK アプリの外にある運用スクリプト。tsconfig の project に含まれないため
+    // 型チェック付きルールの対象から外す。
+    ignores: ['node_modules/', 'cdk.out/', '**/*.js', '**/*.d.ts', 'test/__snapshots__/', 'jest.config.js', 'eslint.config.mjs', 'scripts/'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
