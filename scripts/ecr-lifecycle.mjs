@@ -131,4 +131,14 @@ const main = () => {
   console.log('\n✅ 適用しました。lastEvaluatedAt はリセットされ、次回評価から新ポリシーが効きます。');
 };
 
-main();
+try {
+  main();
+} catch (error) {
+  // aws CLI の失敗をそのまま投げるとスタックトレースに埋もれるため、標準エラーだけを見せる。
+  const detail = `${error.stderr ?? ''}`.trim();
+  console.error(`\n❌ 実行できませんでした。\n${detail || error.message}`);
+  if (detail.includes('ExpiredToken') || detail.includes('InvalidClientTokenId')) {
+    console.error('\n   認証が切れています。`aws-mfa --profile decidim` で更新してください。');
+  }
+  process.exit(2);
+}
