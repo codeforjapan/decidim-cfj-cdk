@@ -1797,6 +1797,10 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "60",
               },
               {
+                "Name": "DECIDIM_EXPIRE_SESSION_AFTER",
+                "Value": "120",
+              },
+              {
                 "Name": "WEB_CONCURRENCY",
                 "Value": "4",
               },
@@ -2045,6 +2049,10 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "DECIDIM_CACHE_EXPIRATION_TIME",
                 "Value": "60",
+              },
+              {
+                "Name": "DECIDIM_EXPIRE_SESSION_AFTER",
+                "Value": "120",
               },
               {
                 "Name": "WEB_CONCURRENCY",
@@ -2546,6 +2554,10 @@ exports[`DecidimStack Created 1`] = `
               {
                 "Name": "DECIDIM_CACHE_EXPIRATION_TIME",
                 "Value": "60",
+              },
+              {
+                "Name": "DECIDIM_EXPIRE_SESSION_AFTER",
+                "Value": "120",
               },
               {
                 "Name": "WEB_CONCURRENCY",
