@@ -71,3 +71,336 @@ exports[`Elasticache Stack Created 1`] = `
   },
 }
 `;
+
+exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "PrdCacheEvictions001584789CB": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) キーの追い出しが発生",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-001",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Evictions",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheEvictions0023568DFA9": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) キーの追い出しが発生",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-002",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Evictions",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheHighEngineCpu001646DB46A": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) エンジンCPU使用率のピークが80%超、5分窓3回連続",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-001",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "EngineCPUUtilization",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 80,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheHighEngineCpu002D02F0337": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) エンジンCPU使用率のピークが80%超、5分窓3回連続",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-002",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "EngineCPUUtilization",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 80,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheHighMemoryUsage0017A70FB30": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) メモリ使用率のピークが60%超、5分窓3回連続",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-001",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "DatabaseMemoryUsagePercentage",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 60,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheHighMemoryUsage0022A25D447": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) メモリ使用率のピークが60%超、5分窓3回連続",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-002",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "DatabaseMemoryUsagePercentage",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 60,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheLowCpuCredit00176A6253B": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) CPUクレジット残高が100を下回る（上限576、毎時24付与）",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-001",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "CPUCreditBalance",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Minimum",
+        "Threshold": 100,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheLowCpuCredit0023182D3EA": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) CPUクレジット残高が100を下回る（上限576、毎時24付与）",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-002",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "CPUCreditBalance",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Minimum",
+        "Threshold": 100,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheNodeUnreachable001EC9257F7": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) メトリクス欠損または接続ゼロ（ノード消失の疑い）",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-001",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "CurrConnections",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 1,
+        "TreatMissingData": "breaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheNodeUnreachable002E849B5F4": {
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) メトリクス欠損または接続ゼロ（ノード消失の疑い）",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-002",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "CurrConnections",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 1,
+        "TreatMissingData": "breaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "RedisParameterGroup": {
+      "Properties": {
+        "CacheParameterGroupFamily": "redis6.x",
+        "Description": "prd-v030-decidim Redis parameter group",
+        "Properties": {
+          "maxmemory-policy": "volatile-lru",
+        },
+      },
+      "Type": "AWS::ElastiCache::ParameterGroup",
+    },
+    "prdElasticache": {
+      "Properties": {
+        "AutomaticFailoverEnabled": true,
+        "CacheNodeType": "cache.t3.medium",
+        "CacheParameterGroupName": {
+          "Ref": "RedisParameterGroup",
+        },
+        "CacheSubnetGroupName": "prd-v030-decidim-SubnetGroup",
+        "Engine": "redis",
+        "EngineVersion": "6.x",
+        "MultiAZEnabled": true,
+        "NumCacheClusters": 2,
+        "ReplicationGroupDescription": "prd-v030-decidim-cache",
+        "ReplicationGroupId": "prd-v030-decidim-cache",
+        "SecurityGroupIds": [
+          {
+            "Fn::ImportValue": "prd-v030decidimNetworkStack:ExportsOutputFnGetAttprdv030SecurityGroupForElasticCache25423B65GroupId37FEAEA2",
+          },
+        ],
+      },
+      "Type": "AWS::ElastiCache::ReplicationGroup",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
