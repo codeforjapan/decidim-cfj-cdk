@@ -35,10 +35,14 @@ export class ElasticacheStack extends Stack {
       },
     });
 
+    // 監視アラームのディメンションがこの ID から導出されるため、組み立てを2箇所に
+    // 散らさない。片方だけ変わるとアラームが存在しないノードを指して沈黙する。
+    const replicationGroupId = `${props.stage}-${props.serviceName}-cache`;
+
     const elastiCacheProps: CfnReplicationGroupProps = {
-      replicationGroupDescription: `${props.stage}-${props.serviceName}-cache`,
+      replicationGroupDescription: replicationGroupId,
       engine: 'redis',
-      replicationGroupId: `${props.stage}-${props.serviceName}-cache`,
+      replicationGroupId,
       engineVersion: props.engineVersion,
       cacheNodeType: props.cacheNodeType,
       numCacheClusters: props.numCacheNodes,
@@ -56,7 +60,7 @@ export class ElasticacheStack extends Stack {
         },
       });
 
-      this.addProductionAlarms(`${props.stage}-${props.serviceName}-cache`, props.numCacheNodes);
+      this.addProductionAlarms(replicationGroupId, props.numCacheNodes);
     } else {
       this.redis = new elasticache.CfnReplicationGroup(this, 'elasticache', elastiCacheProps);
     }
