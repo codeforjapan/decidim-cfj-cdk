@@ -74,7 +74,7 @@ const expectedAlarms = [
     metricName: 'EngineCPUUtilization',
     statistic: 'Maximum',
     period: 300,
-    threshold: 80,
+    threshold: 90,
     evaluationPeriods: 3,
     comparisonOperator: 'GreaterThanThreshold',
     treatMissingData: 'notBreaching',

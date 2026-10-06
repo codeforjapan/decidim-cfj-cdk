@@ -148,7 +148,7 @@ exports[`ElasticacheStack creates alarms for every node on production 1`] = `
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
         ],
-        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) エンジンCPU使用率のピークが80%超、5分窓3回連続",
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) エンジンCPU使用率のピークが90%超、5分窓3回連続",
         "ComparisonOperator": "GreaterThanThreshold",
         "Dimensions": [
           {
@@ -164,7 +164,7 @@ exports[`ElasticacheStack creates alarms for every node on production 1`] = `
         ],
         "Period": 300,
         "Statistic": "Maximum",
-        "Threshold": 80,
+        "Threshold": 90,
         "TreatMissingData": "notBreaching",
       },
       "Type": "AWS::CloudWatch::Alarm",
@@ -177,7 +177,7 @@ exports[`ElasticacheStack creates alarms for every node on production 1`] = `
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
         ],
-        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) エンジンCPU使用率のピークが80%超、5分窓3回連続",
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) エンジンCPU使用率のピークが90%超、5分窓3回連続",
         "ComparisonOperator": "GreaterThanThreshold",
         "Dimensions": [
           {
@@ -193,7 +193,7 @@ exports[`ElasticacheStack creates alarms for every node on production 1`] = `
         ],
         "Period": 300,
         "Statistic": "Maximum",
-        "Threshold": 80,
+        "Threshold": 90,
         "TreatMissingData": "notBreaching",
       },
       "Type": "AWS::CloudWatch::Alarm",

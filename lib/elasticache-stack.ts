@@ -144,20 +144,31 @@ export class ElasticacheStack extends Stack {
           treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
           alarmDescription: `本番Redis(${nodeId}) ホストCPU使用率のピークが45%超、5分窓3回連続（2vCPUのため90/2）`,
         }),
-        // エンジンスレッド単体の負荷。上のホストCPUと併用することで
-        // 「エンジンが飽和」と「管理プロセス込みでホストが飽和」を切り分けられる。
+        // エンジンスレッド単体の負荷。エンジンコア基準で正規化されるため、
+        // 2vCPU でも 100% に達しうる。上のホストCPUと併用することで
+        // 「ホストだけ高い＝スナップショットや管理イベント」と
+        // 「両方高い＝エンジン自身が飽和」を切り分けられる。
+        //
+        // 閾値は AWS の推奨値 90 を採る。80 にすると 2vCPU では上のホストCPU 45 と
+        // ほぼ同時に鳴り、切り分けにならない（AWS も 2コア以下では CPUUtilization の
+        // 方が先に 100% に達すると述べている）。
         new cloudwatch.Alarm(this, `PrdCacheHighEngineCpu${suffix}`, {
           metric: metric('EngineCPUUtilization', 'Maximum'),
-          threshold: 80,
+          threshold: 90,
           evaluationPeriods,
           comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
           treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
-          alarmDescription: `本番Redis(${nodeId}) エンジンCPU使用率のピークが80%超、5分窓3回連続`,
+          alarmDescription: `本番Redis(${nodeId}) エンジンCPU使用率のピークが90%超、5分窓3回連続`,
         }),
         // t3 はバーストのためクレジットを消費する。枯渇すると急落ではなく
-        // ベースライン性能（2vCPU × 20% = ノード全体40%）まで段階的に低下する。
+        // ベースライン性能まで段階的に低下する。t3.medium のベースラインは
+        // (24 credits / 2 vCPU) / 60 = 20% で、CloudWatch にもこの値で表示される。
         // ElastiCache の T3 は standard のみで、EC2 の unlimited のように
         // 課金で超過分を吸収できない。
+        //
+        // このアラームは削らないこと。スロットル中はホストCPUが 20% で頭打ちになり
+        // 上の HighHostCpu（45%）が原理的に鳴らないため、唯一の検知手段になる。
+        // 残高100は全力バースト時の猶予およそ1時間分（消費120/h − 付与24/h）。
         //
         // CPUCreditBalance だけは5分粒度でしか発行されないため period は下げられない。
         new cloudwatch.Alarm(this, `PrdCacheLowCpuCredit${suffix}`, {
@@ -179,10 +190,20 @@ export class ElasticacheStack extends Stack {
         // 全台落ちても 0 にはならず、0 または欠損ならノード自体の異常と断言できる。
         // 閾値1が実データで満たされることは無く、発報経路は実質 BREACHING のみ。
         //
-        // 検知までの時間は period × evaluationPeriods では決まらない。CloudWatch は
-        // EvaluationPeriods より広い evaluation range を取るため、period=5分/ev=3 だと
-        // 25分かかる。ノード死亡の検知としては遅すぎるので、60秒粒度で発行される
-        // 利点を活かして period を1分に下げ、7分程度で発報するようにしている。
+        // 欠損による発報までの時間は period × evaluationPeriods では決まらない。
+        // CloudWatch は EvaluationPeriods より広い evaluation range を取るため、
+        // period=5分/ev=3 なら 5点 = 25分かかる（AWS が明示している唯一の数値例）。
+        // ノード死亡の検知としては遅すぎるので、60秒粒度で発行される利点を活かして
+        // period を1分に下げた。1分 period での evaluation range は AWS 非公開のため
+        // 正確な秒数は確定できないが、5分×3回より確実に短い。
+        //
+        // datapointsToAlarm は設定しないこと。M=N だと「evaluation range 内に実データが
+        // EvaluationPeriods 以上あれば欠損の扱いは無視される」というルールが効き、
+        // range 内が全点欠損したときにしか発報しない。M<N にするとこの保護が外れ、
+        // 数分の歯抜けで誤報するようになる。
+        //
+        // メンテナンス窓（sun:18:30-19:30 UTC）でノードが入れ替わると、このカナリアと
+        // 上の HighHostCpu が鳴りうる。誤報ではなく実際に起きている事象の報告。
         new cloudwatch.Alarm(this, `PrdCacheNodeUnreachable${suffix}`, {
           metric: metric('CurrConnections', 'Maximum', Duration.minutes(1)),
           threshold: 1,
