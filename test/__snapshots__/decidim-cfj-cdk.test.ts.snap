@@ -1680,7 +1680,7 @@ exports[`DecidimStack Created 1`] = `
                       {
                         "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
                       },
-                      ":6379",
+                      ":6379/2",
                     ],
                   ],
                 },
@@ -1695,7 +1695,7 @@ exports[`DecidimStack Created 1`] = `
                       {
                         "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
                       },
-                      ":6379",
+                      ":6379/3",
                     ],
                   ],
                 },
@@ -1934,7 +1934,7 @@ exports[`DecidimStack Created 1`] = `
                       {
                         "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
                       },
-                      ":6379",
+                      ":6379/2",
                     ],
                   ],
                 },
@@ -1949,7 +1949,7 @@ exports[`DecidimStack Created 1`] = `
                       {
                         "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
                       },
-                      ":6379",
+                      ":6379/3",
                     ],
                   ],
                 },
@@ -2439,7 +2439,7 @@ exports[`DecidimStack Created 1`] = `
                       {
                         "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
                       },
-                      ":6379",
+                      ":6379/2",
                     ],
                   ],
                 },
@@ -2454,7 +2454,7 @@ exports[`DecidimStack Created 1`] = `
                       {
                         "Fn::ImportValue": "stagingdecidimElastiCacheStack:ExportsOutputFnGetAttelasticacheReaderEndPointAddress70C380A8",
                       },
-                      ":6379",
+                      ":6379/3",
                     ],
                   ],
                 },
