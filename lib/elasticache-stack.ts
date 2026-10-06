@@ -67,24 +67,12 @@ export class ElasticacheStack extends Stack {
   }
   /**
    * 本番Redisの健全性を監視するCloudWatchアラームを作成する。
-   * 通知先はRDSと同じSNSトピック decidim-team-address。
-   *
-   * アラームは CacheClusterId ディメンションでノード単位に張る。
-   * DatabaseMemoryUsagePercentage は ReplicationGroupId 次元を持たないため、
-   * ノード単位で張るしかない（ReplicationGroupId 自体は
-   * DatabaseMemoryUsageCountedForEvictPercentage 等では有効なディメンション）。
-   * cluster mode disabled のメンバーノードは
-   * <replicationGroupId>-001 ... -00N という名前で採番される。
-   *
-   * しきい値は実測（メモリ2〜3%、Evictions 0、ホストCPU平均2.4%/最大10%、
-   * CPUクレジット576で飽和）を踏まえた初期値であり、運用状況を見てチューニングする前提。
+   * ディメンションは CacheClusterId。DatabaseMemoryUsagePercentage は
+   * ReplicationGroupId 次元を持たないため、ノード単位で張るしかない。
    */
   private addProductionAlarms(replicationGroupId: string, numCacheNodes: number): void {
     const period = Duration.minutes(5);
-    // ElastiCache のメトリクスは60秒粒度なので、period=5分 + Maximum は
-    // 「5つの1分サンプルのピーク」を見る。RDS 側は Average だが、Redis は
-    // シングルスレッドで1分スパイクがそのまま体感レイテンシになるため Maximum を採る。
-    const evaluationPeriods = 3; // 5分窓×3回連続で発報
+    const evaluationPeriods = 3;
 
     const teamTopic = sns.Topic.fromTopicArn(
       this,
@@ -114,16 +102,8 @@ export class ElasticacheStack extends Stack {
           treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
           alarmDescription: `本番Redis(${nodeId}) メモリ使用率のピークが60%超、5分窓3回連続`,
         }),
-        // volatile-lru は TTL 付きキーのみを落とすため、Evictions が出た時点で
-        // セッションが失われうる（キャッシュエントリだけに当たる場合もある）。
-        // 匿名アンケートは session_token で識別されるため回答の重複行に繋がりうる。
-        //
-        // 逆に Evictions=0 は安全を意味しない。Sidekiq のキュー系キーには TTL が無く、
-        // TTL 付きキーが尽きると Redis は追い出さずに OOM エラーで書き込みを失敗させる
-        // （このとき Evictions は 0 のまま）。この経路を拾うのは上の HighMemoryUsage だけ。
-        //
-        // AWS は Evictions に数値推奨を出していない（想定内の追い出しもあるため）。
-        // 1回で発報させるのはキャッシュとセッションが同居する本構成固有の判断。
+        // Sidekiq のキュー系キーには TTL が無く、volatile-lru は TTL 付きキーが
+        // 尽きると追い出しをやめて OOM を返すため、Evictions=0 でも逼迫しうる。
         new cloudwatch.Alarm(this, `PrdCacheEvictions${suffix}`, {
           metric: metric('Evictions', 'Sum'),
           threshold: 0,
@@ -132,10 +112,6 @@ export class ElasticacheStack extends Stack {
           treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
           alarmDescription: `本番Redis(${nodeId}) キーの追い出しが発生`,
         }),
-        // AWS は 2vCPU 以下のノードでは CPUUtilization（ホスト全体）を見ることを
-        // 推奨している。ElastiCache の管理プロセスがホストCPUの無視できない割合を
-        // 使うため、EngineCPUUtilization だけではホストの過負荷を取りこぼす。
-        // Redis はシングルスレッドなので閾値は 90% をコア数で割る: 90/2 = 45。
         new cloudwatch.Alarm(this, `PrdCacheHighHostCpu${suffix}`, {
           metric: metric('CPUUtilization', 'Maximum'),
           threshold: 45,
@@ -144,14 +120,7 @@ export class ElasticacheStack extends Stack {
           treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
           alarmDescription: `本番Redis(${nodeId}) ホストCPU使用率のピークが45%超、5分窓3回連続（2vCPUのため90/2）`,
         }),
-        // エンジンスレッド単体の負荷。エンジンコア基準で正規化されるため、
-        // 2vCPU でも 100% に達しうる。上のホストCPUと併用することで
-        // 「ホストだけ高い＝スナップショットや管理イベント」と
-        // 「両方高い＝エンジン自身が飽和」を切り分けられる。
-        //
-        // 閾値は AWS の推奨値 90 を採る。80 にすると 2vCPU では上のホストCPU 45 と
-        // ほぼ同時に鳴り、切り分けにならない（AWS も 2コア以下では CPUUtilization の
-        // 方が先に 100% に達すると述べている）。
+        // 80 にすると上のホストCPU 45 とほぼ同時に鳴り、切り分けにならない。
         new cloudwatch.Alarm(this, `PrdCacheHighEngineCpu${suffix}`, {
           metric: metric('EngineCPUUtilization', 'Maximum'),
           threshold: 90,
@@ -160,17 +129,8 @@ export class ElasticacheStack extends Stack {
           treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
           alarmDescription: `本番Redis(${nodeId}) エンジンCPU使用率のピークが90%超、5分窓3回連続`,
         }),
-        // t3 はバーストのためクレジットを消費する。枯渇すると急落ではなく
-        // ベースライン性能まで段階的に低下する。t3.medium のベースラインは
-        // (24 credits / 2 vCPU) / 60 = 20% で、CloudWatch にもこの値で表示される。
-        // ElastiCache の T3 は standard のみで、EC2 の unlimited のように
-        // 課金で超過分を吸収できない。
-        //
-        // このアラームは削らないこと。スロットル中はホストCPUが 20% で頭打ちになり
-        // 上の HighHostCpu（45%）が原理的に鳴らないため、唯一の検知手段になる。
-        // 残高100は全力バースト時の猶予およそ1時間分（消費120/h − 付与24/h）。
-        //
-        // CPUCreditBalance だけは5分粒度でしか発行されないため period は下げられない。
+        // 削らないこと。スロットル中はホストCPUがベースライン20%で頭打ちになり、
+        // 上の45%が原理的に鳴らない。5分粒度でしか出ないため period は下げられない。
         new cloudwatch.Alarm(this, `PrdCacheLowCpuCredit${suffix}`, {
           metric: metric('CPUCreditBalance', 'Minimum'),
           threshold: 100,
@@ -179,31 +139,9 @@ export class ElasticacheStack extends Stack {
           treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
           alarmDescription: `本番Redis(${nodeId}) CPUクレジット残高が100を下回る（上限576、毎時24付与）`,
         }),
-        // 生存カナリア。他は全て NOT_BREACHING なので、ノードが死んで
-        // メトリクスが止まると一斉に「無音の OK」になる。Redis が落ちても
-        // RedisCacheStore は failsafe で例外を握り潰すためアプリは動き続け、
-        // ALB のヘルスチェックも通る。実際に起きるのは全ユーザーの強制ログアウトと
-        // Sidekiq の全停止で、気づく手段がこのアカウントに他に無い。
-        //
-        // CurrConnections の下限を支えているのはアプリではなく ElastiCache 自身の
-        // 監視接続で、AWS が「4〜6本を監視に使う」と明記している。つまりアプリが
-        // 全台落ちても 0 にはならず、0 または欠損ならノード自体の異常と断言できる。
-        // 閾値1が実データで満たされることは無く、発報経路は実質 BREACHING のみ。
-        //
-        // 欠損による発報までの時間は period × evaluationPeriods では決まらない。
-        // CloudWatch は EvaluationPeriods より広い evaluation range を取るため、
-        // period=5分/ev=3 なら 5点 = 25分かかる（AWS が明示している唯一の数値例）。
-        // ノード死亡の検知としては遅すぎるので、60秒粒度で発行される利点を活かして
-        // period を1分に下げた。1分 period での evaluation range は AWS 非公開のため
-        // 正確な秒数は確定できないが、5分×3回より確実に短い。
-        //
-        // datapointsToAlarm は設定しないこと。M=N だと「evaluation range 内に実データが
-        // EvaluationPeriods 以上あれば欠損の扱いは無視される」というルールが効き、
-        // range 内が全点欠損したときにしか発報しない。M<N にするとこの保護が外れ、
-        // 数分の歯抜けで誤報するようになる。
-        //
-        // メンテナンス窓（sun:18:30-19:30 UTC）でノードが入れ替わると、このカナリアと
-        // 上の HighHostCpu が鳴りうる。誤報ではなく実際に起きている事象の報告。
+        // 生存カナリア。他は NOT_BREACHING なのでノードが死ぬと一斉に無音の OK に
+        // なる。CurrConnections は ElastiCache 自身が4〜6本張るため0にならない。
+        // datapointsToAlarm は設定しないこと（M=N でないと歯抜けで誤報する）。
         new cloudwatch.Alarm(this, `PrdCacheNodeUnreachable${suffix}`, {
           metric: metric('CurrConnections', 'Maximum', Duration.minutes(1)),
           threshold: 1,
@@ -215,9 +153,7 @@ export class ElasticacheStack extends Stack {
       ];
 
       for (const alarm of alarms) {
-        // アラームは作成直後に評価され、評価期間の経過を待たない。レプリケーション
-        // グループより先に作られると、BREACHING のカナリアがメトリクス未発行のまま
-        // 約1分後に誤報する（新ステージのブルーグリーン初回で必ず踏む）。
+        // アラームは作成直後に評価されるため、先に作られるとカナリアが誤報する。
         alarm.node.addDependency(this.redis);
         alarm.addAlarmAction(snsAction);
         alarm.addOkAction(snsAction);

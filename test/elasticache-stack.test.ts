@@ -39,8 +39,7 @@ function buildStack(stage: string) {
   return { template: Template.fromStack(elastiCache), config };
 }
 
-// 各アラームの期待値。メトリクス名だけで検証するとノードを取り違えても
-// 通過してしまうため、ディメンションと組にして1リソースずつ突き合わせる。
+// ディメンションと組で検証する（別々だとノードを取り違えても通過する）
 const expectedAlarms = [
   {
     metricName: 'DatabaseMemoryUsagePercentage',
@@ -61,7 +60,6 @@ const expectedAlarms = [
     treatMissingData: 'notBreaching',
   },
   {
-    // 2vCPU のノードでは AWS が CPUUtilization を推奨している（閾値は 90/2）
     metricName: 'CPUUtilization',
     statistic: 'Maximum',
     period: 300,
@@ -89,8 +87,6 @@ const expectedAlarms = [
     treatMissingData: 'notBreaching',
   },
   {
-    // 生存カナリア。breaching が notBreaching に変わると、ノード消失時に
-    // アラーム群が一斉に無音の OK になる。period=60 も検知時間に直結する。
     metricName: 'CurrConnections',
     statistic: 'Maximum',
     period: 60,
@@ -117,8 +113,7 @@ test('ElasticacheStack creates alarms for every node on production', () => {
 
   template.resourceCountIs('AWS::CloudWatch::Alarm', expectedAlarms.length * config.numCacheNodes);
 
-  // 「少なくとも1本」ではなく全数を検証する。hasResourceProperties は1本でも
-  // 一致すれば通るため、一部のアラームが通知を失っても気づけない。
+  // hasResourceProperties は1本でも一致すれば通るので全数検証する。
   template.allResourcesProperties('AWS::CloudWatch::Alarm', {
     AlarmActions: [teamTopicArn],
     OKActions: [teamTopicArn],
@@ -148,8 +143,6 @@ test('ElasticacheStack creates alarms for every node on production', () => {
 test('ElasticacheStack alarms depend on the replication group', () => {
   const { template } = buildStack('prd-v030');
 
-  // アラームは作成直後に評価されるため、レプリケーショングループより先に
-  // 作られると BREACHING のカナリアがメトリクス未発行のまま誤報する。
   const alarms = template.findResources('AWS::CloudWatch::Alarm');
   const names = Object.keys(alarms);
   expect(names.length).toBeGreaterThan(0);
