@@ -137,8 +137,10 @@ export class DecidimStack extends cdk.Stack {
       // スパム検知の学習データは Sidekiq のキューや Rails キャッシュと同じ DB 0 に置かない。
       // decidim:ai:spam:reset が FLUSHDB を発行するため、同居していると巻き込んで消す。
       // user と resource も別 DB にする。同一 DB だと両者の学習データが混ざる。
-      DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL: `redis://${props.cache}:6379/2`,
-      DECIDIM_SPAM_DETECTION_BACKEND_RESOURCE_REDIS_URL: `redis://${props.cache}:6379/3`,
+      // 番号はアプリ側の既定値 (config/initializers/decidim_ai.rb) と揃える。
+      // resource が 2、user が 3。上流 Decidim 0.30 のドキュメントも同じ。
+      DECIDIM_SPAM_DETECTION_BACKEND_USER_REDIS_URL: `redis://${props.cache}:6379/3`,
+      DECIDIM_SPAM_DETECTION_BACKEND_RESOURCE_REDIS_URL: `redis://${props.cache}:6379/2`,
       RDS_DB_NAME: ssm.StringParameter.valueForTypedStringParameterV2(
         this,
         `/decidim-cfj/${props.stage}/RDS_DB_NAME`
