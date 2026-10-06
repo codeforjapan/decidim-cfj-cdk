@@ -5,12 +5,12 @@ import { Config, getConfig } from '../lib/config';
 import { NetworkStack } from '../lib/network';
 import { ElasticacheStack } from '../lib/elasticache-stack';
 
-test('Elasticache Stack Created', () => {
-  const app = new cdk.App();
+const serviceName = `decidim`;
+const teamTopicArn = 'arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address';
 
-  const stage = 'staging';
+function buildStack(stage: string) {
+  const app = new cdk.App();
   const config: Config = getConfig(stage);
-  const serviceName = `decidim`;
 
   const env = {
     account: config.aws.accountId,
@@ -36,8 +36,118 @@ test('Elasticache Stack Created', () => {
     ecSubnetGroup: network.ecSubnetGroup,
   });
 
-  const template = Template.fromStack(elastiCache);
+  return { template: Template.fromStack(elastiCache), config };
+}
+
+// ディメンションと組で検証する（別々だとノードを取り違えても通過する）
+const expectedAlarms = [
+  {
+    metricName: 'DatabaseMemoryUsagePercentage',
+    statistic: 'Maximum',
+    period: 300,
+    threshold: 60,
+    evaluationPeriods: 3,
+    comparisonOperator: 'GreaterThanThreshold',
+    treatMissingData: 'notBreaching',
+  },
+  {
+    metricName: 'Evictions',
+    statistic: 'Sum',
+    period: 300,
+    threshold: 0,
+    evaluationPeriods: 1,
+    comparisonOperator: 'GreaterThanThreshold',
+    treatMissingData: 'notBreaching',
+  },
+  {
+    metricName: 'CPUUtilization',
+    statistic: 'Maximum',
+    period: 300,
+    threshold: 45,
+    evaluationPeriods: 3,
+    comparisonOperator: 'GreaterThanThreshold',
+    treatMissingData: 'notBreaching',
+  },
+  {
+    metricName: 'EngineCPUUtilization',
+    statistic: 'Maximum',
+    period: 300,
+    threshold: 90,
+    evaluationPeriods: 3,
+    comparisonOperator: 'GreaterThanThreshold',
+    treatMissingData: 'notBreaching',
+  },
+  {
+    metricName: 'CPUCreditBalance',
+    statistic: 'Minimum',
+    period: 300,
+    threshold: 100,
+    evaluationPeriods: 3,
+    comparisonOperator: 'LessThanThreshold',
+    treatMissingData: 'notBreaching',
+  },
+  {
+    metricName: 'CurrConnections',
+    statistic: 'Maximum',
+    period: 60,
+    threshold: 1,
+    evaluationPeriods: 5,
+    comparisonOperator: 'LessThanThreshold',
+    treatMissingData: 'breaching',
+  },
+];
+
+test('Elasticache Stack Created', () => {
+  const { template } = buildStack('staging');
+
+  // 本番以外では監視アラームを作らない
+  template.resourceCountIs('AWS::CloudWatch::Alarm', 0);
 
   // Assert the template matches the snapshot.
   expect(template.toJSON()).toMatchSnapshot();
+});
+
+test('ElasticacheStack creates alarms for every node on production', () => {
+  const stage = 'prd-v030';
+  const { template, config } = buildStack(stage);
+
+  template.resourceCountIs('AWS::CloudWatch::Alarm', expectedAlarms.length * config.numCacheNodes);
+
+  // hasResourceProperties は1本でも一致すれば通るので全数検証する。
+  template.allResourcesProperties('AWS::CloudWatch::Alarm', {
+    AlarmActions: [teamTopicArn],
+    OKActions: [teamTopicArn],
+  });
+
+  for (let i = 1; i <= config.numCacheNodes; i++) {
+    const nodeId = `${stage}-${serviceName}-cache-${String(i).padStart(3, '0')}`;
+
+    for (const alarm of expectedAlarms) {
+      template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+        Namespace: 'AWS/ElastiCache',
+        MetricName: alarm.metricName,
+        Statistic: alarm.statistic,
+        Period: alarm.period,
+        Threshold: alarm.threshold,
+        EvaluationPeriods: alarm.evaluationPeriods,
+        ComparisonOperator: alarm.comparisonOperator,
+        TreatMissingData: alarm.treatMissingData,
+        Dimensions: [{ Name: 'CacheClusterId', Value: nodeId }],
+      });
+    }
+  }
+
+  expect(template.toJSON()).toMatchSnapshot();
+});
+
+test('ElasticacheStack alarms depend on the replication group', () => {
+  const { template } = buildStack('prd-v030');
+
+  const alarms = template.findResources('AWS::CloudWatch::Alarm');
+  const names = Object.keys(alarms);
+  expect(names.length).toBeGreaterThan(0);
+
+  for (const name of names) {
+    expect(alarms[name].DependsOn).toContain('prdElasticache');
+  }
 });
