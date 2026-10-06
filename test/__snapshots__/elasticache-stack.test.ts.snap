@@ -72,7 +72,7 @@ exports[`Elasticache Stack Created 1`] = `
 }
 `;
 
-exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`] = `
+exports[`ElasticacheStack creates alarms for every node on production 1`] = `
 {
   "Parameters": {
     "BootstrapVersion": {
@@ -83,6 +83,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
   },
   "Resources": {
     "PrdCacheEvictions001584789CB": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -109,6 +112,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheEvictions0023568DFA9": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -135,6 +141,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheHighEngineCpu001646DB46A": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -161,6 +170,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheHighEngineCpu002D02F0337": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -186,7 +198,68 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
+    "PrdCacheHighHostCpu0014380DC3B": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-001) ホストCPU使用率のピークが45%超、5分窓3回連続（2vCPUのため90/2）",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-001",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 45,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "PrdCacheHighHostCpu0029ECA5574": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
+      "Properties": {
+        "AlarmActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "AlarmDescription": "本番Redis(prd-v030-decidim-cache-002) ホストCPU使用率のピークが45%超、5分窓3回連続（2vCPUのため90/2）",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "prd-v030-decidim-cache-002",
+          },
+        ],
+        "EvaluationPeriods": 3,
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/ElastiCache",
+        "OKActions": [
+          "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
+        ],
+        "Period": 300,
+        "Statistic": "Maximum",
+        "Threshold": 45,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
     "PrdCacheHighMemoryUsage0017A70FB30": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -213,6 +286,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheHighMemoryUsage0022A25D447": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -239,6 +315,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheLowCpuCredit00176A6253B": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -265,6 +344,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheLowCpuCredit0023182D3EA": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -291,6 +373,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheNodeUnreachable001EC9257F7": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -303,13 +388,13 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
             "Value": "prd-v030-decidim-cache-001",
           },
         ],
-        "EvaluationPeriods": 3,
+        "EvaluationPeriods": 5,
         "MetricName": "CurrConnections",
         "Namespace": "AWS/ElastiCache",
         "OKActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
         ],
-        "Period": 300,
+        "Period": 60,
         "Statistic": "Maximum",
         "Threshold": 1,
         "TreatMissingData": "breaching",
@@ -317,6 +402,9 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
       "Type": "AWS::CloudWatch::Alarm",
     },
     "PrdCacheNodeUnreachable002E849B5F4": {
+      "DependsOn": [
+        "prdElasticache",
+      ],
       "Properties": {
         "AlarmActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
@@ -329,13 +417,13 @@ exports[`ElasticacheStack creates 5 CloudWatch alarms per node on production 1`]
             "Value": "prd-v030-decidim-cache-002",
           },
         ],
-        "EvaluationPeriods": 3,
+        "EvaluationPeriods": 5,
         "MetricName": "CurrConnections",
         "Namespace": "AWS/ElastiCache",
         "OKActions": [
           "arn:aws:sns:ap-northeast-1:887442827229:decidim-team-address",
         ],
-        "Period": 300,
+        "Period": 60,
         "Statistic": "Maximum",
         "Threshold": 1,
         "TreatMissingData": "breaching",
