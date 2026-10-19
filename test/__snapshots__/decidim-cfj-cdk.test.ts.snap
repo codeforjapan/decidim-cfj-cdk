@@ -1751,7 +1751,7 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "1025",
               },
               {
-                "Name": "SMTP_STARTTLS_AUTO",
+                "Name": "SMTP_STARTTLS",
                 "Value": "false",
               },
               {
@@ -2005,7 +2005,7 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "1025",
               },
               {
-                "Name": "SMTP_STARTTLS_AUTO",
+                "Name": "SMTP_STARTTLS",
                 "Value": "false",
               },
               {
@@ -2510,7 +2510,7 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "1025",
               },
               {
-                "Name": "SMTP_STARTTLS_AUTO",
+                "Name": "SMTP_STARTTLS",
                 "Value": "false",
               },
               {
