@@ -180,7 +180,7 @@ export class DecidimStack extends cdk.Stack {
         ? `mailpit.${props.stage}-decidim.local`
         : props.ecs.smtpDomain,
       SMTP_PORT: ['dev', 'staging'].includes(props.stage) ? '1025' : '587',
-      SMTP_STARTTLS_AUTO: ['dev', 'staging'].includes(props.stage) ? 'false' : 'true',
+      SMTP_STARTTLS: ['dev', 'staging'].includes(props.stage) ? 'false' : 'true',
       AWS_BUCKET_NAME: `${props.bucketName}-bucket`,
       DECIDIM_COMMENTS_LIMIT: '30',
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(
