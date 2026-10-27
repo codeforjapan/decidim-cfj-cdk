@@ -103,6 +103,19 @@ export interface Config {
   // service
   domain: string;
   cloudfrontCertificate: string;
+
+  // true にすると、ALB は CloudFront のカスタムヘッダを持たないリクエストを 403 で拒否する。
+  // ALB スタックは CloudFront スタックより先にデプロイされるため、まず false で
+  // CloudFront にヘッダを付けてから true にする。CDK 管理外の配信も先にヘッダが必要。
+  enforceOriginVerify: boolean;
+}
+
+export const ORIGIN_VERIFY_HEADER = 'X-Origin-Verify';
+
+// ap-northeast-1 と us-east-1 の両方に同じ値で置く。ALB の照合は大文字小文字を区別せず
+// `*` `?` をワイルドカードとして扱うため、値は 16 進文字列にする。
+export function originVerifyParameterName(stage: string): string {
+  return `/decidim-cfj/${stage}/ORIGIN_VERIFY_SECRET`;
 }
 
 export function getConfig(stage: string): Config {

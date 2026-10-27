@@ -3,6 +3,7 @@ import {
   aws_cloudfront as cloudfront,
   aws_cloudfront_origins,
   aws_s3,
+  aws_ssm as ssm,
   aws_wafv2,
   CfnOutput,
   Duration,
@@ -23,7 +24,7 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources';
-import { isPrd } from './config';
+import { isPrd, ORIGIN_VERIFY_HEADER, originVerifyParameterName } from './config';
 
 export interface CloudFrontProps extends BaseStackProps {
   certificateArn: string;
@@ -42,6 +43,12 @@ export class CloudFrontStack extends Stack {
     // 60 秒を超える値はオリジンレスポンスタイムアウトのクォータ緩和申請が必要。
     const albOrigin = new aws_cloudfront_origins.HttpOrigin(endpoint, {
       readTimeout: Duration.seconds(60),
+      customHeaders: {
+        [ORIGIN_VERIFY_HEADER]: ssm.StringParameter.valueForStringParameter(
+          this,
+          originVerifyParameterName(props.stage)
+        ),
+      },
     });
     albOrigin.bind(this, { originId: 'defaultEndPoint' });
 

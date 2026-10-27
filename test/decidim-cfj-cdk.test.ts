@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { DecidimStack } from '../lib/decidim-stack';
 
 import { Config, getConfig } from '../lib/config';
@@ -8,7 +8,7 @@ import { S3Stack } from '../lib/s3-stack';
 import { RdsStack } from '../lib/rds-stack';
 import { ElasticacheStack } from '../lib/elasticache-stack';
 
-test('DecidimStack Created', () => {
+function buildDecidimStack(enforceOriginVerify: boolean) {
   const app = new cdk.App();
   // WHEN
 
@@ -34,6 +34,7 @@ test('DecidimStack Created', () => {
     env,
     serviceName,
     vpc: config.vpc,
+    enforceOriginVerify,
   });
 
   const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
@@ -74,11 +75,15 @@ test('DecidimStack Created', () => {
     rds: rds.rds.dbInstanceEndpointAddress,
     cache: elastiCache.redis.attrReaderEndPointAddress,
     bucketName: config.s3Bucket,
+    enforceOriginVerify,
   };
   const stack = new DecidimStack(app, 'DecidimStack', props);
 
-  // THEN
-  const template = Template.fromStack(stack);
+  return { network: Template.fromStack(network), service: Template.fromStack(stack) };
+}
+
+test('DecidimStack Created', () => {
+  const template = buildDecidimStack(false).service;
   // console.dir(template);
 
   template.resourceCountIs('AWS::IAM::Role', 7);
@@ -89,4 +94,30 @@ test('DecidimStack Created', () => {
 
   // Assert the template matches the snapshot.
   expect(template.toJSON()).toMatchSnapshot();
+});
+
+test('enforceOriginVerify で CloudFront 以外からのアクセスを拒否する', () => {
+  const { network, service } = buildDecidimStack(true);
+
+  network.hasResourceProperties('AWS::EC2::SecurityGroup', {
+    GroupName: 'stagingForAlb',
+    SecurityGroupIngress: Match.absent(),
+  });
+  network.hasResourceProperties('AWS::EC2::SecurityGroupIngress', {
+    SourcePrefixListId: Match.anyValue(),
+    FromPort: 443,
+    ToPort: 443,
+  });
+
+  for (const port of [80, 443]) {
+    service.hasResourceProperties('AWS::ElasticLoadBalancingV2::Listener', {
+      Port: port,
+      DefaultActions: [Match.objectLike({ Type: 'fixed-response' })],
+    });
+  }
+  service.hasResourceProperties('AWS::ElasticLoadBalancingV2::ListenerRule', {
+    Priority: 100,
+    Actions: [Match.objectLike({ Type: 'forward' })],
+    Conditions: [Match.objectLike({ Field: 'http-header' })],
+  });
 });
