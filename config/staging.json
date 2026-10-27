@@ -47,5 +47,6 @@
   },
 
   "domain": "diycities.jp",
-  "cloudfrontCertificate": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de"
+  "cloudfrontCertificate": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de",
+  "enforceOriginVerify": true
 }

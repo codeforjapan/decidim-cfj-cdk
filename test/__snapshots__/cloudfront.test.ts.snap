@@ -34,6 +34,10 @@ exports[`Cloudfront Stack Created 1`] = `
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
+    "SsmParameterValuedecidimcfjstagingORIGINVERIFYSECRETC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/ORIGIN_VERIFY_SECRET",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
   },
   "Resources": {
     "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
@@ -449,6 +453,14 @@ exports[`Cloudfront Stack Created 1`] = `
               },
               "DomainName": "staging-decidim-alb-origin.diycities.jp",
               "Id": "stagingdecidimCloudFrontStackDistributionOrigin1E886134A",
+              "OriginCustomHeaders": [
+                {
+                  "HeaderName": "X-Origin-Verify",
+                  "HeaderValue": {
+                    "Ref": "SsmParameterValuedecidimcfjstagingORIGINVERIFYSECRETC96584B6F00A464EAD1953AFF4B05118Parameter",
+                  },
+                },
+              ],
             },
             {
               "DomainName": "staging-decidim-bucket.s3.ap-northeast-1.amazonaws.com",

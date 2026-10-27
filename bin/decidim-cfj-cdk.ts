@@ -44,6 +44,7 @@ const network = new NetworkStack(app, `${stage}${serviceName}NetworkStack`, {
   env,
   serviceName,
   vpc: config.vpc,
+  enforceOriginVerify: config.enforceOriginVerify,
 });
 
 const rds = new RdsStack(app, `${stage}${serviceName}RdsStack`, {
@@ -84,6 +85,7 @@ const service = new DecidimStack(app, `${stage}${serviceName}Stack`, {
   rds: rds.rds.dbInstanceEndpointAddress,
   cache: elastiCache.redis.attrPrimaryEndPointAddress,
   bucketName: config.s3Bucket,
+  enforceOriginVerify: config.enforceOriginVerify,
 });
 service.addDependency(network);
 
