@@ -2,6 +2,16 @@
 
 exports[`Cloudfront Stack Created 1`] = `
 {
+  "Mappings": {
+    "AWSCloudFrontPartitionHostedZoneIdMap": {
+      "aws": {
+        "zoneId": "Z2FDTNDATAQYW2",
+      },
+      "aws-cn": {
+        "zoneId": "Z3RFFRIM2A3IF5",
+      },
+    },
+  },
   "Outputs": {
     "CloudFrontDomainName": {
       "Description": "CloudFront Distribution Domain Name",
@@ -214,6 +224,93 @@ exports[`Cloudfront Stack Created 1`] = `
           },
           {
             "Action": {
+              "Allow": {},
+            },
+            "Name": "staging-decidim-AllowSystemLogin",
+            "Priority": 7,
+            "Statement": {
+              "AndStatement": {
+                "Statements": [
+                  {
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "SingleHeader": {
+                          "name": "host",
+                        },
+                      },
+                      "PositionalConstraint": "EXACTLY",
+                      "SearchString": "staging-decidim.diycities.jp",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "OrStatement": {
+                      "Statements": [
+                        {
+                          "ByteMatchStatement": {
+                            "FieldToMatch": {
+                              "UriPath": {},
+                            },
+                            "PositionalConstraint": "EXACTLY",
+                            "SearchString": "/system",
+                            "TextTransformations": [
+                              {
+                                "Priority": 0,
+                                "Type": "URL_DECODE",
+                              },
+                              {
+                                "Priority": 1,
+                                "Type": "NORMALIZE_PATH",
+                              },
+                              {
+                                "Priority": 2,
+                                "Type": "LOWERCASE",
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          "ByteMatchStatement": {
+                            "FieldToMatch": {
+                              "UriPath": {},
+                            },
+                            "PositionalConstraint": "STARTS_WITH",
+                            "SearchString": "/system/",
+                            "TextTransformations": [
+                              {
+                                "Priority": 0,
+                                "Type": "URL_DECODE",
+                              },
+                              {
+                                "Priority": 1,
+                                "Type": "NORMALIZE_PATH",
+                              },
+                              {
+                                "Priority": 2,
+                                "Type": "LOWERCASE",
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-AllowSystemLogin",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Action": {
               "Block": {
                 "CustomResponse": {
                   "CustomResponseBodyKey": "disable-action",
@@ -352,6 +449,7 @@ exports[`Cloudfront Stack Created 1`] = `
         "DistributionConfig": {
           "Aliases": [
             "staging-decidim-alb-origin.diycities.jp",
+            "staging-decidim.diycities.jp",
           ],
           "CacheBehaviors": [
             {
@@ -495,6 +593,31 @@ exports[`Cloudfront Stack Created 1`] = `
         },
       },
       "Type": "AWS::CloudFront::ResponseHeadersPolicy",
+    },
+    "StageHostRecord74B913AC": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "Distribution830FAC52",
+              "DomainName",
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::FindInMap": [
+              "AWSCloudFrontPartitionHostedZoneIdMap",
+              {
+                "Ref": "AWS::Partition",
+              },
+              "zoneId",
+            ],
+          },
+        },
+        "HostedZoneId": "DUMMY",
+        "Name": "staging-decidim.diycities.jp.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
     },
     "StripS3PrefixFnC8BFE398": {
       "Properties": {
