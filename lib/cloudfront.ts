@@ -182,57 +182,36 @@ export class CloudFrontStack extends Stack {
           metricName: `${props.stage}-${props.serviceName}-AWSManagedRulesSQLiRuleSet`,
         },
       },
-      {
-        name: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
-        priority: 6,
-        statement: {
-          andStatement: {
-            statements: [
-              {
-                byteMatchStatement: {
-                  searchString: `${props.stage}-${props.serviceName}-alb-origin`,
-                  fieldToMatch: {
-                    singleHeader: {
-                      name: 'host',
-                    },
-                  },
-                  textTransformations: [
-                    {
-                      priority: 0,
-                      type: 'LOWERCASE',
-                    },
-                  ],
-                  positionalConstraint: 'EXACTLY',
-                },
-              },
-              {
-                byteMatchStatement: {
-                  searchString: 'system/admins/sign_in',
-                  fieldToMatch: {
-                    uriPath: {},
-                  },
-                  textTransformations: [
-                    {
-                      priority: 0,
-                      type: 'LOWERCASE',
-                    },
-                  ],
-                  positionalConstraint: 'CONTAINS',
-                },
-              },
-            ],
-          },
-        },
-        action: {
-          allow: {},
-        },
-        visibilityConfig: {
-          cloudWatchMetricsEnabled: true,
-          sampledRequestsEnabled: true,
-          metricName: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
-        },
-      },
     ];
+
+    // パスは正規化してから判定する
+    const systemPathTransformations = [
+      { priority: 0, type: 'URL_DECODE' },
+      { priority: 1, type: 'NORMALIZE_PATH' },
+      { priority: 2, type: 'LOWERCASE' },
+    ];
+    const systemPathStatement = {
+      orStatement: {
+        statements: [
+          {
+            byteMatchStatement: {
+              searchString: '/system',
+              fieldToMatch: { uriPath: {} },
+              textTransformations: systemPathTransformations,
+              positionalConstraint: 'EXACTLY',
+            },
+          },
+          {
+            byteMatchStatement: {
+              searchString: '/system/',
+              fieldToMatch: { uriPath: {} },
+              textTransformations: systemPathTransformations,
+              positionalConstraint: 'STARTS_WITH',
+            },
+          },
+        ],
+      },
+    };
 
     if (isPrd(props.stage)) {
       rules.push({
@@ -258,21 +237,7 @@ export class CloudFrontStack extends Stack {
                   positionalConstraint: 'EXACTLY',
                 },
               },
-              {
-                byteMatchStatement: {
-                  searchString: 'system/admins/sign_in',
-                  fieldToMatch: {
-                    uriPath: {},
-                  },
-                  textTransformations: [
-                    {
-                      priority: 0,
-                      type: 'LOWERCASE',
-                    },
-                  ],
-                  positionalConstraint: 'CONTAINS',
-                },
-              },
+              systemPathStatement,
             ],
           },
         },
@@ -290,21 +255,7 @@ export class CloudFrontStack extends Stack {
     rules.push({
       name: `${props.stage}-${props.serviceName}-SystemLoginBlock`,
       priority: 8,
-      statement: {
-        byteMatchStatement: {
-          searchString: 'system/admins/sign_in',
-          fieldToMatch: {
-            uriPath: {},
-          },
-          textTransformations: [
-            {
-              priority: 0,
-              type: 'LOWERCASE',
-            },
-          ],
-          positionalConstraint: 'CONTAINS',
-        },
-      },
+      statement: systemPathStatement,
       action: {
         block: {
           customResponse: {
@@ -316,7 +267,7 @@ export class CloudFrontStack extends Stack {
       visibilityConfig: {
         cloudWatchMetricsEnabled: true,
         sampledRequestsEnabled: true,
-        metricName: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
+        metricName: `${props.stage}-${props.serviceName}-SystemLoginBlock`,
       },
     });
 

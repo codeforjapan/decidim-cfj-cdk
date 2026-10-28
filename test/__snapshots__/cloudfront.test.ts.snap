@@ -214,56 +214,6 @@ exports[`Cloudfront Stack Created 1`] = `
           },
           {
             "Action": {
-              "Allow": {},
-            },
-            "Name": "staging-decidim-AllowSystemLogin",
-            "Priority": 6,
-            "Statement": {
-              "AndStatement": {
-                "Statements": [
-                  {
-                    "ByteMatchStatement": {
-                      "FieldToMatch": {
-                        "SingleHeader": {
-                          "name": "host",
-                        },
-                      },
-                      "PositionalConstraint": "EXACTLY",
-                      "SearchString": "staging-decidim-alb-origin",
-                      "TextTransformations": [
-                        {
-                          "Priority": 0,
-                          "Type": "LOWERCASE",
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    "ByteMatchStatement": {
-                      "FieldToMatch": {
-                        "UriPath": {},
-                      },
-                      "PositionalConstraint": "CONTAINS",
-                      "SearchString": "system/admins/sign_in",
-                      "TextTransformations": [
-                        {
-                          "Priority": 0,
-                          "Type": "LOWERCASE",
-                        },
-                      ],
-                    },
-                  },
-                ],
-              },
-            },
-            "VisibilityConfig": {
-              "CloudWatchMetricsEnabled": true,
-              "MetricName": "staging-decidim-AllowSystemLogin",
-              "SampledRequestsEnabled": true,
-            },
-          },
-          {
-            "Action": {
               "Block": {
                 "CustomResponse": {
                   "CustomResponseBodyKey": "disable-action",
@@ -274,23 +224,60 @@ exports[`Cloudfront Stack Created 1`] = `
             "Name": "staging-decidim-SystemLoginBlock",
             "Priority": 8,
             "Statement": {
-              "ByteMatchStatement": {
-                "FieldToMatch": {
-                  "UriPath": {},
-                },
-                "PositionalConstraint": "CONTAINS",
-                "SearchString": "system/admins/sign_in",
-                "TextTransformations": [
+              "OrStatement": {
+                "Statements": [
                   {
-                    "Priority": 0,
-                    "Type": "LOWERCASE",
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "UriPath": {},
+                      },
+                      "PositionalConstraint": "EXACTLY",
+                      "SearchString": "/system",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "NORMALIZE_PATH",
+                        },
+                        {
+                          "Priority": 2,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "UriPath": {},
+                      },
+                      "PositionalConstraint": "STARTS_WITH",
+                      "SearchString": "/system/",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "NORMALIZE_PATH",
+                        },
+                        {
+                          "Priority": 2,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
                   },
                 ],
               },
             },
             "VisibilityConfig": {
               "CloudWatchMetricsEnabled": true,
-              "MetricName": "staging-decidim-AllowSystemLogin",
+              "MetricName": "staging-decidim-SystemLoginBlock",
               "SampledRequestsEnabled": true,
             },
           },
