@@ -2,6 +2,8 @@ import {
   aws_certificatemanager,
   aws_cloudfront as cloudfront,
   aws_cloudfront_origins,
+  aws_route53,
+  aws_route53_targets,
   aws_s3,
   aws_ssm as ssm,
   aws_wafv2,
@@ -39,6 +41,8 @@ export class CloudFrontStack extends Stack {
   constructor(scope: Construct, id: string, props: CloudFrontProps) {
     super(scope, id, props);
     const endpoint = `${props.stage}-${props.serviceName}-alb-origin.${props.domain}`;
+    // この環境の代表ホスト。/system はここでだけ許可する
+    const stageHost = `${props.stage}-${props.serviceName}.${props.domain}`;
     // アカウント一括発行など時間のかかる管理画面の処理が既定の 30 秒で切れるため延長する。
     // 60 秒を超える値はオリジンレスポンスタイムアウトのクォータ緩和申請が必要。
     const albOrigin = new aws_cloudfront_origins.HttpOrigin(endpoint, {
@@ -182,129 +186,74 @@ export class CloudFrontStack extends Stack {
           metricName: `${props.stage}-${props.serviceName}-AWSManagedRulesSQLiRuleSet`,
         },
       },
-      {
-        name: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
-        priority: 6,
-        statement: {
-          andStatement: {
-            statements: [
-              {
-                byteMatchStatement: {
-                  searchString: `${props.stage}-${props.serviceName}-alb-origin`,
-                  fieldToMatch: {
-                    singleHeader: {
-                      name: 'host',
-                    },
-                  },
-                  textTransformations: [
-                    {
-                      priority: 0,
-                      type: 'LOWERCASE',
-                    },
-                  ],
-                  positionalConstraint: 'EXACTLY',
-                },
-              },
-              {
-                byteMatchStatement: {
-                  searchString: 'system/admins/sign_in',
-                  fieldToMatch: {
-                    uriPath: {},
-                  },
-                  textTransformations: [
-                    {
-                      priority: 0,
-                      type: 'LOWERCASE',
-                    },
-                  ],
-                  positionalConstraint: 'CONTAINS',
-                },
-              },
-            ],
-          },
-        },
-        action: {
-          allow: {},
-        },
-        visibilityConfig: {
-          cloudWatchMetricsEnabled: true,
-          sampledRequestsEnabled: true,
-          metricName: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
-        },
-      },
     ];
 
-    if (isPrd(props.stage)) {
-      rules.push({
-        name: 'production-AllowSystemLogin',
-        priority: 7,
-        statement: {
-          andStatement: {
-            statements: [
-              {
-                byteMatchStatement: {
-                  searchString: 'production.diycities.jp',
-                  fieldToMatch: {
-                    singleHeader: {
-                      name: 'host',
-                    },
-                  },
-                  textTransformations: [
-                    {
-                      priority: 0,
-                      type: 'LOWERCASE',
-                    },
-                  ],
-                  positionalConstraint: 'EXACTLY',
-                },
-              },
-              {
-                byteMatchStatement: {
-                  searchString: 'system/admins/sign_in',
-                  fieldToMatch: {
-                    uriPath: {},
-                  },
-                  textTransformations: [
-                    {
-                      priority: 0,
-                      type: 'LOWERCASE',
-                    },
-                  ],
-                  positionalConstraint: 'CONTAINS',
-                },
-              },
-            ],
+    // パスは正規化してから判定する
+    const systemPathTransformations = [
+      { priority: 0, type: 'URL_DECODE' },
+      { priority: 1, type: 'NORMALIZE_PATH' },
+      { priority: 2, type: 'LOWERCASE' },
+    ];
+    const systemPathStatement = {
+      orStatement: {
+        statements: [
+          {
+            byteMatchStatement: {
+              searchString: '/system',
+              fieldToMatch: { uriPath: {} },
+              textTransformations: systemPathTransformations,
+              positionalConstraint: 'EXACTLY',
+            },
           },
+          {
+            byteMatchStatement: {
+              searchString: '/system/',
+              fieldToMatch: { uriPath: {} },
+              textTransformations: systemPathTransformations,
+              positionalConstraint: 'STARTS_WITH',
+            },
+          },
+        ],
+      },
+    };
+
+    const systemHosts = [stageHost, ...(isPrd(props.stage) ? ['production.diycities.jp'] : [])];
+    const hostStatements = systemHosts.map((host) => ({
+      byteMatchStatement: {
+        searchString: host,
+        fieldToMatch: { singleHeader: { name: 'host' } },
+        textTransformations: [{ priority: 0, type: 'LOWERCASE' }],
+        positionalConstraint: 'EXACTLY',
+      },
+    }));
+
+    rules.push({
+      name: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
+      priority: 7,
+      statement: {
+        andStatement: {
+          statements: [
+            hostStatements.length > 1
+              ? { orStatement: { statements: hostStatements } }
+              : hostStatements[0],
+            systemPathStatement,
+          ],
         },
-        action: {
-          allow: {},
-        },
-        visibilityConfig: {
-          cloudWatchMetricsEnabled: true,
-          sampledRequestsEnabled: true,
-          metricName: `production-AllowSystemLogin`,
-        },
-      });
-    }
+      },
+      action: {
+        allow: {},
+      },
+      visibilityConfig: {
+        cloudWatchMetricsEnabled: true,
+        sampledRequestsEnabled: true,
+        metricName: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
+      },
+    });
 
     rules.push({
       name: `${props.stage}-${props.serviceName}-SystemLoginBlock`,
       priority: 8,
-      statement: {
-        byteMatchStatement: {
-          searchString: 'system/admins/sign_in',
-          fieldToMatch: {
-            uriPath: {},
-          },
-          textTransformations: [
-            {
-              priority: 0,
-              type: 'LOWERCASE',
-            },
-          ],
-          positionalConstraint: 'CONTAINS',
-        },
-      },
+      statement: systemPathStatement,
       action: {
         block: {
           customResponse: {
@@ -316,7 +265,7 @@ export class CloudFrontStack extends Stack {
       visibilityConfig: {
         cloudWatchMetricsEnabled: true,
         sampledRequestsEnabled: true,
-        metricName: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
+        metricName: `${props.stage}-${props.serviceName}-SystemLoginBlock`,
       },
     });
 
@@ -362,6 +311,8 @@ export class CloudFrontStack extends Stack {
     // 避けるため、`-c claimWildcard=false` でワイルドカード(*.domain)エイリアスの付与をスキップできる。
     // 既定は true。切替後に associate-alias でワイルドカードを移動したら、フラグ無し（true）で再デプロイして整合させる。
     const claimWildcard = this.node.tryGetContext('claimWildcard') !== 'false';
+    // ワイルドカードを持つ本番では、代表ホストもワイルドカードの DNS と別名で届く
+    const wildcardAlias = isPrd(props.stage) && claimWildcard;
 
     // dev/staging は検索エンジンにインデックスさせない
     const noIndexResponseHeadersPolicy = !isPrd(props.stage)
@@ -419,8 +370,7 @@ export class CloudFrontStack extends Stack {
         },
       ],
       comment: `${props.stage}-${props.serviceName}-cloudfront`,
-      domainNames:
-        isPrd(props.stage) && claimWildcard ? [endpoint, `*.${props.domain}`] : [endpoint],
+      domainNames: [endpoint, ...(wildcardAlias ? [`*.${props.domain}`] : [stageHost])],
       certificate: aws_certificatemanager.Certificate.fromCertificateArn(
         this,
         'cloudFrontCertificate',
@@ -459,6 +409,16 @@ export class CloudFrontStack extends Stack {
     });
 
     this.cloudfrontEndpoint = distribution.distributionDomainName;
+
+    if (!wildcardAlias) {
+      new aws_route53.ARecord(this, 'StageHostRecord', {
+        zone: aws_route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domain }),
+        recordName: `${props.stage}-${props.serviceName}`,
+        target: aws_route53.RecordTarget.fromAlias(
+          new aws_route53_targets.CloudFrontTarget(distribution)
+        ),
+      });
+    }
 
     // OAC IDを出力（S3バケットポリシー設定用）
     new CfnOutput(this, 'OriginAccessControlId', {
