@@ -12,6 +12,7 @@ import { IpAddresses, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface NetworkStackProps extends BaseStackProps {
   vpc?: VpcConfig;
+  enforceOriginVerify?: boolean;
 }
 
 export class NetworkStack extends Stack {
@@ -41,11 +42,23 @@ export class NetworkStack extends Stack {
       securityGroupName: `${props.stage}ForAlb`,
     });
 
-    const fromPeer: ec2.IPeer = ec2.Peer.anyIpv4(); // Open to All
-    const ports = [80, 443];
-    ports.forEach((port) => {
-      sgForAlb.addIngressRule(fromPeer, ec2.Port.tcp(port));
-    });
+    if (props.enforceOriginVerify) {
+      // CloudFront 全体の共通リストなので、他人の CloudFront からも届く。
+      // 自分の配信かどうかは ALB のカスタムヘッダ照合で判定する。
+      const cloudfrontPrefixList = ec2.PrefixList.fromLookup(this, 'CloudFrontPrefixList', {
+        prefixListName: 'com.amazonaws.global.cloudfront.origin-facing',
+      });
+      sgForAlb.addIngressRule(
+        ec2.Peer.prefixList(cloudfrontPrefixList.prefixListId),
+        ec2.Port.tcp(443)
+      );
+    } else {
+      const fromPeer: ec2.IPeer = ec2.Peer.anyIpv4(); // Open to All
+      const ports = [80, 443];
+      ports.forEach((port) => {
+        sgForAlb.addIngressRule(fromPeer, ec2.Port.tcp(port));
+      });
+    }
     this.sgForAlb = sgForAlb;
 
     // SG for DecidimService

@@ -2,6 +2,16 @@
 
 exports[`Cloudfront Stack Created 1`] = `
 {
+  "Mappings": {
+    "AWSCloudFrontPartitionHostedZoneIdMap": {
+      "aws": {
+        "zoneId": "Z2FDTNDATAQYW2",
+      },
+      "aws-cn": {
+        "zoneId": "Z3RFFRIM2A3IF5",
+      },
+    },
+  },
   "Outputs": {
     "CloudFrontDomainName": {
       "Description": "CloudFront Distribution Domain Name",
@@ -32,6 +42,10 @@ exports[`Cloudfront Stack Created 1`] = `
     "BootstrapVersion": {
       "Default": "/cdk-bootstrap/hnb659fds/version",
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "SsmParameterValuedecidimcfjstagingORIGINVERIFYSECRETC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/ORIGIN_VERIFY_SECRET",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
   },
@@ -213,7 +227,7 @@ exports[`Cloudfront Stack Created 1`] = `
               "Allow": {},
             },
             "Name": "staging-decidim-AllowSystemLogin",
-            "Priority": 6,
+            "Priority": 7,
             "Statement": {
               "AndStatement": {
                 "Statements": [
@@ -225,7 +239,7 @@ exports[`Cloudfront Stack Created 1`] = `
                         },
                       },
                       "PositionalConstraint": "EXACTLY",
-                      "SearchString": "staging-decidim-alb-origin",
+                      "SearchString": "staging-decidim.diycities.jp",
                       "TextTransformations": [
                         {
                           "Priority": 0,
@@ -235,16 +249,53 @@ exports[`Cloudfront Stack Created 1`] = `
                     },
                   },
                   {
-                    "ByteMatchStatement": {
-                      "FieldToMatch": {
-                        "UriPath": {},
-                      },
-                      "PositionalConstraint": "CONTAINS",
-                      "SearchString": "system/admins/sign_in",
-                      "TextTransformations": [
+                    "OrStatement": {
+                      "Statements": [
                         {
-                          "Priority": 0,
-                          "Type": "LOWERCASE",
+                          "ByteMatchStatement": {
+                            "FieldToMatch": {
+                              "UriPath": {},
+                            },
+                            "PositionalConstraint": "EXACTLY",
+                            "SearchString": "/system",
+                            "TextTransformations": [
+                              {
+                                "Priority": 0,
+                                "Type": "URL_DECODE",
+                              },
+                              {
+                                "Priority": 1,
+                                "Type": "NORMALIZE_PATH",
+                              },
+                              {
+                                "Priority": 2,
+                                "Type": "LOWERCASE",
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          "ByteMatchStatement": {
+                            "FieldToMatch": {
+                              "UriPath": {},
+                            },
+                            "PositionalConstraint": "STARTS_WITH",
+                            "SearchString": "/system/",
+                            "TextTransformations": [
+                              {
+                                "Priority": 0,
+                                "Type": "URL_DECODE",
+                              },
+                              {
+                                "Priority": 1,
+                                "Type": "NORMALIZE_PATH",
+                              },
+                              {
+                                "Priority": 2,
+                                "Type": "LOWERCASE",
+                              },
+                            ],
+                          },
                         },
                       ],
                     },
@@ -270,23 +321,60 @@ exports[`Cloudfront Stack Created 1`] = `
             "Name": "staging-decidim-SystemLoginBlock",
             "Priority": 8,
             "Statement": {
-              "ByteMatchStatement": {
-                "FieldToMatch": {
-                  "UriPath": {},
-                },
-                "PositionalConstraint": "CONTAINS",
-                "SearchString": "system/admins/sign_in",
-                "TextTransformations": [
+              "OrStatement": {
+                "Statements": [
                   {
-                    "Priority": 0,
-                    "Type": "LOWERCASE",
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "UriPath": {},
+                      },
+                      "PositionalConstraint": "EXACTLY",
+                      "SearchString": "/system",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "NORMALIZE_PATH",
+                        },
+                        {
+                          "Priority": 2,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "UriPath": {},
+                      },
+                      "PositionalConstraint": "STARTS_WITH",
+                      "SearchString": "/system/",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "NORMALIZE_PATH",
+                        },
+                        {
+                          "Priority": 2,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
                   },
                 ],
               },
             },
             "VisibilityConfig": {
               "CloudWatchMetricsEnabled": true,
-              "MetricName": "staging-decidim-AllowSystemLogin",
+              "MetricName": "staging-decidim-SystemLoginBlock",
               "SampledRequestsEnabled": true,
             },
           },
@@ -361,6 +449,7 @@ exports[`Cloudfront Stack Created 1`] = `
         "DistributionConfig": {
           "Aliases": [
             "staging-decidim-alb-origin.diycities.jp",
+            "staging-decidim.diycities.jp",
           ],
           "CacheBehaviors": [
             {
@@ -449,6 +538,14 @@ exports[`Cloudfront Stack Created 1`] = `
               },
               "DomainName": "staging-decidim-alb-origin.diycities.jp",
               "Id": "stagingdecidimCloudFrontStackDistributionOrigin1E886134A",
+              "OriginCustomHeaders": [
+                {
+                  "HeaderName": "X-Origin-Verify",
+                  "HeaderValue": {
+                    "Ref": "SsmParameterValuedecidimcfjstagingORIGINVERIFYSECRETC96584B6F00A464EAD1953AFF4B05118Parameter",
+                  },
+                },
+              ],
             },
             {
               "DomainName": "staging-decidim-bucket.s3.ap-northeast-1.amazonaws.com",
@@ -496,6 +593,31 @@ exports[`Cloudfront Stack Created 1`] = `
         },
       },
       "Type": "AWS::CloudFront::ResponseHeadersPolicy",
+    },
+    "StageHostRecord74B913AC": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "Distribution830FAC52",
+              "DomainName",
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::FindInMap": [
+              "AWSCloudFrontPartitionHostedZoneIdMap",
+              {
+                "Ref": "AWS::Partition",
+              },
+              "zoneId",
+            ],
+          },
+        },
+        "HostedZoneId": "DUMMY",
+        "Name": "staging-decidim.diycities.jp.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
     },
     "StripS3PrefixFnC8BFE398": {
       "Properties": {

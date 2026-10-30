@@ -25,7 +25,7 @@ import {
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { DockerImageName, ECRDeployment } from 'cdk-ecr-deployment';
-import { EcsConfig, isPrd } from './config';
+import { EcsConfig, isPrd, ORIGIN_VERIFY_HEADER, originVerifyParameterName } from './config';
 import * as path from 'path';
 import { EcsTask } from 'aws-cdk-lib/aws-events-targets';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
@@ -62,6 +62,7 @@ export interface DecidimStackProps extends BaseStackProps {
   rds: string;
   cache: string;
   bucketName: string;
+  enforceOriginVerify?: boolean;
 }
 
 export class DecidimStack extends cdk.Stack {
@@ -180,7 +181,7 @@ export class DecidimStack extends cdk.Stack {
         ? `mailpit.${props.stage}-decidim.local`
         : props.ecs.smtpDomain,
       SMTP_PORT: ['dev', 'staging'].includes(props.stage) ? '1025' : '587',
-      SMTP_STARTTLS_AUTO: ['dev', 'staging'].includes(props.stage) ? 'false' : 'true',
+      SMTP_STARTTLS: ['dev', 'staging'].includes(props.stage) ? 'false' : 'true',
       AWS_BUCKET_NAME: `${props.bucketName}-bucket`,
       SLACK_API_TOKEN: ssm.StringParameter.valueForTypedStringParameterV2(
         this,
@@ -430,10 +431,23 @@ export class DecidimStack extends cdk.Stack {
       vpc: props.vpc,
     });
 
+    // CloudFront を通らない直接アクセスを拒否する。ヘッダ条件付きのルールだけが転送する。
+    const originVerifyCondition = elbv2.ListenerCondition.httpHeader(ORIGIN_VERIFY_HEADER, [
+      ssm.StringParameter.valueForStringParameter(this, originVerifyParameterName(props.stage)),
+    ]);
+    const defaultAction = props.enforceOriginVerify
+      ? elbv2.ListenerAction.fixedResponse(403, {
+          contentType: 'text/plain',
+          messageBody: 'Forbidden',
+        })
+      : elbv2.ListenerAction.forward([targetGroup]);
+
     loadBalancer.addListener('httpListener', {
       protocol: elbv2.ApplicationProtocol.HTTP,
       port: 80,
-      defaultTargetGroups: [targetGroup],
+      defaultAction,
+      // 受信元は NetworkStack のセキュリティグループで管理する。既定の true だと 0.0.0.0/0 が追加される。
+      open: false,
     });
 
     const certificates: ListenerCertificate[] = [];
@@ -447,9 +461,16 @@ export class DecidimStack extends cdk.Stack {
     const httpsListener = loadBalancer.addListener('httpsListener', {
       protocol: elbv2.ApplicationProtocol.HTTPS,
       port: 443,
-      defaultTargetGroups: [targetGroup],
+      defaultAction,
       certificates: certificates,
       sslPolicy: elbv2.SslPolicy.RECOMMENDED_TLS,
+      open: false,
+    });
+
+    httpsListener.addTargetGroups('OriginVerifiedRule', {
+      targetGroups: [targetGroup],
+      conditions: [originVerifyCondition],
+      priority: 100,
     });
 
     loadBalancer.logAccessLogs(logBucket);
@@ -541,7 +562,7 @@ export class DecidimStack extends cdk.Stack {
 
       httpsListener.addTargetGroups('MailpitListenerRule', {
         targetGroups: [mailpitTg],
-        conditions: [elbv2.ListenerCondition.pathPatterns(['/mailpit*'])],
+        conditions: [elbv2.ListenerCondition.pathPatterns(['/mailpit*']), originVerifyCondition],
         priority: 10,
       });
     }

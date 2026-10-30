@@ -16,6 +16,10 @@ exports[`DecidimStack Created 1`] = `
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
+    "SsmParameterValuedecidimcfjstagingORIGINVERIFYSECRETC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/ORIGIN_VERIFY_SECRET",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
     "SsmParameterValuedecidimcfjstagingRDSDBNAMEC96584B6F00A464EAD1953AFF4B05118Parameter": {
       "Default": "/decidim-cfj/staging/RDS_DB_NAME",
       "Type": "AWS::SSM::Parameter::Value<String>",
@@ -167,11 +171,52 @@ exports[`DecidimStack Created 1`] = `
               ],
             },
           },
+          {
+            "Field": "http-header",
+            "HttpHeaderConfig": {
+              "HttpHeaderName": "X-Origin-Verify",
+              "Values": [
+                {
+                  "Ref": "SsmParameterValuedecidimcfjstagingORIGINVERIFYSECRETC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              ],
+            },
+          },
         ],
         "ListenerArn": {
           "Ref": "AlbhttpsListenerB49E5778",
         },
         "Priority": 10,
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+    },
+    "AlbhttpsListenerOriginVerifiedRuleRuleC2D458C9": {
+      "Properties": {
+        "Actions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "TargetGroup3D7CD9B8",
+            },
+            "Type": "forward",
+          },
+        ],
+        "Conditions": [
+          {
+            "Field": "http-header",
+            "HttpHeaderConfig": {
+              "HttpHeaderName": "X-Origin-Verify",
+              "Values": [
+                {
+                  "Ref": "SsmParameterValuedecidimcfjstagingORIGINVERIFYSECRETC96584B6F00A464EAD1953AFF4B05118Parameter",
+                },
+              ],
+            },
+          },
+        ],
+        "ListenerArn": {
+          "Ref": "AlbhttpsListenerB49E5778",
+        },
+        "Priority": 100,
       },
       "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
     },
@@ -675,6 +720,7 @@ exports[`DecidimStack Created 1`] = `
         "AlbhttpListener75E510B4",
         "AlbhttpsListenerDefaultCertificates1CE6DF251",
         "AlbhttpsListenerMailpitListenerRuleRuleDBD26559",
+        "AlbhttpsListenerOriginVerifiedRuleRuleC2D458C9",
         "AlbhttpsListenerB49E5778",
         "BackendTaskRoleDefaultPolicyD82ED08E",
         "BackendTaskRole65DD5890",
@@ -1698,7 +1744,7 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "1025",
               },
               {
-                "Name": "SMTP_STARTTLS_AUTO",
+                "Name": "SMTP_STARTTLS",
                 "Value": "false",
               },
               {
@@ -1948,7 +1994,7 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "1025",
               },
               {
-                "Name": "SMTP_STARTTLS_AUTO",
+                "Name": "SMTP_STARTTLS",
                 "Value": "false",
               },
               {
@@ -2449,7 +2495,7 @@ exports[`DecidimStack Created 1`] = `
                 "Value": "1025",
               },
               {
-                "Name": "SMTP_STARTTLS_AUTO",
+                "Name": "SMTP_STARTTLS",
                 "Value": "false",
               },
               {
