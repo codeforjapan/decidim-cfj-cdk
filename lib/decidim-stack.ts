@@ -519,6 +519,15 @@ export class DecidimStack extends cdk.Stack {
           MP_SMTP_AUTH_ACCEPT_ANY: '1',
           MP_SMTP_AUTH_ALLOW_INSECURE: '1',
         },
+        // 受信箱には本番由来の個人情報やパスワード再設定リンクが入るため、画面と API に
+        // Basic 認証をかける。値は「ユーザー名:パスワード」。
+        secrets: {
+          MP_UI_AUTH: ecs.Secret.fromSsmParameter(
+            ssm.StringParameter.fromSecureStringParameterAttributes(this, 'MailpitUiAuth', {
+              parameterName: `/decidim-cfj/${props.stage}/MAILPIT_UI_AUTH`,
+            })
+          ),
+        },
         logging: ecs.LogDriver.awsLogs({
           logGroup: new logs.LogGroup(this, 'MailpitLogGroup', {
             logGroupName: `${props.stage}-mailpit-logs`,
@@ -556,7 +565,8 @@ export class DecidimStack extends cdk.Stack {
         targetGroupName: `${props.stage}-mailpit-tg`,
         vpc: props.vpc,
         healthCheck: {
-          path: '/mailpit/',
+          // livez は Basic 認証の対象外
+          path: '/mailpit/livez',
           port: '8025',
         },
       });

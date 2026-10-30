@@ -1398,7 +1398,7 @@ exports[`DecidimStack Created 1`] = `
     },
     "MailpitTargetGroupFAB41B5D": {
       "Properties": {
-        "HealthCheckPath": "/mailpit/",
+        "HealthCheckPath": "/mailpit/livez",
         "HealthCheckPort": "8025",
         "Name": "staging-mailpit-tg",
         "Port": 8025,
@@ -1457,6 +1457,23 @@ exports[`DecidimStack Created 1`] = `
                 "Protocol": "tcp",
               },
             ],
+            "Secrets": [
+              {
+                "Name": "MP_UI_AUTH",
+                "ValueFrom": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":ssm:ap-northeast-1:887442827229:parameter/decidim-cfj/staging/MAILPIT_UI_AUTH",
+                    ],
+                  ],
+                },
+              },
+            ],
           },
         ],
         "Cpu": "256",
@@ -1512,6 +1529,27 @@ exports[`DecidimStack Created 1`] = `
                 "Fn::GetAtt": [
                   "MailpitLogGroupA2B6F46C",
                   "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:DescribeParameters",
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+                "ssm:GetParameterHistory",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ssm:ap-northeast-1:887442827229:parameter/decidim-cfj/staging/MAILPIT_UI_AUTH",
+                  ],
                 ],
               },
             },
