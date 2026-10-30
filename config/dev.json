@@ -15,7 +15,7 @@
     "region": "ap-northeast-1"
   },
 
-  "s3Bucket": "dev-v300-decidim",
+  "s3Bucket": "dev-v320-decidim",
 
   "cacheNodeType": "cache.t3.micro",
   "engineVersion": "6.x",
