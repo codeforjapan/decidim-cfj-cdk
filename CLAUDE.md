@@ -163,6 +163,7 @@ EventBridgeルールがメインタスク定義を使用してrakeタスクを�
 - `/decidim-cfj/${stage}/SMTP_USERNAME`
 - `/decidim-cfj/${stage}/SMTP_PASSWORD`
 - `/decidim-cfj/${stage}/SLACK_API_TOKEN`
+- `/decidim-cfj/${stage}/MAILPIT_UI_AUTH`（dev・staging のみ。SecureString で「ユーザー名:パスワード」）
 - `/decidim-cfj/${stage}/NEW_RELIC_LICENSE_KEY`（本番のみ: prd-v030）
 
 #### キャパシティプロバイダー

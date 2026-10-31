@@ -121,3 +121,32 @@ test('enforceOriginVerify で CloudFront 以外からのアクセスを拒否す
     Conditions: [Match.objectLike({ Field: 'http-header' })],
   });
 });
+
+test('Mailpit の画面と API に Basic 認証をかける', () => {
+  const { service } = buildDecidimStack(false);
+
+  service.hasResourceProperties('AWS::ECS::TaskDefinition', {
+    Family: 'stagingMailpitTaskDefinition',
+    ContainerDefinitions: [
+      Match.objectLike({
+        Secrets: [
+          {
+            Name: 'MP_UI_AUTH',
+            ValueFrom: {
+              'Fn::Join': [
+                '',
+                Match.arrayWith([
+                  Match.stringLikeRegexp('parameter/decidim-cfj/staging/MAILPIT_UI_AUTH$'),
+                ]),
+              ],
+            },
+          },
+        ],
+      }),
+    ],
+  });
+  service.hasResourceProperties('AWS::ElasticLoadBalancingV2::TargetGroup', {
+    Name: 'staging-mailpit-tg',
+    HealthCheckPath: '/mailpit/livez',
+  });
+});
