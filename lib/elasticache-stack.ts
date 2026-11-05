@@ -14,6 +14,7 @@ import { isPrd } from './config';
 
 export interface ElastiCacheStackProps extends BaseStackProps {
   cacheNodeType: string;
+  cacheEngine: 'redis' | 'valkey';
   engineVersion: string;
   numCacheNodes: number;
   automaticFailoverEnabled: boolean;
@@ -27,8 +28,15 @@ export class ElasticacheStack extends Stack {
   constructor(scope: Construct, id: string, props: ElastiCacheStackProps) {
     super(scope, id, props);
 
+    // 系列はエンジン名とメジャー版で決まる（redis 6.x は redis6.x、valkey 8.2 は valkey8）。
+    // 系列が変わるとパラメータグループは作り直しになるが、レプリケーショングループは更新で済む。
+    const parameterGroupFamily =
+      props.cacheEngine === 'redis'
+        ? `redis${props.engineVersion}`
+        : `valkey${props.engineVersion.split('.')[0]}`;
+
     const parameterGroup = new elasticache.CfnParameterGroup(this, 'RedisParameterGroup', {
-      cacheParameterGroupFamily: 'redis6.x',
+      cacheParameterGroupFamily: parameterGroupFamily,
       description: `${props.stage}-${props.serviceName} Redis parameter group`,
       properties: {
         'maxmemory-policy': 'volatile-lru',
@@ -41,7 +49,7 @@ export class ElasticacheStack extends Stack {
 
     const elastiCacheProps: CfnReplicationGroupProps = {
       replicationGroupDescription: replicationGroupId,
-      engine: 'redis',
+      engine: props.cacheEngine,
       replicationGroupId,
       engineVersion: props.engineVersion,
       cacheNodeType: props.cacheNodeType,
