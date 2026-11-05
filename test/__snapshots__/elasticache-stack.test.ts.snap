@@ -12,7 +12,7 @@ exports[`Elasticache Stack Created 1`] = `
   "Resources": {
     "RedisParameterGroup": {
       "Properties": {
-        "CacheParameterGroupFamily": "redis6.x",
+        "CacheParameterGroupFamily": "valkey8",
         "Description": "staging-decidim Redis parameter group",
         "Properties": {
           "maxmemory-policy": "volatile-lru",
@@ -28,8 +28,8 @@ exports[`Elasticache Stack Created 1`] = `
           "Ref": "RedisParameterGroup",
         },
         "CacheSubnetGroupName": "staging-decidim-SubnetGroup",
-        "Engine": "redis",
-        "EngineVersion": "6.x",
+        "Engine": "valkey",
+        "EngineVersion": "8.2",
         "NumCacheClusters": 1,
         "ReplicationGroupDescription": "staging-decidim-cache",
         "ReplicationGroupId": "staging-decidim-cache",

@@ -62,6 +62,7 @@ const elastiCache = new ElasticacheStack(app, `${stage}${serviceName}ElastiCache
   stage: stage,
   env,
   serviceName,
+  cacheEngine: config.cacheEngine,
   engineVersion: config.engineVersion,
   cacheNodeType: config.cacheNodeType,
   numCacheNodes: config.numCacheNodes,

@@ -94,6 +94,8 @@ export interface Config {
 
   // elastiCache
   cacheNodeType: string;
+  // engineVersion はエンジンごとの版（redis は "6.x"、valkey は "8.2" など）
+  cacheEngine: 'redis' | 'valkey';
   engineVersion: string;
   numCacheNodes: number;
   automaticFailoverEnabled: boolean;

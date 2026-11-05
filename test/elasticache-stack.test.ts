@@ -28,6 +28,7 @@ function buildStack(stage: string) {
     stage,
     env,
     serviceName,
+    cacheEngine: config.cacheEngine,
     engineVersion: config.engineVersion,
     cacheNodeType: config.cacheNodeType,
     numCacheNodes: config.numCacheNodes,
@@ -105,6 +106,22 @@ test('Elasticache Stack Created', () => {
 
   // Assert the template matches the snapshot.
   expect(template.toJSON()).toMatchSnapshot();
+});
+
+test.each([
+  ['dev', 'valkey', '8.2', 'valkey8'],
+  ['staging', 'valkey', '8.2', 'valkey8'],
+  ['prd-v030', 'redis', '6.x', 'redis6.x'],
+])('%s uses %s %s with the %s parameter group family', (stage, engine, version, family) => {
+  const { template } = buildStack(stage);
+
+  template.hasResourceProperties('AWS::ElastiCache::ReplicationGroup', {
+    Engine: engine,
+    EngineVersion: version,
+  });
+  template.hasResourceProperties('AWS::ElastiCache::ParameterGroup', {
+    CacheParameterGroupFamily: family,
+  });
 });
 
 test('ElasticacheStack creates alarms for every node on production', () => {

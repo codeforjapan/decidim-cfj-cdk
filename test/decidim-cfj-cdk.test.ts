@@ -52,6 +52,7 @@ function buildDecidimStack(enforceOriginVerify: boolean) {
     stage,
     env,
     serviceName,
+    cacheEngine: config.cacheEngine,
     engineVersion: config.engineVersion,
     cacheNodeType: config.cacheNodeType,
     numCacheNodes: config.numCacheNodes,
