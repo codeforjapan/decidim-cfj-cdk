@@ -113,7 +113,6 @@ export interface Config {
 
   // true にすると、/system を許可 IP からだけ通す。許可 IP はコードに置かず
   // us-east-1 の SSM（StringList、CIDR 表記）に置き、先に作っておく。
-  // /system を受けるホストは AAAA レコードがなく IPv4 でしか届かないため IPv4 のみ。
   restrictSystemByIp: boolean;
 }
 
