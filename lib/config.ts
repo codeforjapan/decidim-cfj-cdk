@@ -120,6 +120,11 @@ export function originVerifyParameterName(stage: string): string {
   return `/decidim-cfj/${stage}/ORIGIN_VERIFY_SECRET`;
 }
 
+// /system を通す IP。コードに置かず us-east-1 の SSM（StringList、CIDR 表記）に置き、先に作っておく。
+export function systemAllowedIpParameterName(stage: string): string {
+  return `/decidim-cfj/${stage}/SYSTEM_ALLOWED_IPV4`;
+}
+
 export function getConfig(stage: string): Config {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(`../config/${stage}.json`) as Config;

@@ -26,7 +26,12 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources';
-import { isPrd, ORIGIN_VERIFY_HEADER, originVerifyParameterName } from './config';
+import {
+  isPrd,
+  ORIGIN_VERIFY_HEADER,
+  originVerifyParameterName,
+  systemAllowedIpParameterName,
+} from './config';
 
 export interface CloudFrontProps extends BaseStackProps {
   certificateArn: string;
@@ -221,11 +226,21 @@ export class CloudFrontStack extends Stack {
     const hostStatements = systemHosts.map((host) => ({
       byteMatchStatement: {
         searchString: host,
-        fieldToMatch: { singleHeader: { name: 'host' } },
+        fieldToMatch: { singleHeader: { Name: 'host' } },
         textTransformations: [{ priority: 0, type: 'LOWERCASE' }],
         positionalConstraint: 'EXACTLY',
       },
     }));
+
+    const allowedIpSet = new aws_wafv2.CfnIPSet(this, 'SystemAllowedIpSet', {
+      name: `${props.stage}-${props.serviceName}-SystemAllowedIpSet`,
+      scope: 'CLOUDFRONT',
+      ipAddressVersion: 'IPV4',
+      addresses: ssm.StringListParameter.valueForTypedListParameter(
+        this,
+        systemAllowedIpParameterName(props.stage)
+      ),
+    });
 
     rules.push({
       name: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
@@ -237,6 +252,7 @@ export class CloudFrontStack extends Stack {
               ? { orStatement: { statements: hostStatements } }
               : hostStatements[0],
             systemPathStatement,
+            { ipSetReferenceStatement: { arn: allowedIpSet.attrArn } },
           ],
         },
       },

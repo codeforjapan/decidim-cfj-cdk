@@ -57,7 +57,11 @@ test('/system は正規化したパスで判定し、各環境の代表ホスト
         Priority: 7,
         Statement: {
           AndStatement: {
-            Statements: [hostIs('staging-decidim.diycities.jp'), normalizedSystemPath],
+            Statements: [
+              hostIs('staging-decidim.diycities.jp'),
+              normalizedSystemPath,
+              { IPSetReferenceStatement: { Arn: Match.anyValue() } },
+            ],
           },
         },
         Action: { Allow: {} },
@@ -90,6 +94,7 @@ test('/system は正規化したパスで判定し、各環境の代表ホスト
                 },
               },
               normalizedSystemPath,
+              { IPSetReferenceStatement: { Arn: Match.anyValue() } },
             ],
           },
         },
@@ -101,6 +106,20 @@ test('/system は正規化したパスで判定し、各環境の代表ホスト
         Statement: normalizedSystemPath,
       }),
     ]),
+  });
+});
+
+test.each(['dev', 'staging', 'prd-v030'])('%s は /system の許可 IP を SSM から読む', (stage) => {
+  const template = buildCloudFrontStack(stage);
+  template.resourceCountIs('AWS::WAFv2::IPSet', 1);
+  template.hasResourceProperties('AWS::WAFv2::IPSet', {
+    Scope: 'CLOUDFRONT',
+    IPAddressVersion: 'IPV4',
+    Addresses: { Ref: Match.stringLikeRegexp('SsmParameterValue') },
+  });
+  template.hasParameter('*', {
+    Type: 'AWS::SSM::Parameter::Value<List<String>>',
+    Default: `/decidim-cfj/${stage}/SYSTEM_ALLOWED_IPV4`,
   });
 });
 

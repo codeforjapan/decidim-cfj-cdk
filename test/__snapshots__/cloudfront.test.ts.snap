@@ -48,6 +48,10 @@ exports[`Cloudfront Stack Created 1`] = `
       "Default": "/decidim-cfj/staging/ORIGIN_VERIFY_SECRET",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
+    "SsmParameterValuedecidimcfjstagingSYSTEMALLOWEDIPV4C96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/decidim-cfj/staging/SYSTEM_ALLOWED_IPV4",
+      "Type": "AWS::SSM::Parameter::Value<List<String>>",
+    },
   },
   "Resources": {
     "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
@@ -235,7 +239,7 @@ exports[`Cloudfront Stack Created 1`] = `
                     "ByteMatchStatement": {
                       "FieldToMatch": {
                         "SingleHeader": {
-                          "name": "host",
+                          "Name": "host",
                         },
                       },
                       "PositionalConstraint": "EXACTLY",
@@ -298,6 +302,16 @@ exports[`Cloudfront Stack Created 1`] = `
                           },
                         },
                       ],
+                    },
+                  },
+                  {
+                    "IPSetReferenceStatement": {
+                      "Arn": {
+                        "Fn::GetAtt": [
+                          "SystemAllowedIpSet",
+                          "Arn",
+                        ],
+                      },
                     },
                   },
                 ],
@@ -642,6 +656,17 @@ exports[`Cloudfront Stack Created 1`] = `
         "Name": "us-east-1stagingdecidimClkStripS3PrefixFn01DDC41F",
       },
       "Type": "AWS::CloudFront::Function",
+    },
+    "SystemAllowedIpSet": {
+      "Properties": {
+        "Addresses": {
+          "Ref": "SsmParameterValuedecidimcfjstagingSYSTEMALLOWEDIPV4C96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+        "IPAddressVersion": "IPV4",
+        "Name": "staging-decidim-SystemAllowedIpSet",
+        "Scope": "CLOUDFRONT",
+      },
+      "Type": "AWS::WAFv2::IPSet",
     },
     "WriteCfArnToSsmApne11F8D7C89": {
       "DeletionPolicy": "Delete",
