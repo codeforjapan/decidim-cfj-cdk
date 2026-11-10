@@ -226,7 +226,7 @@ export class CloudFrontStack extends Stack {
     const hostStatements = systemHosts.map((host) => ({
       byteMatchStatement: {
         searchString: host,
-        fieldToMatch: { singleHeader: { name: 'host' } },
+        fieldToMatch: { singleHeader: { Name: 'host' } },
         textTransformations: [{ priority: 0, type: 'LOWERCASE' }],
         positionalConstraint: 'EXACTLY',
       },

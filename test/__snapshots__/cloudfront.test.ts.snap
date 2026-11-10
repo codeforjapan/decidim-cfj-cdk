@@ -239,7 +239,7 @@ exports[`Cloudfront Stack Created 1`] = `
                     "ByteMatchStatement": {
                       "FieldToMatch": {
                         "SingleHeader": {
-                          "name": "host",
+                          "Name": "host",
                         },
                       },
                       "PositionalConstraint": "EXACTLY",
