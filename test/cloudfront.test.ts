@@ -123,6 +123,43 @@ test.each(['dev', 'staging', 'prd-v030'])('%s は /system の許可 IP を SSM �
   });
 });
 
+test('Mailpit は dev・staging で許可 IP 以外を拒否する', () => {
+  const staging = buildCloudFrontStack('staging');
+  staging.hasResourceProperties('AWS::WAFv2::WebACL', {
+    Rules: Match.arrayWith([
+      Match.objectLike({
+        Name: 'staging-decidim-MailpitBlock',
+        Priority: 9,
+        Statement: {
+          AndStatement: {
+            Statements: [
+              Match.objectLike({
+                ByteMatchStatement: Match.objectLike({
+                  SearchString: '/mailpit',
+                  PositionalConstraint: 'STARTS_WITH',
+                }),
+              }),
+              {
+                NotStatement: {
+                  Statement: { IPSetReferenceStatement: { Arn: Match.anyValue() } },
+                },
+              },
+            ],
+          },
+        },
+        Action: { Block: Match.anyValue() },
+      }),
+    ]),
+  });
+
+  const prd = buildCloudFrontStack('prd-v030');
+  prd.hasResourceProperties('AWS::WAFv2::WebACL', {
+    Rules: Match.not(
+      Match.arrayWith([Match.objectLike({ Name: 'prd-v030-decidim-MailpitBlock' })])
+    ),
+  });
+});
+
 test('本番以外は代表ホストを CloudFront の別名と DNS に加える', () => {
   const staging = buildCloudFrontStack('staging');
   staging.hasResourceProperties('AWS::CloudFront::Distribution', {
