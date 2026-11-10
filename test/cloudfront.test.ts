@@ -16,7 +16,6 @@ function buildCloudFrontStack(stage: string) {
     domain: config.domain,
     certificateArn: config.cloudfrontCertificate,
     s3BucketName: `${config.s3Bucket}-bucket`,
-    restrictSystemByIp: config.restrictSystemByIp,
   });
 
   return Template.fromStack(cloudfront);
@@ -95,6 +94,7 @@ test('/system は正規化したパスで判定し、各環境の代表ホスト
                 },
               },
               normalizedSystemPath,
+              { IPSetReferenceStatement: { Arn: Match.anyValue() } },
             ],
           },
         },
@@ -109,20 +109,18 @@ test('/system は正規化したパスで判定し、各環境の代表ホスト
   });
 });
 
-test('restrictSystemByIp の環境は許可 IP を SSM から読む', () => {
-  const staging = buildCloudFrontStack('staging');
-  staging.resourceCountIs('AWS::WAFv2::IPSet', 1);
-  staging.hasResourceProperties('AWS::WAFv2::IPSet', {
+test.each(['dev', 'staging', 'prd-v030'])('%s は /system の許可 IP を SSM から読む', (stage) => {
+  const template = buildCloudFrontStack(stage);
+  template.resourceCountIs('AWS::WAFv2::IPSet', 1);
+  template.hasResourceProperties('AWS::WAFv2::IPSet', {
     Scope: 'CLOUDFRONT',
     IPAddressVersion: 'IPV4',
     Addresses: { Ref: Match.stringLikeRegexp('SsmParameterValue') },
   });
-  staging.hasParameter('*', {
+  template.hasParameter('*', {
     Type: 'AWS::SSM::Parameter::Value<List<String>>',
-    Default: '/decidim-cfj/staging/SYSTEM_ALLOWED_IPV4',
+    Default: `/decidim-cfj/${stage}/SYSTEM_ALLOWED_IPV4`,
   });
-
-  buildCloudFrontStack('prd-v030').resourceCountIs('AWS::WAFv2::IPSet', 0);
 });
 
 test('本番以外は代表ホストを CloudFront の別名と DNS に加える', () => {

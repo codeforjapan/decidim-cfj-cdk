@@ -37,7 +37,6 @@ export interface CloudFrontProps extends BaseStackProps {
   certificateArn: string;
   domain: string;
   s3BucketName: string;
-  restrictSystemByIp?: boolean;
 }
 
 export class CloudFrontStack extends Stack {
@@ -233,17 +232,15 @@ export class CloudFrontStack extends Stack {
       },
     }));
 
-    const allowedIpSet = props.restrictSystemByIp
-      ? new aws_wafv2.CfnIPSet(this, 'SystemAllowedIpSet', {
-          name: `${props.stage}-${props.serviceName}-SystemAllowedIpSet`,
-          scope: 'CLOUDFRONT',
-          ipAddressVersion: 'IPV4',
-          addresses: ssm.StringListParameter.valueForTypedListParameter(
-            this,
-            systemAllowedIpParameterName(props.stage)
-          ),
-        })
-      : undefined;
+    const allowedIpSet = new aws_wafv2.CfnIPSet(this, 'SystemAllowedIpSet', {
+      name: `${props.stage}-${props.serviceName}-SystemAllowedIpSet`,
+      scope: 'CLOUDFRONT',
+      ipAddressVersion: 'IPV4',
+      addresses: ssm.StringListParameter.valueForTypedListParameter(
+        this,
+        systemAllowedIpParameterName(props.stage)
+      ),
+    });
 
     rules.push({
       name: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
@@ -255,7 +252,7 @@ export class CloudFrontStack extends Stack {
               ? { orStatement: { statements: hostStatements } }
               : hostStatements[0],
             systemPathStatement,
-            ...(allowedIpSet ? [{ ipSetReferenceStatement: { arn: allowedIpSet.attrArn } }] : []),
+            { ipSetReferenceStatement: { arn: allowedIpSet.attrArn } },
           ],
         },
       },
