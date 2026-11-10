@@ -392,6 +392,66 @@ exports[`Cloudfront Stack Created 1`] = `
               "SampledRequestsEnabled": true,
             },
           },
+          {
+            "Action": {
+              "Block": {
+                "CustomResponse": {
+                  "CustomResponseBodyKey": "disable-action",
+                  "ResponseCode": 403,
+                },
+              },
+            },
+            "Name": "staging-decidim-MailpitBlock",
+            "Priority": 9,
+            "Statement": {
+              "AndStatement": {
+                "Statements": [
+                  {
+                    "ByteMatchStatement": {
+                      "FieldToMatch": {
+                        "UriPath": {},
+                      },
+                      "PositionalConstraint": "STARTS_WITH",
+                      "SearchString": "/mailpit",
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "NORMALIZE_PATH",
+                        },
+                        {
+                          "Priority": 2,
+                          "Type": "LOWERCASE",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "NotStatement": {
+                      "Statement": {
+                        "IPSetReferenceStatement": {
+                          "Arn": {
+                            "Fn::GetAtt": [
+                              "SystemAllowedIpSet",
+                              "Arn",
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "staging-decidim-MailpitBlock",
+              "SampledRequestsEnabled": true,
+            },
+          },
         ],
         "Scope": "CLOUDFRONT",
         "VisibilityConfig": {

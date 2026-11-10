@@ -194,7 +194,7 @@ export class CloudFrontStack extends Stack {
     ];
 
     // パスは正規化してから判定する
-    const systemPathTransformations = [
+    const pathTransformations = [
       { priority: 0, type: 'URL_DECODE' },
       { priority: 1, type: 'NORMALIZE_PATH' },
       { priority: 2, type: 'LOWERCASE' },
@@ -206,7 +206,7 @@ export class CloudFrontStack extends Stack {
             byteMatchStatement: {
               searchString: '/system',
               fieldToMatch: { uriPath: {} },
-              textTransformations: systemPathTransformations,
+              textTransformations: pathTransformations,
               positionalConstraint: 'EXACTLY',
             },
           },
@@ -214,7 +214,7 @@ export class CloudFrontStack extends Stack {
             byteMatchStatement: {
               searchString: '/system/',
               fieldToMatch: { uriPath: {} },
-              textTransformations: systemPathTransformations,
+              textTransformations: pathTransformations,
               positionalConstraint: 'STARTS_WITH',
             },
           },
@@ -284,6 +284,46 @@ export class CloudFrontStack extends Stack {
         metricName: `${props.stage}-${props.serviceName}-SystemLoginBlock`,
       },
     });
+
+    // Mailpit（dev・staging のみ）の受信箱も許可 IP からだけ通す
+    if (!isPrd(props.stage)) {
+      rules.push({
+        name: `${props.stage}-${props.serviceName}-MailpitBlock`,
+        priority: 9,
+        statement: {
+          andStatement: {
+            statements: [
+              {
+                byteMatchStatement: {
+                  searchString: '/mailpit',
+                  fieldToMatch: { uriPath: {} },
+                  textTransformations: pathTransformations,
+                  positionalConstraint: 'STARTS_WITH',
+                },
+              },
+              {
+                notStatement: {
+                  statement: { ipSetReferenceStatement: { arn: allowedIpSet.attrArn } },
+                },
+              },
+            ],
+          },
+        },
+        action: {
+          block: {
+            customResponse: {
+              responseCode: 403,
+              customResponseBodyKey: 'disable-action',
+            },
+          },
+        },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${props.stage}-${props.serviceName}-MailpitBlock`,
+        },
+      });
+    }
 
     const waf: aws_wafv2.CfnWebACL = new aws_wafv2.CfnWebACL(this, 'CfnWebACL', {
       name: `${props.stage}-${props.serviceName}-webAcl`,
