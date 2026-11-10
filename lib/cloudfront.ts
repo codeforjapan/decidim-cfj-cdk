@@ -26,12 +26,18 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources';
-import { isPrd, ORIGIN_VERIFY_HEADER, originVerifyParameterName } from './config';
+import {
+  isPrd,
+  ORIGIN_VERIFY_HEADER,
+  originVerifyParameterName,
+  systemAllowedIpParameterName,
+} from './config';
 
 export interface CloudFrontProps extends BaseStackProps {
   certificateArn: string;
   domain: string;
   s3BucketName: string;
+  restrictSystemByIp?: boolean;
 }
 
 export class CloudFrontStack extends Stack {
@@ -227,6 +233,18 @@ export class CloudFrontStack extends Stack {
       },
     }));
 
+    const allowedIpSet = props.restrictSystemByIp
+      ? new aws_wafv2.CfnIPSet(this, 'SystemAllowedIpSet', {
+          name: `${props.stage}-${props.serviceName}-SystemAllowedIpSet`,
+          scope: 'CLOUDFRONT',
+          ipAddressVersion: 'IPV4',
+          addresses: ssm.StringListParameter.valueForTypedListParameter(
+            this,
+            systemAllowedIpParameterName(props.stage)
+          ),
+        })
+      : undefined;
+
     rules.push({
       name: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
       priority: 7,
@@ -237,6 +255,7 @@ export class CloudFrontStack extends Stack {
               ? { orStatement: { statements: hostStatements } }
               : hostStatements[0],
             systemPathStatement,
+            ...(allowedIpSet ? [{ ipSetReferenceStatement: { arn: allowedIpSet.attrArn } }] : []),
           ],
         },
       },

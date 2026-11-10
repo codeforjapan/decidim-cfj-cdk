@@ -110,6 +110,11 @@ export interface Config {
   // ALB スタックは CloudFront スタックより先にデプロイされるため、まず false で
   // CloudFront にヘッダを付けてから true にする。CDK 管理外の配信も先にヘッダが必要。
   enforceOriginVerify: boolean;
+
+  // true にすると、/system を許可 IP からだけ通す。許可 IP はコードに置かず
+  // us-east-1 の SSM（StringList、CIDR 表記）に置き、先に作っておく。
+  // /system を受けるホストは AAAA レコードがなく IPv4 でしか届かないため IPv4 のみ。
+  restrictSystemByIp: boolean;
 }
 
 export const ORIGIN_VERIFY_HEADER = 'X-Origin-Verify';
@@ -118,6 +123,10 @@ export const ORIGIN_VERIFY_HEADER = 'X-Origin-Verify';
 // `*` `?` をワイルドカードとして扱うため、値は 16 進文字列にする。
 export function originVerifyParameterName(stage: string): string {
   return `/decidim-cfj/${stage}/ORIGIN_VERIFY_SECRET`;
+}
+
+export function systemAllowedIpParameterName(stage: string): string {
+  return `/decidim-cfj/${stage}/SYSTEM_ALLOWED_IPV4`;
 }
 
 export function getConfig(stage: string): Config {

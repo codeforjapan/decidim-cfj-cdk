@@ -97,6 +97,7 @@ const distribution = new CloudFrontStack(app, `${stage}${serviceName}CloudFrontS
   domain: config.domain,
   certificateArn: config.cloudfrontCertificate,
   s3BucketName: `${config.s3Bucket}-bucket`,
+  restrictSystemByIp: config.restrictSystemByIp,
 });
 distribution.addDependency(service);
 distribution.addDependency(s3Stack);
