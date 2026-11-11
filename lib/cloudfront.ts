@@ -26,7 +26,12 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources';
-import { isPrd, ORIGIN_VERIFY_HEADER, originVerifyParameterName } from './config';
+import {
+  isPrd,
+  ORIGIN_VERIFY_HEADER,
+  originVerifyParameterName,
+  systemAllowedIpParameterName,
+} from './config';
 
 export interface CloudFrontProps extends BaseStackProps {
   certificateArn: string;
@@ -189,7 +194,7 @@ export class CloudFrontStack extends Stack {
     ];
 
     // パスは正規化してから判定する
-    const systemPathTransformations = [
+    const pathTransformations = [
       { priority: 0, type: 'URL_DECODE' },
       { priority: 1, type: 'NORMALIZE_PATH' },
       { priority: 2, type: 'LOWERCASE' },
@@ -201,7 +206,7 @@ export class CloudFrontStack extends Stack {
             byteMatchStatement: {
               searchString: '/system',
               fieldToMatch: { uriPath: {} },
-              textTransformations: systemPathTransformations,
+              textTransformations: pathTransformations,
               positionalConstraint: 'EXACTLY',
             },
           },
@@ -209,7 +214,7 @@ export class CloudFrontStack extends Stack {
             byteMatchStatement: {
               searchString: '/system/',
               fieldToMatch: { uriPath: {} },
-              textTransformations: systemPathTransformations,
+              textTransformations: pathTransformations,
               positionalConstraint: 'STARTS_WITH',
             },
           },
@@ -221,11 +226,21 @@ export class CloudFrontStack extends Stack {
     const hostStatements = systemHosts.map((host) => ({
       byteMatchStatement: {
         searchString: host,
-        fieldToMatch: { singleHeader: { name: 'host' } },
+        fieldToMatch: { singleHeader: { Name: 'host' } },
         textTransformations: [{ priority: 0, type: 'LOWERCASE' }],
         positionalConstraint: 'EXACTLY',
       },
     }));
+
+    const allowedIpSet = new aws_wafv2.CfnIPSet(this, 'SystemAllowedIpSet', {
+      name: `${props.stage}-${props.serviceName}-SystemAllowedIpSet`,
+      scope: 'CLOUDFRONT',
+      ipAddressVersion: 'IPV4',
+      addresses: ssm.StringListParameter.valueForTypedListParameter(
+        this,
+        systemAllowedIpParameterName(props.stage)
+      ),
+    });
 
     rules.push({
       name: `${props.stage}-${props.serviceName}-AllowSystemLogin`,
@@ -237,6 +252,7 @@ export class CloudFrontStack extends Stack {
               ? { orStatement: { statements: hostStatements } }
               : hostStatements[0],
             systemPathStatement,
+            { ipSetReferenceStatement: { arn: allowedIpSet.attrArn } },
           ],
         },
       },
@@ -268,6 +284,46 @@ export class CloudFrontStack extends Stack {
         metricName: `${props.stage}-${props.serviceName}-SystemLoginBlock`,
       },
     });
+
+    // Mailpit（dev・staging のみ）の受信箱も許可 IP からだけ通す
+    if (!isPrd(props.stage)) {
+      rules.push({
+        name: `${props.stage}-${props.serviceName}-MailpitBlock`,
+        priority: 9,
+        statement: {
+          andStatement: {
+            statements: [
+              {
+                byteMatchStatement: {
+                  searchString: '/mailpit',
+                  fieldToMatch: { uriPath: {} },
+                  textTransformations: pathTransformations,
+                  positionalConstraint: 'STARTS_WITH',
+                },
+              },
+              {
+                notStatement: {
+                  statement: { ipSetReferenceStatement: { arn: allowedIpSet.attrArn } },
+                },
+              },
+            ],
+          },
+        },
+        action: {
+          block: {
+            customResponse: {
+              responseCode: 403,
+              customResponseBodyKey: 'disable-action',
+            },
+          },
+        },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `${props.stage}-${props.serviceName}-MailpitBlock`,
+        },
+      });
+    }
 
     const waf: aws_wafv2.CfnWebACL = new aws_wafv2.CfnWebACL(this, 'CfnWebACL', {
       name: `${props.stage}-${props.serviceName}-webAcl`,

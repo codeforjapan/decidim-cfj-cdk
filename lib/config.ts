@@ -94,6 +94,8 @@ export interface Config {
 
   // elastiCache
   cacheNodeType: string;
+  // engineVersion はエンジンごとの版（redis は "6.x"、valkey は "8.2" など）
+  cacheEngine: 'redis' | 'valkey';
   engineVersion: string;
   numCacheNodes: number;
   automaticFailoverEnabled: boolean;
@@ -116,6 +118,11 @@ export const ORIGIN_VERIFY_HEADER = 'X-Origin-Verify';
 // `*` `?` をワイルドカードとして扱うため、値は 16 進文字列にする。
 export function originVerifyParameterName(stage: string): string {
   return `/decidim-cfj/${stage}/ORIGIN_VERIFY_SECRET`;
+}
+
+// /system と /mailpit を通す IP。コードに置かず us-east-1 の SSM（StringList、CIDR 表記）に置き、先に作っておく。
+export function systemAllowedIpParameterName(stage: string): string {
+  return `/decidim-cfj/${stage}/SYSTEM_ALLOWED_IPV4`;
 }
 
 export function getConfig(stage: string): Config {

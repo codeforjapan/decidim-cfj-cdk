@@ -18,6 +18,7 @@
   "s3Bucket": "prd-v030-decidim",
 
   "cacheNodeType": "cache.t3.medium",
+  "cacheEngine": "redis",
   "engineVersion": "6.x",
   "numCacheNodes": 2,
   "automaticFailoverEnabled": true,
