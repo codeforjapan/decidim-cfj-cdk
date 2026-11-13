@@ -432,7 +432,7 @@ exports[`ElasticacheStack creates alarms for every node on production 1`] = `
     },
     "RedisParameterGroup": {
       "Properties": {
-        "CacheParameterGroupFamily": "redis6.x",
+        "CacheParameterGroupFamily": "valkey8",
         "Description": "prd-v030-decidim Redis parameter group",
         "Properties": {
           "maxmemory-policy": "volatile-lru",
@@ -448,8 +448,8 @@ exports[`ElasticacheStack creates alarms for every node on production 1`] = `
           "Ref": "RedisParameterGroup",
         },
         "CacheSubnetGroupName": "prd-v030-decidim-SubnetGroup",
-        "Engine": "redis",
-        "EngineVersion": "6.x",
+        "Engine": "valkey",
+        "EngineVersion": "8.2",
         "MultiAZEnabled": true,
         "NumCacheClusters": 2,
         "ReplicationGroupDescription": "prd-v030-decidim-cache",
