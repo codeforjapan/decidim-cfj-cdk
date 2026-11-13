@@ -111,7 +111,7 @@ test('Elasticache Stack Created', () => {
 test.each([
   ['dev', 'valkey', '8.2', 'valkey8'],
   ['staging', 'valkey', '8.2', 'valkey8'],
-  ['prd-v030', 'redis', '6.x', 'redis6.x'],
+  ['prd-v030', 'valkey', '8.2', 'valkey8'],
 ])('%s uses %s %s with the %s parameter group family', (stage, engine, version, family) => {
   const { template } = buildStack(stage);
 
