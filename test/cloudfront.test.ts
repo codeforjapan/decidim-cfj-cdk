@@ -109,19 +109,22 @@ test('/system は正規化したパスで判定し、各環境の代表ホスト
   });
 });
 
-test.each(['dev', 'staging', 'prd-v030'])('%s は /system の許可 IP を SSM から読む', (stage) => {
-  const template = buildCloudFrontStack(stage);
-  template.resourceCountIs('AWS::WAFv2::IPSet', 1);
-  template.hasResourceProperties('AWS::WAFv2::IPSet', {
-    Scope: 'CLOUDFRONT',
-    IPAddressVersion: 'IPV4',
-    Addresses: { Ref: Match.stringLikeRegexp('SsmParameterValue') },
-  });
-  template.hasParameter('*', {
-    Type: 'AWS::SSM::Parameter::Value<List<String>>',
-    Default: `/decidim-cfj/${stage}/SYSTEM_ALLOWED_IPV4`,
-  });
-});
+test.each(['dev', 'staging', 'prd-v030', 'prd-v032'])(
+  '%s は /system の許可 IP を SSM から読む',
+  (stage) => {
+    const template = buildCloudFrontStack(stage);
+    template.resourceCountIs('AWS::WAFv2::IPSet', 1);
+    template.hasResourceProperties('AWS::WAFv2::IPSet', {
+      Scope: 'CLOUDFRONT',
+      IPAddressVersion: 'IPV4',
+      Addresses: { Ref: Match.stringLikeRegexp('SsmParameterValue') },
+    });
+    template.hasParameter('*', {
+      Type: 'AWS::SSM::Parameter::Value<List<String>>',
+      Default: `/decidim-cfj/${stage}/SYSTEM_ALLOWED_IPV4`,
+    });
+  }
+);
 
 test('Mailpit は dev・staging で許可 IP 以外を拒否する', () => {
   const staging = buildCloudFrontStack('staging');

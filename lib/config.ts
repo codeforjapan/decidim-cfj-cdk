@@ -110,6 +110,10 @@ export interface Config {
   // ALB スタックは CloudFront スタックより先にデプロイされるため、まず false で
   // CloudFront にヘッダを付けてから true にする。CDK 管理外の配信も先にヘッダが必要。
   enforceOriginVerify: boolean;
+
+  // CDK 管理外の CloudFront（makeour.city、inochi-forum.org など）のうち、バケットを OAC で読ませるもの。
+  // バケットポリシーは CDK が丸ごと管理するので、手で足した許可はデプロイで消える。
+  extraCloudFrontDistributionArns?: string[];
 }
 
 export const ORIGIN_VERIFY_HEADER = 'X-Origin-Verify';
@@ -131,7 +135,7 @@ export function getConfig(stage: string): Config {
 }
 
 // 本番ステージ一覧。ブルーグリーン移行中など本番が一時的に複数になる場合はここに併記する。
-const PRD_STAGES: readonly string[] = ['prd-v030'];
+const PRD_STAGES: readonly string[] = ['prd-v030', 'prd-v032'];
 
 // 本番ステージ判定。バージョニング/削除保護/監視アラーム等、本番のみ有効化する分岐で使う。
 export function isPrd(stage: string): boolean {

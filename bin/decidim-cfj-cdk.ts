@@ -12,7 +12,7 @@ import { Tags } from 'aws-cdk-lib';
 
 const app = new cdk.App();
 
-const stages = ['dev', 'staging', 'prd-v030'] as const;
+const stages = ['dev', 'staging', 'prd-v030', 'prd-v032'] as const;
 const stage = app.node.tryGetContext('stage') as string;
 const tag = app.node.tryGetContext('tag') as string;
 if (!stages.includes(stage as (typeof stages)[number])) {
@@ -37,6 +37,7 @@ const s3Stack = new S3Stack(app, `${stage}${serviceName}S3Stack`, {
   env,
   serviceName,
   bucketName: config.s3Bucket,
+  extraCloudFrontDistributionArns: config.extraCloudFrontDistributionArns,
 });
 
 const network = new NetworkStack(app, `${stage}${serviceName}NetworkStack`, {

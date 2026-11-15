@@ -1,7 +1,7 @@
 {
   "rds": {
     "snapshot": true,
-    "snapshotIdentifier": "decidim-master-2026-06-15",
+    "snapshotIdentifier": "decidim-master-2026-10-15",
     "instanceType": "t4g.micro",
     "deletionProtection": false,
     "allocatedStorage": 20,
@@ -15,7 +15,7 @@
     "region": "ap-northeast-1"
   },
 
-  "s3Bucket": "dev-v300-decidim",
+  "s3Bucket": "dev-v320-decidim",
 
   "cacheNodeType": "cache.t3.micro",
   "cacheEngine": "valkey",
@@ -49,5 +49,5 @@
 
   "domain": "diycities.jp",
   "cloudfrontCertificate": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de",
-  "enforceOriginVerify": false
+  "enforceOriginVerify": true
 }
