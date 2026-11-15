@@ -6,6 +6,7 @@ import { isPrd } from './config';
 
 export interface S3StackProps extends BaseStackProps {
   bucketName: string;
+  extraCloudFrontDistributionArns?: string[];
 }
 
 export class S3Stack extends Stack {
@@ -44,5 +45,19 @@ export class S3Stack extends Stack {
         conditions: { StringEquals: { 'AWS:SourceArn': distArn } },
       })
     );
+
+    const extraArns = props.extraCloudFrontDistributionArns ?? [];
+    if (extraArns.length > 0) {
+      bucket.addToResourcePolicy(
+        new iam.PolicyStatement({
+          sid: 'AllowExternalCloudFrontOACRead',
+          effect: iam.Effect.ALLOW,
+          principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
+          actions: ['s3:GetObject'],
+          resources: [`${bucket.bucketArn}/*`],
+          conditions: { StringEquals: { 'AWS:SourceArn': extraArns } },
+        })
+      );
+    }
   }
 }

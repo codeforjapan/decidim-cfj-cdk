@@ -37,6 +37,7 @@ const s3Stack = new S3Stack(app, `${stage}${serviceName}S3Stack`, {
   env,
   serviceName,
   bucketName: config.s3Bucket,
+  extraCloudFrontDistributionArns: config.extraCloudFrontDistributionArns,
 });
 
 const network = new NetworkStack(app, `${stage}${serviceName}NetworkStack`, {
