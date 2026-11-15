@@ -49,5 +49,9 @@
 
   "domain": "diycities.jp",
   "cloudfrontCertificate": "arn:aws:acm:us-east-1:887442827229:certificate/8aec1d57-e068-47f3-a180-e0c1fbb782de",
-  "enforceOriginVerify": true
+  "enforceOriginVerify": true,
+  "extraCloudFrontDistributionArns": [
+    "arn:aws:cloudfront::754230892200:distribution/E2MTSCGBQNOTFD",
+    "arn:aws:cloudfront::887442827229:distribution/E2XE21ENN7AJRM"
+  ]
 }

@@ -110,6 +110,10 @@ export interface Config {
   // ALB スタックは CloudFront スタックより先にデプロイされるため、まず false で
   // CloudFront にヘッダを付けてから true にする。CDK 管理外の配信も先にヘッダが必要。
   enforceOriginVerify: boolean;
+
+  // CDK 管理外の CloudFront（makeour.city、inochi-forum.org など）のうち、バケットを OAC で読ませるもの。
+  // バケットポリシーは CDK が丸ごと管理するので、手で足した許可はデプロイで消える。
+  extraCloudFrontDistributionArns?: string[];
 }
 
 export const ORIGIN_VERIFY_HEADER = 'X-Origin-Verify';
