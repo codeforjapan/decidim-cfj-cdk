@@ -58,6 +58,8 @@ export class ElasticacheStack extends Stack {
       securityGroupIds: [props.securityGroup],
       cacheSubnetGroupName: props.ecSubnetGroup.cacheSubnetGroupName,
       cacheParameterGroupName: parameterGroup.ref,
+      // Valkey は新規作成時に明示が必要。アプリは redis:// で接続するので TLS は使わない。
+      transitEncryptionEnabled: false,
     };
 
     if (isPrd(props.stage)) {
